@@ -1,13 +1,31 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
   fullWidth?: boolean;
+  variant?: 'default' | 'minimal' | 'underline'
+}
+
+const getInputClasses = (variant: string, error?: string, fullWidth?: boolean, className?: string) => {
+  const baseClasses = fullWidth ? 'w-full' : 'w-auto'
+  
+  const variantClasses = {
+    default: `px-4 py-3 border-2 border-gray-300 focus:border-black focus:outline-none transition-colors duration-200 ${
+      error ? 'border-red-500 focus:border-red-500' : ''
+    }`,
+    minimal: `px-0 py-3 bg-transparent border-0 border-b-2 border-gray-300 focus:border-black focus:outline-none transition-colors duration-200 ${
+      error ? 'border-red-500 focus:border-red-500' : ''
+    }`,
+    underline: `px-0 py-3 bg-transparent border-0 border-b border-black focus:border-b-2 focus:outline-none transition-all duration-200 ${
+      error ? 'border-red-500' : ''
+    }`
+  }
+  
+  return `${baseClasses} ${variantClasses[variant]} placeholder:text-gray-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed ${className || ''}`
 }
 
 export default function Input({
@@ -15,16 +33,18 @@ export default function Input({
   error,
   helperText,
   fullWidth = false,
+  variant = 'minimal',
+  className,
   ...inputProps
 }: InputProps) {
   const inputId = React.useId();
 
   return (
-    <div className={cn('space-y-1', fullWidth && 'w-full')}>
+    <div className={`space-y-2 ${fullWidth ? 'w-full' : ''}`}>
       {label && (
         <label 
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-black tracking-wide uppercase"
         >
           {label}
           {inputProps.required && <span className="text-red-500 ml-1">*</span>}
@@ -33,23 +53,16 @@ export default function Input({
       
       <input
         id={inputId}
-        className={cn(
-          'w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm',
-          'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-          'disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed',
-          error && 'border-red-500 focus:ring-red-500',
-          !fullWidth && 'w-auto',
-          inputProps.className
-        )}
+        className={getInputClasses(variant, error, fullWidth, className)}
         {...inputProps}
       />
       
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-red-600 font-medium">{error}</p>
       )}
       
       {helperText && !error && (
-        <p className="text-sm text-gray-500">{helperText}</p>
+        <p className="text-sm text-gray-600">{helperText}</p>
       )}
     </div>
   );
