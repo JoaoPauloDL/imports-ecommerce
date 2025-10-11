@@ -21,26 +21,26 @@ export default function HomePage() {
 
   const heroSlides = [
     {
-      title: "JUST DO IT",
-      subtitle: "NEW ARRIVALS",
-      description: "Get the latest drops and exclusive releases",
-      cta: "Shop Now",
+      title: "ESSÊNCIAS ÁRABES",
+      subtitle: "FRAGRÂNCIAS EXCLUSIVAS",
+      description: "Descubra os aromas mais luxuosos e intensos do Oriente Médio",
+      cta: "Explorar",
       image: "/hero-1.jpg",
       dark: true
     },
     {
-      title: "IMPOSSIBLE IS NOTHING",
-      subtitle: "PERFORMANCE COLLECTION", 
-      description: "Engineered for athletes, designed for everyone",
-      cta: "Explore",
+      title: "PERFUMES FRANCESES",
+      subtitle: "ELEGÂNCIA PARISIENSE", 
+      description: "A sofisticação e refinamento das melhores casas de perfume da França",
+      cta: "Descobrir",
       image: "/hero-2.jpg", 
       dark: false
     },
     {
-      title: "FUTURE FORWARD",
-      subtitle: "SUSTAINABLE STYLE",
-      description: "Made with recycled materials for a better tomorrow",
-      cta: "Discover",
+      title: "COLEÇÃO PREMIUM",
+      subtitle: "IMPORTADOS ORIGINAIS",
+      description: "Perfumes 100% originais das melhores marcas internacionais",
+      cta: "Ver Coleção",
       image: "/hero-3.jpg",
       dark: true
     }
@@ -48,59 +48,69 @@ export default function HomePage() {
 
   const collections = [
     {
-      name: "Men's",
-      description: "Athletic & Lifestyle",
-      link: "/products?category=men",
-      image: "/collection-men.jpg"
+      name: "Perfumes Árabes",
+      description: "Oud, Âmbar & Especiarias",
+      link: "/products?category=arabes",
+      image: "/collection-arabes.jpg"
     },
     {
-      name: "Women's", 
-      description: "Performance & Fashion",
-      link: "/products?category=women",
-      image: "/collection-women.jpg"
+      name: "Perfumes Franceses", 
+      description: "Elegância & Sofisticação",
+      link: "/products?category=franceses",
+      image: "/collection-franceses.jpg"
     },
     {
-      name: "Kids'",
-      description: "Growing Strong",
-      link: "/products?category=kids", 
-      image: "/collection-kids.jpg"
+      name: "Masculinos",
+      description: "Força & Personalidade",
+      link: "/products?category=masculinos", 
+      image: "/collection-masculinos.jpg"
+    },
+    {
+      name: "Femininos",
+      description: "Delicadeza & Charme",
+      link: "/products?category=femininos", 
+      image: "/collection-femininos.jpg"
     }
   ]
 
   const featuredProducts = [
     {
       id: 1,
-      name: "AIR MAX REVOLUTION",
-      price: 299.99,
-      originalPrice: 399.99,
-      category: "Sneakers",
+      name: "OUD ROYAL ARABESQUE",
+      price: 299.90,
+      originalPrice: 399.90,
+      category: "Perfumes Árabes",
       image: "/product-1.jpg",
-      isNew: true
+      isNew: true,
+      brand: "Al Haramain"
     },
     {
       id: 2, 
-      name: "ULTRABOOST DNA",
-      price: 249.99,
-      category: "Running",
+      name: "CHANEL No. 5 PARIS",
+      price: 549.99,
+      category: "Perfumes Franceses",
       image: "/product-2.jpg",
-      isNew: false
+      isNew: false,
+      brand: "Chanel"
     },
     {
       id: 3,
-      name: "CLASSIC HOODIE",
-      price: 89.99,
-      originalPrice: 129.99,
-      category: "Apparel", 
+      name: "SAUVAGE DIOR",
+      price: 389.90,
+      originalPrice: 459.90,
+      category: "Masculinos", 
       image: "/product-3.jpg",
-      isNew: false
+      isNew: false,
+      brand: "Dior"
     },
     {
       id: 4,
-      name: "SPORTS BACKPACK",
-      price: 79.99,
-      category: "Accessories",
+      name: "MISS DIOR BLOOMING",
+      price: 429.99,
+      category: "Femininos",
       image: "/product-4.jpg", 
-      isNew: true
+      isNew: true,
+      brand: "Dior"
     }
   ]
 
@@ -170,14 +180,14 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black tracking-tight text-black mb-4">
-              SHOP BY CATEGORY
+              EXPLORE NOSSAS CATEGORIAS
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Find your perfect style across our curated collections
+              Descubra sua fragrância perfeita entre nossas coleções exclusivas de perfumes importados
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {collections.map((collection, index) => (
               <Link
                 key={index}
@@ -193,7 +203,7 @@ export default function HomePage() {
                     {collection.description}
                   </p>
                   <div className="inline-flex items-center text-white font-medium tracking-wide uppercase text-sm">
-                    Shop Now
+                    Ver Perfumes
                     <svg className="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -210,10 +220,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black tracking-tight text-black mb-4">
-              TRENDING NOW
+              FRAGRÂNCIAS EM DESTAQUE
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              The hottest drops everyone's talking about
+              Os perfumes mais procurados e avaliados pelos nossos clientes
             </p>
           </div>
 
@@ -236,18 +246,19 @@ export default function HomePage() {
                 
                 <div className="p-6">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                    {product.category}
+                    {product.brand}
                   </p>
-                  <h3 className="text-lg font-bold text-black mb-3 group-hover:text-gray-600 transition-colors duration-200">
+                  <h3 className="text-lg font-bold text-black mb-1 group-hover:text-gray-600 transition-colors duration-200">
                     {product.name}
                   </h3>
+                  <p className="text-sm text-gray-600 mb-3">{product.category}</p>
                   <div className="flex items-center space-x-2">
                     <span className="text-xl font-bold text-black">
-                      ${product.price}
+                      R$ {product.price}
                     </span>
                     {product.originalPrice && (
                       <span className="text-lg text-gray-500 line-through">
-                        ${product.originalPrice}
+                        R$ {product.originalPrice}
                       </span>
                     )}
                   </div>
@@ -263,7 +274,7 @@ export default function HomePage() {
               href="/products"
               className="inline-block bg-black text-white px-12 py-4 font-medium tracking-wide uppercase hover:bg-gray-800 transition-colors duration-200"
             >
-              View All Products
+              Ver Todos os Perfumes
             </Link>
           </div>
         </div>
@@ -273,23 +284,23 @@ export default function HomePage() {
       <section className="py-20 bg-black text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">
-            STAY IN THE LOOP
+            FIQUE POR DENTRO
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Be the first to know about new arrivals, exclusive drops, and special offers
+            Seja o primeiro a saber sobre novos lançamentos, ofertas exclusivas e coleções especiais
           </p>
           
           <form className="max-w-md mx-auto flex">
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Seu e-mail"
               className="flex-1 px-6 py-4 bg-white text-black text-lg focus:outline-none"
             />
             <button
               type="submit"
               className="bg-white text-black px-8 py-4 font-medium tracking-wide uppercase hover:bg-gray-100 transition-colors duration-200"
             >
-              Subscribe
+              Inscrever-se
             </button>
           </form>
         </div>

@@ -12,6 +12,10 @@ interface Product {
   originalPrice?: number
   image: string
   category: string
+  brand?: string
+  volume?: string // ex: "100ml", "50ml"
+  concentration?: string // ex: "Eau de Parfum", "Eau de Toilette"
+  fraganceFamily?: string // ex: "Oriental", "Floral", "Amadeirado"
   rating?: number
   reviewCount?: number
   discount?: number
@@ -127,22 +131,31 @@ export default function ProductCard({
                   : 'bg-white text-black hover:bg-black hover:text-white border-2 border-white'
               }`}
             >
-              {product.stockStatus === 'out_of_stock' ? 'Out of Stock' : 'Add to Cart'}
+              {product.stockStatus === 'out_of_stock' ? 'Esgotado' : 'Adicionar'}
             </button>
           </div>
         </div>
 
         {/* Product Info */}
         <div className="p-6 space-y-3">
-          {/* Category */}
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-            {product.category}
-          </p>
+          {/* Brand */}
+          {product.brand && (
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {product.brand}
+            </p>
+          )}
 
           {/* Product Name */}
           <h3 className="text-lg font-bold text-black leading-tight group-hover:text-gray-600 transition-colors duration-200">
             {product.name}
           </h3>
+
+          {/* Volume & Concentration */}
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            {product.volume && <span>{product.volume}</span>}
+            {product.volume && product.concentration && <span>•</span>}
+            {product.concentration && <span>{product.concentration}</span>}
+          </div>
 
           {/* Rating */}
           {product.rating && (
@@ -172,11 +185,11 @@ export default function ProductCard({
           {/* Price */}
           <div className="flex items-center gap-3">
             <span className="text-xl font-bold text-black">
-              ${product.price.toFixed(2)}
+              R$ {product.price.toFixed(2).replace('.', ',')}
             </span>
             {product.originalPrice && (
               <span className="text-lg text-gray-400 line-through">
-                ${product.originalPrice.toFixed(2)}
+                R$ {product.originalPrice.toFixed(2).replace('.', ',')}
               </span>
             )}
           </div>
@@ -184,14 +197,14 @@ export default function ProductCard({
           {/* Stock Status */}
           {product.stockStatus === 'low_stock' && (
             <p className="text-xs text-orange-600 font-medium">
-              Only few left in stock
+              Últimas unidades!
             </p>
           )}
 
           {/* Free Shipping */}
           {product.freeShipping && (
             <p className="text-xs text-green-600 font-medium">
-              Free shipping
+              Frete grátis
             </p>
           )}
         </div>

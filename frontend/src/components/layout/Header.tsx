@@ -24,18 +24,19 @@ export default function Header() {
   }
 
   const navigation = [
-    { name: 'New & Featured', href: '/products?filter=new' },
-    { name: 'Men', href: '/products?category=men' },
-    { name: 'Women', href: '/products?category=women' },
-    { name: 'Kids', href: '/products?category=kids' },
-    { name: 'Sale', href: '/products?filter=sale' }
+    { name: 'Árabes', href: '/products?category=arabes' },
+    { name: 'Franceses', href: '/products?category=franceses' },
+    { name: 'Masculinos', href: '/products?category=masculinos' },
+    { name: 'Femininos', href: '/products?category=femininos' },
+    { name: 'Unissex', href: '/products?category=unissex' },
+    { name: 'Ofertas', href: '/products?filter=sale' }
   ]
 
   return (
     <header className="bg-white sticky top-0 z-50">
       {/* Top Bar */}
       <div className="bg-black text-white text-center py-2 text-sm font-medium">
-        <p>FREE SHIPPING ON ORDERS OVER $50</p>
+        <p>FRETE GRÁTIS para todo Brasil acima de R$ 300 | Perfumes 100% Originais</p>
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +44,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-3xl font-black tracking-tighter text-black">STORE</span>
+              <span className="text-3xl font-black tracking-tighter text-black">PERFUMES</span>
             </Link>
           </div>
 
@@ -66,6 +67,7 @@ export default function Header() {
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              title="Buscar perfumes"
             >
               <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -103,10 +105,10 @@ export default function Header() {
             ) : (
               <div className="hidden md:flex items-center space-x-6">
                 <Link href="/login" className="text-black font-medium hover:text-gray-600 transition-colors duration-200 uppercase text-sm tracking-wide">
-                  Sign In
+                  Entrar
                 </Link>
                 <Link href="/register" className="text-black font-medium hover:text-gray-600 transition-colors duration-200 uppercase text-sm tracking-wide">
-                  Join Us
+                  Cadastrar
                 </Link>
               </div>
             )}
@@ -133,7 +135,7 @@ export default function Header() {
             <form onSubmit={handleSearch} className="mt-4 relative">
               <input
                 type="text"
-                placeholder="Search for products..."
+                placeholder="Buscar perfumes, marcas..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full h-12 pl-4 pr-12 text-lg border-b-2 border-gray-300 bg-transparent focus:border-black focus:outline-none placeholder:text-gray-500 transition-colors duration-200"
@@ -173,14 +175,14 @@ export default function Header() {
                     className="block w-full py-3 text-center bg-black text-white font-medium tracking-wide uppercase transition-colors duration-200 hover:bg-gray-800"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Sign In
+                    Entrar
                   </Link>
                   <Link 
                     href="/register" 
                     className="block w-full py-3 text-center border-2 border-black text-black font-medium tracking-wide uppercase transition-colors duration-200 hover:bg-black hover:text-white"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Join Us
+                    Cadastrar
                   </Link>
                 </div>
               )}

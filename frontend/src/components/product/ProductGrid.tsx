@@ -11,6 +11,10 @@ interface Product {
   originalPrice?: number
   image: string
   category: string
+  brand?: string
+  volume?: string
+  concentration?: string
+  fraganceFamily?: string
   rating?: number
   reviewCount?: number
   discount?: number
@@ -141,7 +145,7 @@ export default function ProductGrid({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <h3 className="text-lg font-bold text-black">
-                {filteredProducts.length} Products
+                {filteredProducts.length} Perfumes
               </h3>
               
               {/* View Toggle */}
@@ -167,17 +171,17 @@ export default function ProductGrid({
 
             {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-black">Sort by:</span>
+              <span className="text-sm font-medium text-black">Ordenar por:</span>
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
                 className="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black"
               >
-                <option value="featured">Featured</option>
-                <option value="name">Name A-Z</option>
-                <option value="price_low">Price: Low to High</option>
-                <option value="price_high">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
+                <option value="featured">Destaques</option>
+                <option value="name">Nome A-Z</option>
+                <option value="price_low">Menor Preço</option>
+                <option value="price_high">Maior Preço</option>
+                <option value="rating">Mais Avaliados</option>
               </select>
             </div>
           </div>
@@ -186,7 +190,7 @@ export default function ProductGrid({
           <div className="flex flex-wrap gap-4 items-center">
             {/* Category Filter */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-black">Category:</span>
+              <span className="text-sm font-medium text-black">Categoria:</span>
               <select
                 value={filters.category}
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
@@ -194,7 +198,7 @@ export default function ProductGrid({
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
-                    {category === 'all' ? 'All Categories' : category}
+                    {category === 'all' ? 'Todas as Categorias' : category}
                   </option>
                 ))}
               </select>
@@ -208,7 +212,7 @@ export default function ProductGrid({
                 onChange={(e) => setFilters(prev => ({ ...prev, inStock: e.target.checked }))}
                 className="rounded border-gray-300 text-black focus:ring-black"
               />
-              <span>In Stock Only</span>
+              <span>Apenas em Estoque</span>
             </label>
 
             {/* Clear Filters */}
@@ -221,7 +225,7 @@ export default function ProductGrid({
               })}
               className="text-sm text-gray-500 hover:text-black underline"
             >
-              Clear Filters
+              Limpar Filtros
             </button>
           </div>
         </div>
@@ -241,9 +245,9 @@ export default function ProductGrid({
               <path d="M7 4V2a1 1 0 00-1-1H4a1 1 0 00-1 1v2H2a1 1 0 000 2h1v11a3 3 0 003 3h8a3 3 0 003-3V6h1a1 1 0 100-2h-1V2a1 1 0 00-1-1h-2a1 1 0 00-1 1v2H7zM6 4h8v11a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"/>
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-black mb-2">No products found</h3>
+          <h3 className="text-xl font-bold text-black mb-2">Nenhum perfume encontrado</h3>
           <p className="text-gray-500 mb-6">
-            Try adjusting your filters or search terms
+            Tente ajustar seus filtros ou termos de busca
           </p>
         </div>
       ) : (
