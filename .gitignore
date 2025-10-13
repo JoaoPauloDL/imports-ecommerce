@@ -49,6 +49,15 @@ docker-compose.override.yml
 # Prisma
 backend/prisma/migrations/
 
+# Documentation and Study Files
+AULA_*.md
+TUTORIAL_*.md
+EXPLICACAO_*.md
+DOCUMENTACAO_*.md
+NOTES_*.md
+*_PESSOAL.md
+*_ESTUDOS.md
+
 # Temporary files
 tmp/
 temp/
