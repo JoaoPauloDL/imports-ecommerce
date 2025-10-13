@@ -1,13 +1,494 @@
-# E-commerce de Produtos Importados - Entrega Técnica
+# 🛍️ Imports E-commerce# 🛍️ Imports E-commerce
 
-## 1. Resumo Executivo e MVP
 
-### Stack Tecnológica
-- **Backend:** Node.js + Express + TypeScript
-- **Frontend:** Next.js (React) + TypeScript  
-- **Banco de Dados:** PostgreSQL com Prisma ORM
-- **Armazenamento:** AWS S3 (compatible) ou Cloudinary
-- **Pagamentos:** Mercado Pago (cartões, boleto, PIX)
+
+> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**
+
+
+
+[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+
+[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
+
+
+
+------
+
+
+
+## 🌟 **Overview**## 🌟 **Overview**
+
+
+
+A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.
+
+
+
+### 🎯 **Project Purpose**### 🎯 **Project Purpose**
+
+This platform serves the Brazilian luxury perfume market, specializing in:This platform serves the Brazilian luxury perfume market, specializing in:
+
+- **Arabian Fragrances** (Árabes)- **Arabian Fragrances** (Árabes)
+
+- **French Perfumes** (Franceses) - **French Perfumes** (Franceses) 
+
+- **Masculine Collections** (Masculinos)- **Masculine Collections** (Masculinos)
+
+- **Feminine Collections** (Femininos)- **Feminine Collections** (Femininos)
+
+- **Unisex Options** (Unissex)- **Unisex Options** (Unissex)
+
+
+
+------
+
+
+
+## ✨ **Features**## ✨ **Features**
+
+
+
+### 🛒 **E-commerce Core**### 🛒 **E-commerce Core**
+
+- **Product Catalog** with advanced filtering and search- **Product Catalog** with advanced filtering and search
+
+- **Shopping Cart** with persistent state management- **Shopping Cart** with persistent state management
+
+- **Secure Checkout** with multiple payment methods- **Secure Checkout** with multiple payment methods
+
+- **User Authentication** and profile management- **User Authentication** and profile management
+
+- **Order Tracking** and history- **Order Tracking** and history
+
+
+
+### 🎨 **Design & UX**### 🎨 **Design & UX**
+
+- **Responsive Design** optimized for all devices- **Responsive Design** optimized for all devices
+
+- **Minimalist UI** inspired by premium brands- **Minimalist UI** inspired by premium brands
+
+- **Dark Theme** with black & white color scheme- **Dark Theme** with black & white color scheme
+
+- **Smooth Animations** and micro-interactions- **Smooth Animations** and micro-interactions
+
+- **Accessibility** compliant components- **Accessibility** compliant components
+
+
+
+### 🔧 **Technical Features**### 🔧 **Technical Features**
+
+- **Server-Side Rendering** (SSR) with Next.js 14- **Server-Side Rendering** (SSR) with Next.js 14
+
+- **App Router** for modern routing architecture- **App Router** for modern routing architecture
+
+- **TypeScript** for type safety and better DX- **TypeScript** for type safety and better DX
+
+- **State Management** with Zustand- **State Management** with Zustand
+
+- **Component Library** with reusable UI elements- **Component Library** with reusable UI elements
+
+
+
+------
+
+
+
+## 🚀 **Tech Stack**## 🚀 **Tech Stack**
+
+
+
+### **Frontend**### **Frontend**
+
+- **Framework:** Next.js 14.2.33 (React 18)- **Framework:** Next.js 14.2.33 (React 18)
+
+- **Language:** TypeScript 5.x- **Language:** TypeScript 5.x
+
+- **Styling:** Tailwind CSS 3.4.0- **Styling:** Tailwind CSS 3.4.0
+
+- **State Management:** Zustand- **State Management:** Zustand
+
+- **UI Components:** Custom design system- **UI Components:** Custom design system
+
+- **Icons:** Heroicons- **Icons:** Heroicons
+
+
+
+### **Backend** *(Planned)*### **Backend** *(Planned)*
+
+- **Runtime:** Node.js + Express- **Runtime:** Node.js + Express
+
+- **Database:** PostgreSQL with Prisma ORM- **Database:** PostgreSQL with Prisma ORM
+
+- **Authentication:** JWT + bcrypt- **Authentication:** JWT + bcrypt
+
+- **Payment:** Mercado Pago API- **Payment:** Mercado Pago API
+
+- **Shipping:** Correios API integration- **Shipping:** Correios API integration
+
+
+
+### **DevOps & Tools**### **DevOps & Tools**
+
+- **Version Control:** Git with conventional commits- **Version Control:** Git with conventional commits
+
+- **Package Manager:** npm- **Package Manager:** npm
+
+- **Linting:** ESLint + Prettier- **Linting:** ESLint + Prettier
+
+- **Containerization:** Docker & Docker Compose- **Containerization:** Docker & Docker Compose
+
+- **Deployment:** Vercel (Frontend) + Railway (Backend)- **Deployment:** Vercel (Frontend) + Railway (Backend)
+
+
+
+------
+
+
+
+## 🏗️ **Project Structure**## 🏗️ **Project Structure**
+
+
+
+``````
+
+imports-ecommerce/imports-ecommerce/
+
+├── frontend/                 # Next.js Application├── frontend/                 # Next.js Application
+
+│   ├── src/│   ├── src/
+
+│   │   ├── app/             # App Router pages│   │   ├── app/             # App Router pages
+
+│   │   │   ├── (auth)/      # Authentication routes│   │   │   ├── (auth)/      # Authentication routes
+
+│   │   │   ├── (shop)/      # Shopping routes│   │   │   ├── (shop)/      # Shopping routes
+
+│   │   │   ├── (user)/      # User profile routes│   │   │   ├── (user)/      # User profile routes
+
+│   │   │   └── admin/       # Admin dashboard│   │   │   └── admin/       # Admin dashboard
+
+│   │   ├── components/      # Reusable components│   │   ├── components/      # Reusable components
+
+│   │   │   ├── ui/          # Design system│   │   │   ├── ui/          # Design system
+
+│   │   │   ├── layout/      # Layout components│   │   │   ├── layout/      # Layout components
+
+│   │   │   └── product/     # Product components│   │   │   └── product/     # Product components
+
+│   │   ├── hooks/           # Custom React hooks│   │   ├── hooks/           # Custom React hooks
+
+│   │   ├── store/           # Zustand stores│   │   ├── store/           # Zustand stores
+
+│   │   ├── types/           # TypeScript definitions│   │   ├── types/           # TypeScript definitions
+
+│   │   └── utils/           # Utility functions│   │   └── utils/           # Utility functions
+
+├── backend/                 # Node.js API (Future)├── backend/                 # Node.js API (Future)
+
+│   ├── src/│   ├── src/
+
+│   │   ├── controllers/     # Route controllers│   │   ├── controllers/     # Route controllers
+
+│   │   ├── middleware/      # Express middleware│   │   ├── middleware/      # Express middleware
+
+│   │   ├── services/        # Business logic│   │   ├── services/        # Business logic
+
+│   │   └── routes/          # API routes│   │   └── routes/          # API routes
+
+└── docker-compose.yml       # Development environment└── docker-compose.yml       # Development environment
+
+``````
+
+
+
+------
+
+
+
+## 🚀 **Getting Started**## 🚀 **Getting Started**
+
+
+
+### **Prerequisites**### **Prerequisites**
+
+- Node.js 18+ installed- Node.js 18+ installed
+
+- npm or yarn package manager- npm or yarn package manager
+
+- Git for version control- Git for version control
+
+
+
+### **Installation**### **Installation**
+
+
+
+1. **Clone the repository**1. **Clone the repository**
+
+   ```bash   ```bash
+
+   git clone https://github.com/JoaoPauloDL/imports-ecommerce.git   git clone https://github.com/JoaoPauloDL/imports-ecommerce.git
+
+   cd imports-ecommerce   cd imports-ecommerce
+
+   ```   ```
+
+
+
+2. **Install frontend dependencies**2. **Install frontend dependencies**
+
+   ```bash   ```bash
+
+   cd frontend   cd frontend
+
+   npm install   npm install
+
+   ```   ```
+
+
+
+3. **Set up environment variables**3. **Set up environment variables**
+
+   ```bash   ```bash
+
+   cp .env.local.example .env.local   cp .env.local.example .env.local
+
+   # Edit .env.local with your configuration   # Edit .env.local with your configuration
+
+   ```   ```
+
+
+
+4. **Run the development server**4. **Run the development server**
+
+   ```bash   ```bash
+
+   npm run dev   npm run dev
+
+   ```   ```
+
+
+
+5. **Open your browser**5. **Open your browser**
+
+   Navigate to [http://localhost:3000](http://localhost:3000)   Navigate to [http://localhost:3000](http://localhost:3000)
+
+
+
+### **Docker Setup** *(Alternative)*### **Docker Setup** *(Alternative)*
+
+```bash```bash
+
+docker-compose up --builddocker-compose up --build
+
+``````
+
+
+
+------
+
+
+
+## 📱 **Screenshots & Demo**## 📱 **Screenshots & Demo**
+
+
+
+### **Homepage**### **Homepage**
+
+Clean, modern landing page showcasing featured perfume categoriesClean, modern landing page showcasing featured perfume categories
+
+
+
+### **Product Catalog** ### **Product Catalog** 
+
+Advanced filtering by brand, price, category, and fragrance concentrationAdvanced filtering by brand, price, category, and fragrance concentration
+
+
+
+### **Shopping Cart**### **Shopping Cart**
+
+Persistent cart with quantity management and secure checkout flowPersistent cart with quantity management and secure checkout flow
+
+
+
+### **Admin Dashboard**### **Admin Dashboard**
+
+Complete product and order management interfaceComplete product and order management interface
+
+
+
+------
+
+
+
+## 🛣️ **Roadmap**## 🛣️ **Roadmap**
+
+
+
+### **Phase 1: Frontend Foundation** ✅### **Phase 1: Frontend Foundation** ✅
+
+- [x] Next.js setup with TypeScript- [x] Next.js setup with TypeScript
+
+- [x] Tailwind CSS integration- [x] Tailwind CSS integration
+
+- [x] Component library development- [x] Component library development
+
+- [x] Shopping cart functionality- [x] Shopping cart functionality
+
+- [x] User interface completion- [x] User interface completion
+
+
+
+### **Phase 2: Backend Development** 🔄### **Phase 2: Backend Development** 🔄
+
+- [ ] Node.js API with Express- [ ] Node.js API with Express
+
+- [ ] PostgreSQL database setup- [ ] PostgreSQL database setup
+
+- [ ] User authentication system- [ ] User authentication system
+
+- [ ] Product management API- [ ] Product management API
+
+- [ ] Order processing system- [ ] Order processing system
+
+
+
+### **Phase 3: E-commerce Features** 📋### **Phase 3: E-commerce Features** 📋
+
+- [ ] Payment gateway integration (Mercado Pago)- [ ] Payment gateway integration (Mercado Pago)
+
+- [ ] Shipping calculation (Correios API)- [ ] Shipping calculation (Correios API)
+
+- [ ] Inventory management- [ ] Inventory management
+
+- [ ] Email notifications- [ ] Email notifications
+
+- [ ] Admin dashboard backend- [ ] Admin dashboard backend
+
+
+
+### **Phase 4: Production & Optimization** 🚀### **Phase 4: Production & Optimization** 🚀
+
+- [ ] Performance optimization- [ ] Performance optimization
+
+- [ ] SEO implementation- [ ] SEO implementation
+
+- [ ] Analytics integration- [ ] Analytics integration
+
+- [ ] Monitoring and logging- [ ] Monitoring and logging
+
+- [ ] Production deployment- [ ] Production deployment
+
+
+
+------
+
+
+
+## 🤝 **Contributing**## 🤝 **Contributing**
+
+
+
+Contributions are welcome! Please feel free to submit a Pull Request.Contributions are welcome! Please feel free to submit a Pull Request.
+
+
+
+### **Development Workflow**### **Development Workflow**
+
+1. Fork the repository1. Fork the repository
+
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+
+4. Push to the branch (`git push origin feature/amazing-feature`)4. Push to the branch (`git push origin feature/amazing-feature`)
+
+5. Open a Pull Request5. Open a Pull Request
+
+
+
+### **Commit Convention**### **Commit Convention**
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/):This project follows [Conventional Commits](https://www.conventionalcommits.org/):
+
+- `feat:` New features- `feat:` New features
+
+- `fix:` Bug fixes- `fix:` Bug fixes
+
+- `docs:` Documentation changes- `docs:` Documentation changes
+
+- `style:` Code style changes- `style:` Code style changes
+
+- `refactor:` Code refactoring- `refactor:` Code refactoring
+
+- `chore:` Maintenance tasks- `chore:` Maintenance tasks
+
+
+
+------
+
+
+
+## 📄 **License**## 📄 **License**
+
+
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+
+------
+
+
+
+## 👤 **Author**## 👤 **Author**
+
+
+
+**João Paulo** **João Paulo** 
+
+- GitHub: [@JoaoPauloDL](https://github.com/JoaoPauloDL)- GitHub: [@JoaoPauloDL](https://github.com/JoaoPauloDL)
+
+
+
+------
+
+
+
+## 🙏 **Acknowledgments**## 🙏 **Acknowledgments**
+
+
+
+- Design inspiration from Nike and Adidas minimalist aesthetics- Design inspiration from Nike and Adidas minimalist aesthetics
+
+- Brazilian perfume import market research and requirements- Brazilian perfume import market research and requirements
+
+- Modern web development best practices and patterns- Modern web development best practices and patterns
+
+
+
+------
+
+
+
+<div align="center"><div align="center">
+
+
+
+**⭐ Star this repository if you find it helpful!****⭐ Star this repository if you find it helpful!**
+
+
+
+Made with ❤️ for the luxury perfume market in BrazilMade with ❤️ for the luxury perfume market in Brazil
+
+
+
+</div></div>
 - **Frete:** Melhor Envio / Correios
 - **Email:** Nodemailer + SendGrid
 - **Deploy:** Frontend (Vercel) + Backend (Railway/Render) + DB (Supabase)
