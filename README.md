@@ -1,78 +1,152 @@
-# 🛍️ Imports E-commerce# 🛍️ Imports E-commerce
+# 🛍️ Imports E-commerce# 🛍️ Imports E-commerce# 🛍️ Imports E-commerce
 
 
 
-> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**
+> **E-commerce platform for imported perfumes - Next.js, TypeScript & Tailwind CSS**
 
 
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-
-[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 
 
 
-------
+## 📋 About[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 
 
+
+Modern e-commerce platform specialized in imported perfumes for the Brazilian market. Features responsive design with minimalist black & white aesthetics and comprehensive shopping functionality.[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+
+
+
+## ✨ Features[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+
+
+
+- 🛒 **Product catalog** with filtering and search[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
+
+- 🛍️ **Shopping cart** with state persistence
+
+- 💳 **Checkout system** with multiple payment options
+
+- 👤 **User authentication** and profile management
+
+- 📱 **Responsive design** for all devices------
+
+- 🎨 **Minimalist UI** with dark theme
+
+
+
+## 🚀 Tech Stack
 
 ## 🌟 **Overview**## 🌟 **Overview**
 
+- **Frontend:** Next.js 14, React 18, TypeScript
+
+- **Styling:** Tailwind CSS
+
+- **State Management:** Zustand
+
+- **Backend:** Node.js, Express *(planned)*A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.
+
+- **Database:** PostgreSQL, Prisma *(planned)*
 
 
-A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.
 
-
+## 🛠️ Installation
 
 ### 🎯 **Project Purpose**### 🎯 **Project Purpose**
 
-This platform serves the Brazilian luxury perfume market, specializing in:This platform serves the Brazilian luxury perfume market, specializing in:
+```bash
 
-- **Arabian Fragrances** (Árabes)- **Arabian Fragrances** (Árabes)
+# Clone repositoryThis platform serves the Brazilian luxury perfume market, specializing in:This platform serves the Brazilian luxury perfume market, specializing in:
 
-- **French Perfumes** (Franceses) - **French Perfumes** (Franceses) 
+git clone https://github.com/JoaoPauloDL/imports-ecommerce.git
 
-- **Masculine Collections** (Masculinos)- **Masculine Collections** (Masculinos)
-
-- **Feminine Collections** (Femininos)- **Feminine Collections** (Femininos)
-
-- **Unisex Options** (Unissex)- **Unisex Options** (Unissex)
+cd imports-ecommerce- **Arabian Fragrances** (Árabes)- **Arabian Fragrances** (Árabes)
 
 
 
-------
+# Install dependencies- **French Perfumes** (Franceses) - **French Perfumes** (Franceses) 
+
+cd frontend
+
+npm install- **Masculine Collections** (Masculinos)- **Masculine Collections** (Masculinos)
 
 
 
-## ✨ **Features**## ✨ **Features**
+# Run development server- **Feminine Collections** (Femininos)- **Feminine Collections** (Femininos)
+
+npm run dev
+
+```- **Unisex Options** (Unissex)- **Unisex Options** (Unissex)
 
 
 
-### 🛒 **E-commerce Core**### 🛒 **E-commerce Core**
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- **Product Catalog** with advanced filtering and search- **Product Catalog** with advanced filtering and search
+
+
+## 📁 Project Structure------
+
+
+
+```
+
+imports-ecommerce/
+
+├── frontend/## ✨ **Features**## ✨ **Features**
+
+│   ├── src/app/          # Next.js pages
+
+│   ├── src/components/   # UI components
+
+│   ├── src/store/        # State management
+
+│   └── src/types/        # TypeScript types### 🛒 **E-commerce Core**### 🛒 **E-commerce Core**
+
+├── backend/              # API (future)
+
+└── docker-compose.yml    # Development setup- **Product Catalog** with advanced filtering and search- **Product Catalog** with advanced filtering and search
+
+```
 
 - **Shopping Cart** with persistent state management- **Shopping Cart** with persistent state management
 
+## 🤝 Contributing
+
 - **Secure Checkout** with multiple payment methods- **Secure Checkout** with multiple payment methods
 
-- **User Authentication** and profile management- **User Authentication** and profile management
+1. Fork the project
 
-- **Order Tracking** and history- **Order Tracking** and history
+2. Create your feature branch (`git checkout -b feature/new-feature`)- **User Authentication** and profile management- **User Authentication** and profile management
+
+3. Commit your changes (`git commit -m 'Add new feature'`)
+
+4. Push to the branch (`git push origin feature/new-feature`)- **Order Tracking** and history- **Order Tracking** and history
+
+5. Open a Pull Request
 
 
+
+## 📄 License
 
 ### 🎨 **Design & UX**### 🎨 **Design & UX**
 
+This project is licensed under the MIT License.
+
 - **Responsive Design** optimized for all devices- **Responsive Design** optimized for all devices
+
+## 👤 Author
 
 - **Minimalist UI** inspired by premium brands- **Minimalist UI** inspired by premium brands
 
-- **Dark Theme** with black & white color scheme- **Dark Theme** with black & white color scheme
+**João Paulo**  
+
+GitHub: [@JoaoPauloDL](https://github.com/JoaoPauloDL)- **Dark Theme** with black & white color scheme- **Dark Theme** with black & white color scheme
 
 - **Smooth Animations** and micro-interactions- **Smooth Animations** and micro-interactions
 
