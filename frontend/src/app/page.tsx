@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import DevAuthButtons from '@/components/DevAuthButtons'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
@@ -305,6 +306,9 @@ export default function HomePage() {
           </form>
         </div>
       </section>
+
+      {/* Dev Auth Buttons - Only in development */}
+      <DevAuthButtons />
     </div>
   )
 }

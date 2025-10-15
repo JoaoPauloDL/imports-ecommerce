@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme transitions */
+.theme-transition {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.theme-transition * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
