@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import DevAuthButtons from '@/components/DevAuthButtons'
+import DavidImportadosLogo from '@/components/DavidImportadosLogo'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
@@ -141,10 +142,12 @@ export default function HomePage() {
                 <div className="max-w-5xl mx-auto">
                   {/* Logo Integration */}
                   {index === 0 && (
-                    <div className="mb-8 flex justify-center">
-                      <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center shadow-2xl">
-                        <span className="text-white font-black text-2xl">D</span>
-                      </div>
+                    <div className="mb-12 flex justify-center">
+                      <DavidImportadosLogo 
+                        width={120} 
+                        height={150} 
+                        className="transform hover:scale-110 transition-transform duration-500 filter brightness-110"
+                      />
                     </div>
                   )}
                   

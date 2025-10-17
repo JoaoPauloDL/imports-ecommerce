@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { usePageTheme } from '@/utils/themes'
 import { buildNavigationItems, useCategories } from '@/services/categoryService'
+import DavidImportadosLogo from '@/components/DavidImportadosLogo'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -86,16 +87,12 @@ export default function Header() {
         <div className="flex justify-between items-center h-16 border-b border-amber-100">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center group">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                  <span className="text-white font-black text-lg">D</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xl font-black tracking-tight text-black group-hover:text-amber-600 transition-colors duration-300">DAVID</span>
-                  <span className="text-xs font-light tracking-widest text-amber-600 -mt-1">IMPORTADOS</span>
-                </div>
-              </div>
+            <Link href="/" className="group">
+              <DavidImportadosLogo 
+                width={40} 
+                height={50} 
+                className="group-hover:scale-105 transition-transform duration-300" 
+              />
             </Link>
           </div>
 
