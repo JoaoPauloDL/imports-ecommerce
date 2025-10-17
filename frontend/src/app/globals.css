@@ -70,7 +70,7 @@
 /* Estilos customizados para o e-commerce - Tema Preto e Branco */
 @layer components {
   .btn-primary {
-    @apply bg-black text-white hover:bg-gray-800 px-6 py-3 font-medium tracking-wide transition-all duration-200 uppercase text-sm border border-black;
+    @apply bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 px-6 py-3 font-medium tracking-wide transition-all duration-200 uppercase text-sm border border-amber-500 hover:border-amber-600 shadow-md hover:shadow-lg;
   }
   
   .btn-secondary {

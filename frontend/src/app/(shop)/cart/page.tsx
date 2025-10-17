@@ -202,7 +202,7 @@ export default function CartPage() {
                   <span>Frete</span>
                   <span>
                     {shipping === 0 ? (
-                      <span className="text-green-600 font-medium">GRÁTIS</span>
+                      <span className="text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-md">GRÁTIS</span>
                     ) : (
                       `R$ ${shipping.toFixed(2)}`
                     )}
@@ -210,7 +210,7 @@ export default function CartPage() {
                 </div>
                 
                 {shipping > 0 && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-amber-600 font-medium">
                     Frete GRÁTIS em compras acima de R$ 500,00
                   </div>
                 )}

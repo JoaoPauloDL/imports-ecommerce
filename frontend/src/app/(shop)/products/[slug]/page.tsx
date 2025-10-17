@@ -214,7 +214,7 @@ export default function ProductDetailPage() {
                 R$ {product.price.toFixed(2)}
               </p>
               {product.originalPrice && (
-                <p className="text-sm text-green-600 font-medium">
+                <p className="text-sm text-amber-600 font-bold bg-amber-50 px-3 py-1 rounded-md inline-block">
                   Economia de R$ {(product.originalPrice - product.price).toFixed(2)} 
                   ({Math.round((1 - product.price / product.originalPrice) * 100)}% OFF)
                 </p>
@@ -267,7 +267,7 @@ export default function ProductDetailPage() {
             <div className="border-t pt-6">
               <h3 className="font-semibold text-gray-900 mb-3">Informações de Entrega</h3>
               <div className="space-y-2 text-sm text-gray-600">
-                <p>📦 Frete GRÁTIS para todo o Brasil</p>
+                <p className="text-amber-600 font-bold">📦 Frete GRÁTIS para todo o Brasil</p>
                 <p>🚚 Entrega expressa em 2-5 dias úteis</p>
                 <p>🔄 30 dias para trocas e devoluções</p>
                 <p>🛡️ Garantia oficial do fabricante</p>

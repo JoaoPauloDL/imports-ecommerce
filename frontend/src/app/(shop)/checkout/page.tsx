@@ -600,7 +600,7 @@ export default function CheckoutPage() {
                   <span>Frete</span>
                   <span>
                     {shipping === 0 ? (
-                      <span className="text-green-600">GRÁTIS</span>
+                      <span className="text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-md">GRÁTIS</span>
                     ) : (
                       `R$ ${shipping.toFixed(2)}`
                     )}

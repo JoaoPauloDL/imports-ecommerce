@@ -83,12 +83,12 @@ export default function ProductCard({
               </span>
             )}
             {product.isBestSeller && (
-              <span className="bg-red-600 text-white px-3 py-1 text-xs font-medium tracking-wider uppercase">
+              <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1 text-xs font-bold tracking-wider uppercase shadow-lg">
                 Best Seller
               </span>
             )}
             {discountPercentage > 0 && (
-              <span className="bg-red-600 text-white px-3 py-1 text-xs font-medium tracking-wider uppercase">
+              <span className="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-3 py-1 text-xs font-bold tracking-wider uppercase shadow-lg">
                 -{discountPercentage}%
               </span>
             )}
@@ -128,7 +128,7 @@ export default function ProductCard({
               className={`px-8 py-3 font-medium tracking-wider uppercase text-sm transition-all duration-200 ${
                 product.stockStatus === 'out_of_stock'
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-white text-black hover:bg-black hover:text-white border-2 border-white'
+                  : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl border-2 border-amber-500 hover:border-amber-600'
               }`}
             >
               {product.stockStatus === 'out_of_stock' ? 'Esgotado' : 'Adicionar'}
@@ -165,7 +165,7 @@ export default function ProductCard({
                   <svg
                     key={star}
                     className={`w-4 h-4 ${
-                      star <= product.rating! ? 'text-black' : 'text-gray-300'
+                      star <= product.rating! ? 'text-amber-500' : 'text-gray-300'
                     }`}
                     fill="currentColor"
                     viewBox="0 0 20 20"
@@ -196,14 +196,14 @@ export default function ProductCard({
 
           {/* Stock Status */}
           {product.stockStatus === 'low_stock' && (
-            <p className="text-xs text-orange-600 font-medium">
+            <p className="text-xs text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-md inline-block">
               Últimas unidades!
             </p>
           )}
 
           {/* Free Shipping */}
           {product.freeShipping && (
-            <p className="text-xs text-green-600 font-medium">
+            <p className="text-xs text-amber-700 font-bold bg-amber-100 px-2 py-1 rounded-md inline-block">
               Frete grátis
             </p>
           )}
