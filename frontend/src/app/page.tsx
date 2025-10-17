@@ -22,28 +22,31 @@ export default function HomePage() {
 
   const heroSlides = [
     {
-      title: "ESSÊNCIAS ÁRABES",
-      subtitle: "FRAGRÂNCIAS EXCLUSIVAS",
-      description: "Descubra os aromas mais luxuosos e intensos do Oriente Médio",
-      cta: "Explorar",
+      title: "DAVID IMPORTADOS",
+      subtitle: "PERFUMARIA DE LUXO",
+      description: "Fragrâncias exclusivas e sofisticadas das melhores casas internacionais",
+      cta: "Descobrir Coleção",
       image: "/hero-1.jpg",
-      dark: true
+      dark: true,
+      gradient: "from-black/80 via-gray-900/60 to-amber-900/40"
+    },
+    {
+      title: "ESSÊNCIAS ÁRABES",
+      subtitle: "ORIENTE MÉDIO AUTÊNTICO", 
+      description: "Aromas intensos e luxuosos que despertam os sentidos",
+      cta: "Explorar Árabes",
+      image: "/hero-2.jpg", 
+      dark: true,
+      gradient: "from-amber-900/80 via-yellow-800/60 to-orange-800/40"
     },
     {
       title: "PERFUMES FRANCESES",
-      subtitle: "ELEGÂNCIA PARISIENSE", 
-      description: "A sofisticação e refinamento das melhores casas de perfume da França",
-      cta: "Descobrir",
-      image: "/hero-2.jpg", 
-      dark: false
-    },
-    {
-      title: "COLEÇÃO PREMIUM",
-      subtitle: "IMPORTADOS ORIGINAIS",
-      description: "Perfumes 100% originais das melhores marcas internacionais",
-      cta: "Ver Coleção",
+      subtitle: "ELEGÂNCIA PARISIENSE",
+      description: "O refinamento e a sofisticação das tradicionais parfumeries francesas",
+      cta: "Ver França",
       image: "/hero-3.jpg",
-      dark: true
+      dark: true,
+      gradient: "from-purple-900/80 via-indigo-800/60 to-blue-800/40"
     }
   ]
 
@@ -121,39 +124,60 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
+      {/* Hero Section - David Importados Premium */}
       <section className="relative h-screen overflow-hidden">
         {heroSlides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            className={`absolute inset-0 transition-all duration-1000 ${
+              index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
             }`}
           >
-            <div className={`h-full flex items-center justify-center ${
-              slide.dark ? 'bg-black text-white' : 'bg-gray-100 text-black'
-            }`}>
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <div className="max-w-4xl mx-auto">
-                  <p className="text-sm font-medium tracking-wider uppercase mb-4 opacity-80">
+            <div className={`h-full flex items-center justify-center bg-gradient-to-br ${slide.gradient} relative`}>
+              {/* Overlay Pattern */}
+              <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+              
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                <div className="max-w-5xl mx-auto">
+                  {/* Logo Integration */}
+                  {index === 0 && (
+                    <div className="mb-8 flex justify-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center shadow-2xl">
+                        <span className="text-white font-black text-2xl">D</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-sm font-semibold tracking-[0.2em] uppercase mb-6 text-amber-400">
                     {slide.subtitle}
                   </p>
-                  <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-none">
-                    {slide.title}
+                  <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 leading-none text-white">
+                    {slide.title.split(' ').map((word, i) => (
+                      <span key={i} className={i === 0 ? 'block' : 'block text-amber-400'}>
+                        {word}{' '}
+                      </span>
+                    ))}
                   </h1>
-                  <p className="text-xl md:text-2xl font-light mb-12 opacity-90">
+                  <p className="text-lg md:text-xl lg:text-2xl font-light mb-12 text-gray-200 max-w-3xl mx-auto leading-relaxed">
                     {slide.description}
                   </p>
-                  <Link 
-                    href="/products"
-                    className={`inline-block px-12 py-4 text-lg font-medium tracking-wide uppercase transition-all duration-300 ${
-                      slide.dark 
-                        ? 'bg-white text-black hover:bg-gray-100' 
-                        : 'bg-black text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {slide.cta}
-                  </Link>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Link 
+                      href="/products"
+                      className="group relative px-10 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-semibold text-lg tracking-wide uppercase transition-all duration-300 hover:from-amber-400 hover:to-amber-500 hover:shadow-xl hover:shadow-amber-500/25 transform hover:-translate-y-1"
+                    >
+                      <span className="relative z-10">{slide.cta}</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </Link>
+                    
+                    <Link 
+                      href="/about"
+                      className="px-8 py-4 border-2 border-amber-400 text-amber-400 font-semibold tracking-wide uppercase transition-all duration-300 hover:bg-amber-400 hover:text-black"
+                    >
+                      Nossa História
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -161,18 +185,25 @@ export default function HomePage() {
         ))}
         
         {/* Slide Indicators */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-4">
           {heroSlides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide 
-                  ? 'bg-white' 
-                  : 'bg-white/40 hover:bg-white/60'
+                  ? 'bg-amber-400 shadow-lg shadow-amber-400/50 scale-125' 
+                  : 'bg-white/40 hover:bg-white/60 hover:scale-110'
               }`}
             />
           ))}
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-amber-400 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-amber-400 rounded-full mt-2 animate-pulse"></div>
+          </div>
         </div>
       </section>
 

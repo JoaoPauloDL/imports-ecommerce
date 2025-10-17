@@ -30,10 +30,10 @@ const mockCategories: Category[] = [
     slug: 'arabes',
     description: 'Aromas intensos e luxuosos do Oriente Médio',
     theme: {
-      primary: 'from-amber-400 to-amber-500',
-      secondary: 'bg-amber-50 border-amber-200',
-      accent: 'bg-amber-500 hover:bg-amber-600',
-      text: 'text-amber-600'
+      primary: 'from-amber-500 via-amber-600 to-yellow-600',
+      secondary: 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-300',
+      accent: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700',
+      text: 'text-amber-700'
     },
     icon: '🏺',
     isActive: true,
@@ -47,10 +47,10 @@ const mockCategories: Category[] = [
     slug: 'franceses',
     description: 'Elegância e sofisticação parisiense',
     theme: {
-      primary: 'from-violet-400 to-violet-500',
-      secondary: 'bg-violet-50 border-violet-200',
-      accent: 'bg-violet-500 hover:bg-violet-600',
-      text: 'text-violet-600'
+      primary: 'from-purple-600 via-indigo-600 to-blue-600',
+      secondary: 'bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-300',
+      accent: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700',
+      text: 'text-purple-700'
     },
     icon: '🥐',
     isActive: true,
@@ -64,10 +64,10 @@ const mockCategories: Category[] = [
     slug: 'masculinos',
     description: 'Fragrâncias marcantes e elegantes',
     theme: {
-      primary: 'from-slate-400 to-slate-500',
-      secondary: 'bg-slate-50 border-slate-200',
-      accent: 'bg-slate-500 hover:bg-slate-600',
-      text: 'text-slate-600'
+      primary: 'from-gray-700 via-gray-800 to-black',
+      secondary: 'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-300',
+      accent: 'bg-gradient-to-r from-gray-700 to-black hover:from-gray-800 hover:to-gray-900',
+      text: 'text-gray-800'
     },
     icon: '👔',
     isActive: true,
@@ -81,10 +81,10 @@ const mockCategories: Category[] = [
     slug: 'femininos',
     description: 'Delicadeza e sofisticação em cada gota',
     theme: {
-      primary: 'from-rose-400 to-pink-400',
-      secondary: 'bg-rose-50 border-rose-200',
-      accent: 'bg-rose-400 hover:bg-rose-500',
-      text: 'text-rose-500'
+      primary: 'from-rose-400 via-pink-500 to-red-400',
+      secondary: 'bg-gradient-to-br from-rose-50 to-pink-50 border-rose-300',
+      accent: 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600',
+      text: 'text-rose-700'
     },
     icon: '💎',
     isActive: true,
@@ -100,14 +100,14 @@ export const specialPages = {
     name: 'Ofertas',
     slug: 'ofertas',
     href: '/offers',
-    description: 'Descontos imperdíveis por tempo limitado',
+    description: 'Descontos exclusivos e oportunidades limitadas',
     theme: {
-      primary: 'from-orange-400 to-red-400',
-      secondary: 'bg-orange-50 border-orange-200',
-      accent: 'bg-orange-500 hover:bg-orange-600',
-      text: 'text-orange-600'
+      primary: 'from-amber-500 via-orange-500 to-red-500',
+      secondary: 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300',
+      accent: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600',
+      text: 'text-amber-700'
     },
-    icon: '🔥',
+    icon: '✨',
     sortOrder: 1
   }
 }

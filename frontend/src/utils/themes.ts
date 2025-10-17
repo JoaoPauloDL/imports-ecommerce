@@ -5,68 +5,68 @@ let themesCache: Record<string, any> = {}
 let lastCacheUpdate = 0
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutos
 
-// Sistema de temas por categoria/página
+// Sistema de temas por categoria/página - Paleta David Importados
 export const pageThemes = {
-  // Categorias de produtos
+  // Categorias de produtos com gradientes sofisticados
   arabes: {
-    primary: 'from-amber-400 to-amber-500',
-    secondary: 'bg-amber-50 border-amber-200',
-    accent: 'bg-amber-500 hover:bg-amber-600',
-    text: 'text-amber-600',
+    primary: 'from-amber-500 via-amber-600 to-yellow-600',
+    secondary: 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-300',
+    accent: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700',
+    text: 'text-amber-700',
     name: 'Essências Árabes',
     description: 'Aromas intensos e luxuosos do Oriente Médio'
   },
   franceses: {
-    primary: 'from-violet-400 to-violet-500',
-    secondary: 'bg-violet-50 border-violet-200',
-    accent: 'bg-violet-500 hover:bg-violet-600',
-    text: 'text-violet-600',
+    primary: 'from-purple-600 via-indigo-600 to-blue-600',
+    secondary: 'bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-300',
+    accent: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700',
+    text: 'text-purple-700',
     name: 'Perfumes Franceses',
     description: 'Elegância e sofisticação parisiense'
   },
   masculinos: {
-    primary: 'from-slate-400 to-slate-500',
-    secondary: 'bg-slate-50 border-slate-200',
-    accent: 'bg-slate-500 hover:bg-slate-600',
-    text: 'text-slate-600',
+    primary: 'from-gray-700 via-gray-800 to-black',
+    secondary: 'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-300',
+    accent: 'bg-gradient-to-r from-gray-700 to-black hover:from-gray-800 hover:to-gray-900',
+    text: 'text-gray-800',
     name: 'Masculinos',
     description: 'Fragrâncias marcantes e elegantes'
   },
   femininos: {
-    primary: 'from-rose-400 to-pink-400',
-    secondary: 'bg-rose-50 border-rose-200',
-    accent: 'bg-rose-400 hover:bg-rose-500',
-    text: 'text-rose-500',
+    primary: 'from-rose-400 via-pink-500 to-red-400',
+    secondary: 'bg-gradient-to-br from-rose-50 to-pink-50 border-rose-300',
+    accent: 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600',
+    text: 'text-rose-700',
     name: 'Femininos',
     description: 'Delicadeza e sofisticação em cada gota'
   },
   
   // Páginas especiais
   ofertas: {
-    primary: 'from-orange-400 to-red-400',
-    secondary: 'bg-orange-50 border-orange-200',
-    accent: 'bg-orange-500 hover:bg-orange-600',
-    text: 'text-orange-600',
-    name: 'Ofertas Especiais',
-    description: 'Descontos imperdíveis por tempo limitado'
+    primary: 'from-amber-500 via-orange-500 to-red-500',
+    secondary: 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300',
+    accent: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600',
+    text: 'text-amber-700',
+    name: 'Ofertas Exclusivas',
+    description: 'Descontos exclusivos e oportunidades limitadas'
   },
   lancamentos: {
-    primary: 'from-cyan-600 to-blue-600',
-    secondary: 'bg-cyan-50 border-cyan-200',
-    accent: 'bg-cyan-600 hover:bg-cyan-700',
-    text: 'text-cyan-600',
+    primary: 'from-emerald-600 via-teal-600 to-cyan-600',
+    secondary: 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-300',
+    accent: 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700',
+    text: 'text-emerald-700',
     name: 'Lançamentos',
     description: 'As novidades mais aguardadas'
   },
   
-  // Tema padrão
+  // Tema padrão - David Importados
   default: {
-    primary: 'from-gray-800 to-black',
-    secondary: 'bg-gray-50 border-gray-200',
-    accent: 'bg-black hover:bg-gray-800',
-    text: 'text-black',
-    name: 'Perfumes Importados',
-    description: 'Sua loja de fragrâncias exclusivas'
+    primary: 'from-gray-800 via-black to-gray-900',
+    secondary: 'bg-gradient-to-br from-gray-50 to-amber-50 border-amber-200',
+    accent: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700',
+    text: 'text-gray-800',
+    name: 'David Importados',
+    description: 'Perfumaria de luxo e sofisticação'
   }
 }
 
