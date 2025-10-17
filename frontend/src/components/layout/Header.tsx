@@ -61,90 +61,69 @@ export default function Header() {
                       currentPath.includes('/new-arrivals')
 
   return (
-    <header className="bg-white sticky top-0 z-50 shadow-sm">
-      {/* Top Bar - Tema sofisticado preto e dourado */}
-      <div className={`${isInCategory ? `bg-gradient-to-r ${currentTheme.primary}` : 'bg-gradient-to-r from-black via-gray-900 to-black'} text-white text-center py-2 text-sm font-medium transition-all duration-500`}>
-        <p className="flex items-center justify-center space-x-2">
-          {isInCategory ? (
-            <>
-              <span className="text-amber-400">✨</span>
-              <span>{currentTheme.name} - {currentTheme.description}</span>
-              <span className="text-amber-400">✨</span>
-            </>
-          ) : (
-            <>
-              <span className="text-amber-400 font-bold">★</span>
-              <span>FRETE GRÁTIS para todo Brasil acima de R$ 300</span>
-              <span className="text-amber-400 mx-2">|</span>
-              <span>Perfumes 100% Originais</span>
-              <span className="text-amber-400 font-bold">★</span>
-            </>
-          )}
+    <header className="bg-white sticky top-0 z-50">
+      {/* Top Bar */}
+      <div className="bg-black text-white text-center py-2 text-sm font-medium">
+        <p>
+          FRETE GRÁTIS para todo Brasil acima de R$ 300 | Perfumes 100% Originais
         </p>
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 border-b border-amber-100">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="group">
-              <DavidImportadosLogo 
-                width={40} 
-                height={50} 
-                className="group-hover:scale-105 transition-transform duration-300" 
-              />
-            </Link>
+            <DavidImportadosLogo />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-8">
+          <nav className="hidden lg:flex space-x-10">
             {navigation.map((item) => {
               const isActive = currentPath.includes(item.href.split('?')[1]) // Verificar se a categoria está ativa
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`relative group text-black font-semibold text-sm tracking-wide hover:text-amber-600 transition-all duration-300 uppercase ${
+                  className={`relative text-black font-medium text-sm tracking-wide hover:text-amber-600 transition-all duration-200 uppercase ${
                     isActive ? 'text-amber-600' : ''
                   }`}
                 >
-                  <span className="relative z-10">{item.name}</span>
+                  {item.name}
                   {isActive && (
-                    <div className="absolute -bottom-3 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full shadow-sm"></div>
+                    <div className="absolute -bottom-2 left-0 right-0 h-0.5 bg-amber-600 rounded-full"></div>
                   )}
-                  <div className="absolute -bottom-3 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </Link>
               )
             })}
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             {/* Search */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="group p-2 hover:bg-amber-50 rounded-full transition-all duration-300 border border-transparent hover:border-amber-200"
-              title="Buscar perfumes de luxo"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              title="Buscar perfumes"
             >
-              <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
 
             {/* Favorites */}
-            <button className="group p-2 hover:bg-amber-50 rounded-full transition-all duration-300 border border-transparent hover:border-amber-200 hidden md:block">
-              <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 hidden md:block">
+              <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
 
             {/* Cart */}
-            <Link href="/cart" className="group relative p-2 hover:bg-amber-50 rounded-full transition-all duration-300 border border-transparent hover:border-amber-200">
-              <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Link href="/cart" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+              <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 7H6L5 9z" />
               </svg>
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold shadow-lg">
+                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
                   {cartItemCount}
                 </span>
               )}
