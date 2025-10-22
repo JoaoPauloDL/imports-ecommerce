@@ -1,11 +1,11 @@
 import nodemailer from 'nodemailer';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/simple-logger';
 
 // Configurar transporter baseado nas variáveis de ambiente
 const createTransporter = () => {
   if (process.env.SENDGRID_API_KEY) {
     // Usar SendGrid
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       service: 'SendGrid',
       auth: {
         user: 'apikey',
@@ -14,7 +14,7 @@ const createTransporter = () => {
     });
   } else if (process.env.SMTP_HOST) {
     // Usar SMTP personalizado
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_PORT === '465',
@@ -24,9 +24,9 @@ const createTransporter = () => {
       },
     });
   } else {
-    // Fallback para desenvolvimento (MailHog ou similar)
-    return nodemailer.createTransporter({
-      host: 'localhost',
+    // Fallback para desenvolvimento (JSON transport)
+    return nodemailer.createTransport({
+      jsonTransport: true,
       port: 1025,
       secure: false,
       auth: null,

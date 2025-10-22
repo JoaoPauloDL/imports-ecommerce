@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/simple-logger';
 
 export interface ShippingItem {
   variantId: string;
@@ -60,7 +60,7 @@ export const calculateMelhorEnvio = async (data: ShippingCalculation): Promise<S
       { width: 0, height: 0, length: 0 }
     );
 
-    const package = {
+    const packageData = {
       weight: totalWeight,
       width: maxDimensions.width,
       height: maxDimensions.height,
@@ -70,7 +70,7 @@ export const calculateMelhorEnvio = async (data: ShippingCalculation): Promise<S
     const requestData = {
       from,
       to,
-      package,
+      package: packageData,
       options: {
         receipt: false,
         own_hand: false,

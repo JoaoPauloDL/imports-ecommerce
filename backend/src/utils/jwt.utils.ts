@@ -29,7 +29,7 @@ export const generateTokens = async (userId: string) => {
 
   // Token de acesso (15 minutos)
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET!, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+    expiresIn: '15m',
   });
 
   // Token de refresh (7 dias)

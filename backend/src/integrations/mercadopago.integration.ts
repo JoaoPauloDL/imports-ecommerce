@@ -1,13 +1,12 @@
 import MercadoPago from 'mercadopago';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/simple-logger';
 
-// Configurar Mercado Pago
-const mercadoPago = new MercadoPago({
-  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN!,
-  options: {
-    timeout: 5000,
-  },
-});
+// Configurar Mercado Pago (apenas se token estiver disponível)
+if (process.env.MERCADO_PAGO_ACCESS_TOKEN) {
+  MercadoPago.configure({
+    access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN,
+  });
+}
 
 export interface PaymentItem {
   id: string;
@@ -111,7 +110,7 @@ export const createPaymentPreference = async (data: PaymentPreferenceData) => {
       expiration_date_to: data.expiration_date_to || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     };
 
-    const response = await mercadoPago.preferences.create(preference);
+    const response = await MercadoPago.preferences.create(preference);
 
     logger.info('Payment preference created', {
       preferenceId: response.body.id,
@@ -135,7 +134,7 @@ export const createPaymentPreference = async (data: PaymentPreferenceData) => {
  */
 export const getPaymentInfo = async (paymentId: string) => {
   try {
-    const response = await mercadoPago.payment.findById(paymentId);
+    const response = await MercadoPago.payment.findById(paymentId);
     
     logger.info('Payment info retrieved', { paymentId });
     
@@ -261,7 +260,7 @@ export const createDirectPayment = async (paymentData: {
       notification_url: paymentData.notification_url || `${webhookUrl}/mercadopago`,
     };
 
-    const response = await mercadoPago.payment.save(payment);
+    const response = await MercadoPago.payment.save(payment);
 
     logger.info('Direct payment created', {
       paymentId: response.body.id,
@@ -283,7 +282,7 @@ export const refundPayment = async (paymentId: string, amount?: number) => {
   try {
     const refundData = amount ? { amount } : {};
     
-    const response = await mercadoPago.payment.refund(paymentId).create(refundData);
+    const response = await MercadoPago.payment.refund(paymentId).create(refundData);
 
     logger.info('Payment refunded', {
       paymentId,

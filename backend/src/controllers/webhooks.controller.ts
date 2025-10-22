@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { processWebhook as processMercadoPagoWebhook } from '../integrations/mercadopago.integration';
+import { processPaymentWebhook as processMercadoPagoWebhook } from '../integrations/mercadopago-mock.integration';
 import { prisma } from '../app';
-import { logger } from '../utils/logger';
-import { sendOrderConfirmationEmail, sendShippingUpdateEmail } from '../services/email.service';
+import { logger } from '../utils/simple-logger';
+import emailService from '../services/email-mock.service';
 
 /**
  * Webhook do Mercado Pago
@@ -29,11 +29,10 @@ export const mercadoPagoWebhook = async (req: Request, res: Response) => {
 
     // Processar webhook apenas se for do tipo payment
     if (webhookData.type === 'payment') {
-      const result = await processMercadoPagoWebhook(webhookData);
+      await processMercadoPagoWebhook(webhookData);
       
-      if (result.type === 'payment') {
-        await handlePaymentUpdate(result.payment);
-      }
+      // TODO: Implementar lógica real do webhook
+      logger.info('Payment webhook processed (mock)');
     }
 
     // Marcar webhook como processado
@@ -197,7 +196,7 @@ const handlePaymentApproved = async (order: any) => {
     }
 
     // Enviar email de confirmação
-    await sendOrderConfirmationEmail(order.user.email, {
+    await emailService.sendOrderConfirmation(order.user.email, {
       customerName: order.user.fullName,
       orderNumber: order.orderNumber,
       orderId: order.id,
@@ -378,7 +377,7 @@ const handleShipmentTracking = async (webhookData: any) => {
     }
 
     // Enviar email de atualização
-    await sendShippingUpdateEmail(shipment.order.user.email, {
+    await emailService.sendOrderStatusUpdate(shipment.order.user.email, {
       customerName: shipment.order.user.fullName,
       orderNumber: shipment.order.orderNumber,
       orderId: shipment.order.id,

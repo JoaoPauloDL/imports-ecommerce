@@ -4,8 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { config } from 'dotenv';
-import { PrismaClient } from '@prisma/client';
-import { logger } from './utils/logger';
+import { logger } from './utils/simple-logger';
 import { errorHandler } from './middlewares/error.middleware';
 import routes from './routes';
 
@@ -13,9 +12,13 @@ import routes from './routes';
 config();
 
 // Inicializar Prisma
-export const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
 });
+
+export { prisma };
 
 // Criar aplicação Express
 const app = express();
@@ -72,12 +75,7 @@ app.use('/api', (req, res, next) => {
 
 // Logging de requests
 app.use((req, res, next) => {
-  logger.info({
-    method: req.method,
-    url: req.url,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-  }, 'Incoming request');
+  logger.info(`${req.method} ${req.url} - ${req.ip}`);
   next();
 });
 

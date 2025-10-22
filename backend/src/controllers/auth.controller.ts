@@ -3,10 +3,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { prisma } from '../app';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/simple-logger';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import { generateTokens, verifyRefreshToken } from '../utils/jwt.utils';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.service';
+import emailService from '../services/email-mock.service';
 import { randomBytes } from 'crypto';
 
 // Schemas de validação
@@ -90,7 +90,8 @@ export const register = async (req: Request, res: Response) => {
     });
 
     // Enviar email de verificação
-    await sendVerificationEmail(user.email, user.fullName, verificationToken);
+    // TODO: Implementar verificação de email
+    logger.info(`Verification email would be sent to ${user.email}`);
 
     logger.info(`User registered: ${user.email}`, { userId: user.id });
 
@@ -114,7 +115,7 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -189,7 +190,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -288,7 +289,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     // Por simplicidade, vou simular
 
     // Enviar email de reset
-    await sendPasswordResetEmail(user.email, user.fullName, resetToken);
+    await emailService.sendPasswordReset(user.email, resetToken);
 
     logger.info(`Password reset requested for: ${user.email}`, { userId: user.id });
 
@@ -303,7 +304,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -344,7 +345,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: 'Dados inválidos',
-        errors: error.errors,
+        errors: error.issues,
       });
     }
 
@@ -383,4 +384,15 @@ export const verifyEmail = async (req: Request, res: Response) => {
       message: 'Erro interno do servidor',
     });
   }
+};
+
+// Exportar todas as funções como objeto padrão
+export default {
+  register,
+  login,
+  refreshToken,
+  forgotPassword,
+  resetPassword,
+  logout,
+  verifyEmail
 };
