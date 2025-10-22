@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import DevAuthButtons from '@/components/DevAuthButtons'
 import DavidImportadosLogo from '@/components/DavidImportadosLogo'
+import MobileCarousel from '@/components/MobileCarousel'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
@@ -45,6 +46,37 @@ export default function HomePage() {
       cta: "Ver França",
       image: "/hero-3.jpg",
       dark: true
+    }
+  ]
+
+  // Slides otimizados para mobile
+  const mobileCarouselSlides = [
+    {
+      title: "DAVID\nIMPORTADOS",
+      subtitle: "PERFUMARIA DE LUXO",
+      description: "Fragrâncias exclusivas das melhores casas internacionais",
+      cta: "Descobrir",
+      ctaLink: "/products",
+      image: "/hero-1.jpg",
+      gradient: "linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)"
+    },
+    {
+      title: "ESSÊNCIAS\nÁRABES",
+      subtitle: "ORIENTE MÉDIO AUTÊNTICO",
+      description: "Aromas intensos e luxuosos que despertam os sentidos",
+      cta: "Explorar",
+      ctaLink: "/products?category=arabes",
+      image: "/hero-2.jpg",
+      gradient: "linear-gradient(135deg, #1a0f0a 0%, #2d1810 50%, #1a0f0a 100%)"
+    },
+    {
+      title: "PERFUMES\nFRANCESES",
+      subtitle: "ELEGÂNCIA PARISIENSE",
+      description: "Refinamento das tradicionais parfumeries francesas",
+      cta: "Ver França",
+      ctaLink: "/products?category=franceses",
+      image: "/hero-3.jpg",
+      gradient: "linear-gradient(135deg, #0a0a1a 0%, #151530 50%, #0a0a1a 100%)"
     }
   ]
 
@@ -122,8 +154,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative h-screen overflow-hidden">
+      {/* Hero Section - Mobile Carousel */}
+      <section className="md:hidden">
+        <MobileCarousel slides={mobileCarouselSlides} />
+      </section>
+
+      {/* Hero Section - Desktop */}
+      <section className="relative h-screen overflow-hidden hidden md:block">
         {heroSlides.map((slide, index) => (
           <div
             key={index}
@@ -149,8 +186,8 @@ export default function HomePage() {
                     href="/products"
                     className={`inline-block px-12 py-4 text-lg font-medium tracking-wide uppercase transition-all duration-300 ${
                       slide.dark 
-                        ? 'bg-white text-black hover:bg-amber-100 border-2 border-transparent hover:border-amber-600' 
-                        : 'bg-black text-white hover:bg-gray-800'
+                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl border-2 border-amber-500 hover:border-amber-600' 
+                        : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl'
                     }`}
                   >
                     {slide.cta}
@@ -204,7 +241,7 @@ export default function HomePage() {
                   <p className="text-white/80 font-medium mb-4">
                     {collection.description}
                   </p>
-                  <div className="inline-flex items-center text-white font-medium tracking-wide uppercase text-sm">
+                  <div className="inline-flex items-center text-white font-medium tracking-wide uppercase text-sm group-hover:text-amber-300 transition-colors duration-300">
                     Ver Perfumes
                     <svg className="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -213,6 +250,43 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-16 bg-amber-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">FRETE GRÁTIS</h3>
+              <p className="text-gray-600">Em compras acima de R$ 200 para todo o Brasil</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">PRODUTOS ORIGINAIS</h3>
+              <p className="text-gray-600">100% autênticos direto dos fabricantes</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">ATENDIMENTO VIP</h3>
+              <p className="text-gray-600">Suporte especializado e personalizado</p>
+            </div>
           </div>
         </div>
       </section>
@@ -235,12 +309,12 @@ export default function HomePage() {
                 <div className="relative aspect-square overflow-hidden">
                   <div className="w-full h-full bg-gray-200" />
                   {product.isNew && (
-                    <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 text-xs font-medium tracking-wide uppercase">
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1 text-xs font-bold tracking-wide uppercase shadow-lg">
                       New
                     </div>
                   )}
                   {product.originalPrice && (
-                    <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 text-xs font-medium tracking-wide uppercase">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white px-3 py-1 text-xs font-bold tracking-wide uppercase shadow-lg">
                       Sale
                     </div>
                   )}
@@ -259,9 +333,14 @@ export default function HomePage() {
                       R$ {product.price}
                     </span>
                     {product.originalPrice && (
-                      <span className="text-lg text-gray-500 line-through">
-                        R$ {product.originalPrice}
-                      </span>
+                      <>
+                        <span className="text-lg text-gray-500 line-through">
+                          R$ {product.originalPrice}
+                        </span>
+                        <span className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded-md font-bold">
+                          {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                        </span>
+                      </>
                     )}
                   </div>
                 </div>
@@ -274,7 +353,7 @@ export default function HomePage() {
           <div className="text-center mt-12">
             <Link 
               href="/products"
-              className="inline-block bg-black text-white px-12 py-4 font-medium tracking-wide uppercase hover:bg-gray-800 transition-colors duration-200"
+              className="inline-block bg-gradient-to-r from-amber-500 to-amber-600 text-white px-12 py-4 font-medium tracking-wide uppercase hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Ver Todos os Perfumes
             </Link>
@@ -288,8 +367,11 @@ export default function HomePage() {
           <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">
             FIQUE POR DENTRO
           </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-2 max-w-2xl mx-auto">
             Seja o primeiro a saber sobre novos lançamentos, ofertas exclusivas e coleções especiais
+          </p>
+          <p className="text-amber-400 font-bold mb-8">
+            ✨ Receba 10% de desconto na primeira compra
           </p>
           
           <form className="max-w-md mx-auto flex">
@@ -300,7 +382,7 @@ export default function HomePage() {
             />
             <button
               type="submit"
-              className="bg-white text-black px-8 py-4 font-medium tracking-wide uppercase hover:bg-gray-100 transition-colors duration-200"
+              className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-8 py-4 font-medium tracking-wide uppercase hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg"
             >
               Inscrever-se
             </button>

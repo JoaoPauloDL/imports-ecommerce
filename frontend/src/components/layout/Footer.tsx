@@ -232,7 +232,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="bg-gray-800 py-4">
+      <div className="bg-gray-800 py-4 pb-20 md:pb-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
             <div className="mb-2 md:mb-0">
