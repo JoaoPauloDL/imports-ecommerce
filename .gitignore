@@ -49,21 +49,17 @@ docker-compose.override.yml
 # Prisma
 backend/prisma/migrations/
 
-# Documentation and Study Files
-AULA_*.md
-TUTORIAL_*.md
-EXPLICACAO_*.md
-DOCUMENTACAO_*.md
-NOTES_*.md
-*_PESSOAL.md
-*_ESTUDOS.md
-TECHNICAL_DELIVERY.md
-PROJECT_STATUS.md
-ADMIN_COMPLETE.md
-ADMIN_GUIDE.md
-DOCUMENTATION.md
-FRONTEND_DOCUMENTATION.md
-ESTUDO_INICIAL.md
+# Documentation and Study Files (Exceto README.md)
+*.md
+!README.md
+
+# Supabase and Database Files
+backend/supabase-migration.sql
+backend/test-connection.js
+backend/SETUP-SUPABASE.md
+
+# Server Files
+backend/admin-server.js
 
 # Temporary files
 tmp/
