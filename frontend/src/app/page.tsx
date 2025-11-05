@@ -10,9 +10,11 @@ import MobileCarousel from '@/components/MobileCarousel'
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
 
   useEffect(() => {
     setMounted(true)
+    fetchFeaturedProducts()
     
     // Auto-slide hero carousel
     const interval = setInterval(() => {
@@ -21,6 +23,80 @@ export default function HomePage() {
 
     return () => clearInterval(interval)
   }, [])
+
+  const fetchFeaturedProducts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/products')
+      if (response.ok) {
+        const result = await response.json()
+        const products = result.data || result
+        
+        if (Array.isArray(products)) {
+          // Pegar apenas produtos em destaque e ativos
+          const featured = products
+            .filter(product => product.featured && product.isActive)
+            .slice(0, 4) // Máximo 4 produtos
+            .map((product: any) => ({
+              id: product.id,
+              name: product.name,
+              price: Number(product.price),
+              originalPrice: Number(product.price) * 1.2, // Simular preço original
+              category: product.category?.name || 'Geral',
+              image: product.imageUrl || '/api/placeholder/300/300',
+              isNew: false,
+              brand: 'Importado'
+            }))
+          
+          setFeaturedProducts(featured)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar produtos em destaque:', error)
+      // Usar produtos de fallback em caso de erro
+      setFeaturedProducts(defaultFeaturedProducts)
+    }
+  }
+
+  const defaultFeaturedProducts = [
+    {
+      id: 1,
+      name: "OUD ROYAL ARABESQUE",
+      price: 299.90,
+      originalPrice: 399.90,
+      category: "Perfumes Árabes",
+      image: "/product-1.jpg",
+      isNew: true,
+      brand: "Al Haramain"
+    },
+    {
+      id: 2, 
+      name: "CHANEL No. 5 PARIS",
+      price: 549.99,
+      category: "Perfumes Franceses",
+      image: "/product-2.jpg",
+      isNew: false,
+      brand: "Chanel"
+    },
+    {
+      id: 3,
+      name: "SAUVAGE DIOR",
+      price: 389.90,
+      originalPrice: 459.90,
+      category: "Masculinos", 
+      image: "/product-3.jpg",
+      isNew: false,
+      brand: "Dior"
+    },
+    {
+      id: 4,
+      name: "MISS DIOR BLOOMING",
+      price: 429.99,
+      category: "Femininos",
+      image: "/product-4.jpg", 
+      isNew: true,
+      brand: "Dior"
+    }
+  ]
 
   const heroSlides = [
     {
@@ -104,47 +180,6 @@ export default function HomePage() {
       description: "Delicadeza & Charme",
       link: "/products?category=femininos", 
       image: "/collection-femininos.jpg"
-    }
-  ]
-
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "OUD ROYAL ARABESQUE",
-      price: 299.90,
-      originalPrice: 399.90,
-      category: "Perfumes Árabes",
-      image: "/product-1.jpg",
-      isNew: true,
-      brand: "Al Haramain"
-    },
-    {
-      id: 2, 
-      name: "CHANEL No. 5 PARIS",
-      price: 549.99,
-      category: "Perfumes Franceses",
-      image: "/product-2.jpg",
-      isNew: false,
-      brand: "Chanel"
-    },
-    {
-      id: 3,
-      name: "SAUVAGE DIOR",
-      price: 389.90,
-      originalPrice: 459.90,
-      category: "Masculinos", 
-      image: "/product-3.jpg",
-      isNew: false,
-      brand: "Dior"
-    },
-    {
-      id: 4,
-      name: "MISS DIOR BLOOMING",
-      price: 429.99,
-      category: "Femininos",
-      image: "/product-4.jpg", 
-      isNew: true,
-      brand: "Dior"
     }
   ]
 

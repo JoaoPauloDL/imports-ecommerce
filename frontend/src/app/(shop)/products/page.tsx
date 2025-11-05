@@ -7,8 +7,51 @@ import CategoryFloatingActions from '@/components/CategoryFloatingActions'
 import ThemedHero from '@/components/ThemedHero'
 import { usePageTheme } from '@/utils/themes'
 
-// Mock products data - will be replaced with API calls
-const mockProducts = [
+// Interface para produtos do backend
+interface Product {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  price: number
+  originalPrice?: number
+  sku?: string
+  stockQuantity: number
+  categoryId?: string
+  imageUrl?: string
+  featured: boolean
+  isActive: boolean
+  category?: {
+    id: string
+    name: string
+    slug: string
+  }
+}
+
+// Função para converter produto do backend para formato do frontend
+const convertBackendProduct = (backendProduct: any) => ({
+  id: backendProduct.id,
+  name: backendProduct.name,
+  slug: backendProduct.slug || backendProduct.name.toLowerCase().replace(/\s+/g, '-'),
+  price: Number(backendProduct.price),
+  originalPrice: backendProduct.featured ? Number(backendProduct.price) * 1.2 : undefined, // Simular preço original para produtos em destaque
+  image: backendProduct.imageUrl || '/api/placeholder/400/400',
+  category: backendProduct.category?.slug || 'geral',
+  brand: 'Importado', // Default brand
+  volume: '100ml', // Default volume
+  concentration: 'Eau de Parfum', // Default concentration
+  fraganceFamily: 'Diversos', // Default family
+  rating: 4.5 + Math.random() * 0.5, // Rating simulado entre 4.5 e 5.0
+  reviewCount: Math.floor(Math.random() * 500) + 100, // Reviews simuladas
+  discount: backendProduct.featured ? 15 : undefined, // Desconto para produtos em destaque
+  isNew: false, // Por enquanto todos como não novos
+  isBestSeller: backendProduct.featured, // Produtos em destaque são best sellers
+  stockStatus: backendProduct.stockQuantity > 0 ? 'in_stock' : 'out_of_stock' as const,
+  freeShipping: Number(backendProduct.price) > 100 // Frete grátis acima de R$ 100
+})
+
+// Produtos de fallback (caso API falhe)
+const fallbackProducts = [
   {
     id: '1',
     name: 'BLEU DE CHANEL',
@@ -171,6 +214,7 @@ const categoryNames: Record<string, string> = {
 export default function ProductsPage() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<any[]>([])
   const currentTheme = usePageTheme()
 
   // Get filters from URL params
@@ -178,19 +222,60 @@ export default function ProductsPage() {
   const searchQuery = searchParams?.get('search') || ''
   const filter = searchParams?.get('filter') || ''
 
+  // Fetch products from backend
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      console.log('🔄 Buscando produtos do backend...')
+      const response = await fetch('http://localhost:5000/api/products')
+      
+      if (response.ok) {
+        const result = await response.json()
+        const backendProducts = result.data || result
+        
+        console.log('📦 Produtos recebidos do backend:', backendProducts)
+        
+        if (Array.isArray(backendProducts)) {
+          // Converter produtos do backend para formato do frontend
+          const convertedProducts = backendProducts
+            .filter(product => product.isActive) // Apenas produtos ativos
+            .map(convertBackendProduct)
+          
+          console.log('✅ Produtos convertidos:', convertedProducts)
+          setProducts(convertedProducts)
+        } else {
+          console.warn('⚠️ Formato de dados inesperado, usando produtos de fallback')
+          setProducts(fallbackProducts)
+        }
+      } else {
+        console.error('❌ Erro na resposta da API, usando produtos de fallback')
+        setProducts(fallbackProducts)
+      }
+    } catch (error) {
+      console.error('❌ Erro ao buscar produtos:', error)
+      console.log('🔄 Usando produtos de fallback')
+      setProducts(fallbackProducts)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Filter products based on URL parameters
   const filteredProducts = useMemo(() => {
-    let products = [...mockProducts]
+    let filteredList = [...products]
 
     // Filter by category
     if (category && category !== 'all') {
-      products = products.filter(product => product.category === category)
+      filteredList = filteredList.filter(product => product.category === category)
     }
 
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      products = products.filter(product => 
+      filteredList = filteredList.filter(product => 
         product.name.toLowerCase().includes(query) ||
         product.brand?.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query)
@@ -199,23 +284,15 @@ export default function ProductsPage() {
 
     // Filter by special filters
     if (filter === 'sale') {
-      products = products.filter(product => product.originalPrice && product.discount)
+      filteredList = filteredList.filter(product => product.originalPrice && product.discount)
     } else if (filter === 'new') {
-      products = products.filter(product => product.isNew)
+      filteredList = filteredList.filter(product => product.isNew)
     } else if (filter === 'featured') {
-      products = products.filter(product => product.isBestSeller)
+      filteredList = filteredList.filter(product => product.isBestSeller)
     }
 
-    return products
-  }, [category, searchQuery, filter])
-
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [category, searchQuery, filter])
+    return filteredList
+  }, [products, category, searchQuery, filter])
 
   // Page title based on filters
   const getPageTitle = () => {
