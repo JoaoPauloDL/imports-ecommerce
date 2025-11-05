@@ -28,6 +28,24 @@ model User {
   @@map("users")
 }
 
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  imageUrl    String?   @map("image_url")
+  isActive    Boolean   @default(true) @map("is_active")
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+  products    ProductCategory[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([order])
+  @@map("categories")
+}
+
 model Product {
   id            String      @id @default(cuid())
   name          String
@@ -38,14 +56,30 @@ model Product {
   stockQuantity Int         @default(0) @map("stock_quantity")
   isActive      Boolean     @default(true) @map("is_active")
   imageUrl      String?     @map("image_url")
+  images        String[]    @default([]) // Array de URLs das imagens
   featured      Boolean     @default(false)
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at")
   orderItems    OrderItem[]
+  categories    ProductCategory[]
 
   @@index([slug])
   @@index([isActive])
   @@map("products")
+}
+
+// Tabela de relacionamento many-to-many entre Product e Category
+model ProductCategory {
+  id         String   @id @default(cuid())
+  productId  String   @map("product_id")
+  categoryId String   @map("category_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, categoryId])
+  @@map("product_categories")
 }
 
 model Address {
