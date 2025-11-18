@@ -42,15 +42,40 @@ export default function RegisterPage() {
     }
 
     try {
-      // Aqui seria a chamada para a API de cadastro
-      console.log('Register attempt:', formData)
-      // Simular delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log('🔐 Tentando registrar:', formData.email)
       
-      // Por enquanto, redirecionar para login
-      router.push('/login?message=Cadastro realizado com sucesso!')
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          phone: formData.phone || undefined
+        })
+      })
+      
+      const data = await response.json()
+      console.log('📡 Resposta do servidor:', response.status, data)
+      
+      if (response.ok && data.token && data.user) {
+        console.log('✅ Registro bem-sucedido!')
+        
+        // Salvar token e dados do usuário
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        
+        // Redirecionar para home
+        router.push('/?message=Cadastro realizado com sucesso!')
+      } else {
+        console.error('❌ Erro no registro:', data)
+        setError(data.error || 'Erro ao criar conta')
+      }
     } catch (err) {
-      setError('Erro ao criar conta. Tente novamente.')
+      console.error('💥 Erro no registro:', err)
+      setError('Erro ao conectar com o servidor. Tente novamente.')
     } finally {
       setLoading(false)
     }

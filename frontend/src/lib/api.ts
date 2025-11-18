@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/authStore';
 
 // Configuração base do axios
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '30000'),
   headers: {
     'Content-Type': 'application/json',
@@ -13,10 +13,17 @@ const api = axios.create({
 // Interceptor para adicionar token de autorização
 api.interceptors.request.use(
   (config) => {
+    // Tenta pegar o token do Zustand store primeiro
     const { tokens } = useAuthStore.getState();
+    let token = tokens?.accessToken;
     
-    if (tokens?.accessToken) {
-      config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+    // Fallback: tenta pegar do localStorage
+    if (!token) {
+      token = localStorage.getItem('token');
+    }
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     
     return config;

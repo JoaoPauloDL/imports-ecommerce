@@ -3,60 +3,38 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  image: string
-  quantity: number
-  slug: string
-}
+import { useCartStore } from '@/store/cartStore'
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const { cart, fetchCart, updateQuantity, removeItem, isLoading } = useCartStore()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Simular carregamento do carrinho
-    setTimeout(() => {
-      setCartItems([
-        {
-          id: '1',
-          name: 'iPhone 15 Pro Max',
-          price: 8999.99,
-          image: '/api/placeholder/100/100',
-          quantity: 1,
-          slug: 'iphone-15-pro-max'
-        },
-        {
-          id: '3',
-          name: 'AirPods Pro 2ª Geração',
-          price: 1899.99,
-          image: '/api/placeholder/100/100',
-          quantity: 2,
-          slug: 'airpods-pro-2-geracao'
-        }
-      ])
+    const loadCart = async () => {
+      await fetchCart()
       setLoading(false)
-    }, 1000)
-  }, [])
+    }
+    loadCart()
+  }, [fetchCart])
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity === 0) {
-      setCartItems(cartItems.filter(item => item.id !== id))
-    } else {
-      setCartItems(cartItems.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      ))
+  const handleUpdateQuantity = async (productId: string, newQuantity: number) => {
+    try {
+      await updateQuantity(productId, newQuantity)
+    } catch (error) {
+      console.error('Error updating quantity:', error)
     }
   }
 
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id))
+  const handleRemoveItem = async (productId: string) => {
+    try {
+      await removeItem(productId)
+    } catch (error) {
+      console.error('Error removing item:', error)
+    }
   }
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const cartItems = cart?.items || []
+  const subtotal = cart?.total || 0
   const shipping = subtotal > 500 ? 0 : 49.90
   const total = subtotal + shipping
 
@@ -112,10 +90,10 @@ export default function CartPage() {
                 <div className="space-y-4">
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                      <Link href={`/products/${item.slug}`} className="flex-shrink-0">
+                      <Link href={`/products/${item.product.slug}`} className="flex-shrink-0">
                         <Image
-                          src={item.image}
-                          alt={item.name}
+                          src={item.product.imageUrl || item.product.images[0] || '/api/placeholder/80/80'}
+                          alt={item.product.name}
                           width={80}
                           height={80}
                           className="rounded-lg object-cover"
@@ -123,19 +101,19 @@ export default function CartPage() {
                       </Link>
                       
                       <div className="flex-1 min-w-0">
-                        <Link href={`/products/${item.slug}`}>
+                        <Link href={`/products/${item.product.slug}`}>
                           <h3 className="font-medium text-gray-900 hover:text-primary">
-                            {item.name}
+                            {item.product.name}
                           </h3>
                         </Link>
                         <p className="text-lg font-semibold text-primary mt-1">
-                          R$ {item.price.toFixed(2)}
+                          R$ {item.product.price.toFixed(2)}
                         </p>
                       </div>
 
                       <div className="flex items-center space-x-3">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1)}
                           className="p-1 rounded-full hover:bg-gray-100"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +126,7 @@ export default function CartPage() {
                         </span>
                         
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
                           className="p-1 rounded-full hover:bg-gray-100"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,10 +137,10 @@ export default function CartPage() {
 
                       <div className="text-right">
                         <p className="font-semibold text-gray-900">
-                          R$ {(item.price * item.quantity).toFixed(2)}
+                          R$ {(item.product.price * item.quantity).toFixed(2)}
                         </p>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => handleRemoveItem(item.productId)}
                           className="text-red-600 hover:text-red-800 text-sm mt-1"
                         >
                           Remover
@@ -179,7 +157,13 @@ export default function CartPage() {
                 ← Continuar Comprando
               </Link>
               <button
-                onClick={() => setCartItems([])}
+                onClick={async () => {
+                  try {
+                    await useCartStore.getState().clearCart()
+                  } catch (error) {
+                    console.error('Error clearing cart:', error)
+                  }
+                }}
                 className="text-red-600 hover:text-red-800 font-medium"
               >
                 Limpar Carrinho

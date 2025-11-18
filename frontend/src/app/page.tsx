@@ -6,11 +6,17 @@ import Image from 'next/image'
 import DevAuthButtons from '@/components/DevAuthButtons'
 import DavidImportadosLogo from '@/components/DavidImportadosLogo'
 import MobileCarousel from '@/components/MobileCarousel'
+import StructuredData from '@/components/StructuredData'
+import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/schema'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
+
+  // Schema.org data para SEO
+  const organizationSchema = generateOrganizationSchema()
+  const websiteSchema = generateWebsiteSchema()
 
   useEffect(() => {
     setMounted(true)
@@ -39,6 +45,7 @@ export default function HomePage() {
             .map((product: any) => ({
               id: product.id,
               name: product.name,
+              slug: product.slug,
               price: Number(product.price),
               originalPrice: Number(product.price) * 1.2, // Simular preço original
               category: product.category?.name || 'Geral',
@@ -47,11 +54,13 @@ export default function HomePage() {
               brand: 'Importado'
             }))
           
+          console.log('✅ Produtos em destaque carregados do backend:', featured)
           setFeaturedProducts(featured)
         }
       }
     } catch (error) {
       console.error('Erro ao buscar produtos em destaque:', error)
+      console.warn('⚠️ Usando produtos de fallback')
       // Usar produtos de fallback em caso de erro
       setFeaturedProducts(defaultFeaturedProducts)
     }
@@ -59,8 +68,9 @@ export default function HomePage() {
 
   const defaultFeaturedProducts = [
     {
-      id: 1,
+      id: '1',
       name: "OUD ROYAL ARABESQUE",
+      slug: "oud-royal-arabesque",
       price: 299.90,
       originalPrice: 399.90,
       category: "Perfumes Árabes",
@@ -69,8 +79,9 @@ export default function HomePage() {
       brand: "Al Haramain"
     },
     {
-      id: 2, 
+      id: '2', 
       name: "CHANEL No. 5 PARIS",
+      slug: "chanel-no-5-paris",
       price: 549.99,
       category: "Perfumes Franceses",
       image: "/product-2.jpg",
@@ -78,8 +89,9 @@ export default function HomePage() {
       brand: "Chanel"
     },
     {
-      id: 3,
+      id: '3',
       name: "SAUVAGE DIOR",
+      slug: "sauvage-dior",
       price: 389.90,
       originalPrice: 459.90,
       category: "Masculinos", 
@@ -88,8 +100,9 @@ export default function HomePage() {
       brand: "Dior"
     },
     {
-      id: 4,
+      id: '4',
       name: "MISS DIOR BLOOMING",
+      slug: "miss-dior-blooming",
       price: 429.99,
       category: "Femininos",
       image: "/product-4.jpg", 
@@ -189,6 +202,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Schema.org Structured Data para SEO */}
+      <StructuredData data={organizationSchema} />
+      <StructuredData data={websiteSchema} />
+
       {/* Hero Section - Mobile Carousel */}
       <section className="md:hidden">
         <MobileCarousel slides={mobileCarouselSlides} />
@@ -340,9 +357,15 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product) => (
-              <div key={product.id} className="group relative bg-white overflow-hidden hover:shadow-lg transition-all duration-300">
+              <Link 
+                key={product.id} 
+                href={`/products/${product.slug}`}
+                className="group relative bg-white overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+              >
                 <div className="relative aspect-square overflow-hidden">
-                  <div className="w-full h-full bg-gray-200" />
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-400 text-sm">{product.name}</span>
+                  </div>
                   {product.isNew && (
                     <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1 text-xs font-bold tracking-wide uppercase shadow-lg">
                       New
@@ -353,24 +376,33 @@ export default function HomePage() {
                       Sale
                     </div>
                   )}
+                  
+                  {/* Hover Effect */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="bg-white text-black px-6 py-3 font-medium tracking-wide uppercase text-sm">
+                        Ver Detalhes
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="p-6">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
                     {product.brand}
                   </p>
-                  <h3 className="text-lg font-bold text-black mb-1 group-hover:text-gray-600 transition-colors duration-200">
+                  <h3 className="text-lg font-bold text-black mb-1 group-hover:text-amber-600 transition-colors duration-200">
                     {product.name}
                   </h3>
                   <p className="text-sm text-gray-600 mb-3">{product.category}</p>
                   <div className="flex items-center space-x-2">
                     <span className="text-xl font-bold text-black">
-                      R$ {product.price}
+                      R$ {typeof product.price === 'number' ? product.price.toFixed(2).replace('.', ',') : product.price}
                     </span>
                     {product.originalPrice && (
                       <>
                         <span className="text-lg text-gray-500 line-through">
-                          R$ {product.originalPrice}
+                          R$ {typeof product.originalPrice === 'number' ? product.originalPrice.toFixed(2).replace('.', ',') : product.originalPrice}
                         </span>
                         <span className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded-md font-bold">
                           {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
@@ -379,9 +411,7 @@ export default function HomePage() {
                     )}
                   </div>
                 </div>
-
-                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
+              </Link>
             ))}
           </div>
 

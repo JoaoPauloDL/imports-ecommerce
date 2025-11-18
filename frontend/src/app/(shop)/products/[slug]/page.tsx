@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useCartStore } from '@/store/cartStore'
+import Toast, { ToastType } from '@/components/ui/Toast'
 
 interface Product {
   id: string
@@ -23,8 +25,11 @@ interface Product {
 
 export default function ProductDetailPage() {
   const params = useParams()
+  const router = useRouter()
+  const { addToCart, isLoading: cartLoading } = useCartStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
+  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState('description')
@@ -88,9 +93,17 @@ export default function ProductDetailPage() {
     ))
   }
 
-  const handleAddToCart = () => {
-    // Implementar adicionar ao carrinho
-    alert(`Adicionado ${quantity} item(s) ao carrinho!`)
+  const handleAddToCart = async () => {
+    if (!product) return
+    
+    try {
+      await addToCart(product.id, quantity)
+      setToast({ message: `${quantity} item(s) adicionado(s) ao carrinho!`, type: 'success' })
+      // Optional: redirect to cart
+      // router.push('/cart')
+    } catch (error) {
+      setToast({ message: 'Erro ao adicionar ao carrinho. Tente novamente.', type: 'error' })
+    }
   }
 
   if (loading) {
@@ -352,6 +365,14 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   )
 }

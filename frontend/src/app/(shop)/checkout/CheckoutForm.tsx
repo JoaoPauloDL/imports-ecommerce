@@ -9,12 +9,15 @@ import Button from '../../../components/ui/Button';
 import { formatPrice } from '../../../lib/utils';
 
 export default function CheckoutForm() {
-  const { items, total, clearCart } = useCartStore();
+  const { cart, clearCart } = useCartStore();
   const { user } = useAuthStore();
   const router = useRouter();
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  
+  const items = cart?.items || [];
+  const total = cart?.total || 0;
   
   const [billingData, setBillingData] = useState({
     fullName: user?.fullName || '',

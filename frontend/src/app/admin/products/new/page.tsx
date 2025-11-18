@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface Category {
   id: string;
@@ -33,31 +34,22 @@ export default function NewProductPage() {
 
   const fetchCategories = async () => {
     try {
-      console.log('📂 Carregando categorias...');
+      console.log('📂 Carregando categorias do banco de dados...');
       const response = await fetch('http://localhost:5000/api/categories');
       if (response.ok) {
         const data = await response.json();
         const categoriesList = Array.isArray(data) ? data : data.data || [];
-        console.log('✅ Categorias do backend:', categoriesList);
-        setCategories(categoriesList);
+        console.log('✅ Categorias carregadas do backend:', categoriesList);
+        setCategories(categoriesList.filter((cat: Category) => cat.isActive !== false));
         return;
       }
+      console.error('❌ Erro ao buscar categorias:', response.status);
+      setCategories([]);
     } catch (error) {
-      console.error('⚠️ Erro ao carregar categorias do backend:', error.message);
+      console.error('❌ Erro ao conectar com backend:', error);
+      console.log('⚠️ Certifique-se de que o backend está rodando em http://localhost:5000');
+      setCategories([]);
     }
-    
-    // Fallback para categorias mock
-    const mockCategories = [
-      { id: 'cat-001', name: 'Ofertas Exclusivas' },
-      { id: 'cat-002', name: 'Masculinos' },
-      { id: 'cat-003', name: 'Femininos' },
-      { id: 'cat-004', name: 'Lançamentos' },
-      { id: 'cat-005', name: 'Eletrônicos' },
-      { id: 'cat-006', name: 'Casa & Decoração' }
-    ];
-    
-    console.log('📋 Usando categorias mock:', mockCategories);
-    setCategories(mockCategories);
   };
 
   const showMessage = (type: string, text: string) => {
@@ -267,14 +259,16 @@ export default function NewProductPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">SKU</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  SKU <span className="text-gray-400 text-xs">(opcional - será gerado automaticamente)</span>
+                </label>
                 <input
                   type="text"
                   name="sku"
                   value={formData.sku}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Ex: PRF001"
+                  placeholder="Ex: IPHONE-15-PRO (deixe vazio para gerar automaticamente)"
                 />
               </div>
 
@@ -309,58 +303,26 @@ export default function NewProductPage() {
                 </div>
 
                 {/* Imagens Adicionais */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">
-                    Imagens Adicionais 
-                    <span className="text-xs text-gray-500">(uma URL por linha)</span>
-                  </label>
-                  <textarea
-                    placeholder={`https://exemplo.com/imagem1.jpg\nhttps://exemplo.com/imagem2.jpg\nhttps://exemplo.com/imagem3.jpg`}
-                    rows={3}
-                    value={formData.images.join('\n')}
-                    onChange={(e) => {
-                      const urls = e.target.value
-                        .split('\n')
-                        .filter(url => url.trim().length > 0);
-                      setFormData(prev => ({
-                        ...prev,
-                        images: urls
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-                  />
-                  
-                  {formData.images.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {formData.images.map((url, index) => (
-                        <div key={index} className="relative">
-                          <img 
-                            src={url} 
-                            alt={`Preview ${index + 1}`}
-                            className="w-16 h-16 object-cover rounded border"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({
-                                ...prev,
-                                images: prev.images.filter((_, i) => i !== index)
-                              }));
-                            }}
-                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-3 p-3 bg-blue-50 rounded-md">
+              {/* Upload de Imagens */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Imagens do Produto *
+                </label>
+                <p className="text-sm text-gray-500 mb-3">
+                  Envie até 5 imagens. A primeira será a imagem principal.
+                </p>
+                <ImageUpload
+                  images={formData.images.length > 0 ? formData.images : (formData.imageUrl ? [formData.imageUrl] : [])}
+                  onImagesChange={(newImages) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      imageUrl: newImages[0] || '',
+                      images: newImages
+                    }));
+                  }}
+                  maxImages={5}
+                />
+              </div>                <div className="mt-3 p-3 bg-blue-50 rounded-md">
                   <p className="text-xs text-blue-700">
                     💡 <strong>Dica:</strong> Em breve teremos upload direto de arquivos! 
                     Por enquanto, use URLs de imagens hospedadas (ex: Imgur, Cloudinary).

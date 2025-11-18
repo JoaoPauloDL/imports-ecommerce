@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
+import { useCartStore } from '@/store/cartStore'
 import { usePageTheme } from '@/utils/themes'
 import { buildNavigationItems, useCategories } from '@/services/categoryService'
 import DavidImportadosLogo from '@/components/DavidImportadosLogo'
@@ -14,14 +15,49 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPath, setCurrentPath] = useState('')
   const [navigation, setNavigation] = useState<Array<{name: string, href: string, icon?: string}>>([])
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
 
-  // Estado real do usuário
-  const { user, isAuthenticated } = useAuthStore()
-  const [cartItemCount] = useState(3)
+  // Estado real do usuário e carrinho
+  const authState = useAuthStore()
+  const { user, isAuthenticated, logout } = authState
+  const { cart, fetchCart } = useCartStore()
+  const cartItemCount = cart?.itemCount || 0
+
+  // Evitar problemas de hidratação
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  // Carregar carrinho quando montar o componente
+  useEffect(() => {
+    if (mounted) {
+      fetchCart()
+    }
+  }, [mounted, fetchCart])
   
   // Verificar se é admin
   const isAdmin = user && (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN')
+  
+  console.log('🧭 Header - Estado COMPLETO de autenticação:', { 
+    user: user ? { id: user.id, email: user.email, role: user.role } : null, 
+    isAuthenticated, 
+    isAdmin,
+    rawAuthState: authState
+  })
+  
+  // Função de logout
+  const handleLogout = () => {
+    logout()
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    
+    // Limpar cookies também
+    document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    document.cookie = 'user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    
+    router.push('/')
+  }
   
   // Tema atual baseado na página
   const currentTheme = usePageTheme()
@@ -61,136 +97,185 @@ export default function Header() {
                       currentPath.includes('/new-arrivals')
 
   return (
-    <header className="bg-white sticky top-0 z-50">
-      {/* Top Bar */}
-      <div className="bg-black text-white text-center py-2 text-sm font-medium">
-        <p>
-          FRETE GRÁTIS para todo Brasil acima de R$ 300 | Perfumes 100% Originais
+    <header className="bg-white sticky top-0 z-50 shadow-sm">
+      {/* Top Bar - Mais elegante */}
+      <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white text-center py-2.5 text-sm font-light tracking-wide">
+        <p className="flex items-center justify-center gap-2">
+          <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <span className="font-normal">FRETE GRÁTIS</span> para todo Brasil acima de R$ 300 
+          <span className="hidden md:inline-flex items-center gap-1 ml-4 text-amber-400">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Perfumes 100% Originais
+          </span>
         </p>
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-24">
           {/* Logo */}
           <div className="flex items-center">
             <DavidImportadosLogo />
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-10">
+          {/* Desktop Navigation - Mais elegante */}
+          <nav className="hidden lg:flex space-x-1">
             {navigation.map((item) => {
-              const isActive = currentPath.includes(item.href.split('?')[1]) // Verificar se a categoria está ativa
+              const isActive = currentPath.includes(item.href.split('?')[1])
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`relative text-black font-medium text-sm tracking-wide hover:text-amber-600 transition-all duration-200 uppercase ${
+                  className={`relative px-4 py-2 text-gray-700 font-medium text-sm tracking-wide hover:text-amber-600 transition-all duration-300 uppercase group ${
                     isActive ? 'text-amber-600' : ''
                   }`}
                 >
-                  {item.name}
-                  {isActive && (
-                    <div className="absolute -bottom-2 left-0 right-0 h-0.5 bg-amber-600 rounded-full"></div>
-                  )}
+                  <span className="relative z-10">{item.name}</span>
+                  {/* Underline elegante */}
+                  <span className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-amber-600 transform origin-left transition-transform duration-300 ${
+                    isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                  }`}></span>
+                  {/* Background hover sutil */}
+                  <span className="absolute inset-0 bg-amber-50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></span>
                 </Link>
               )
             })}
           </nav>
 
-          {/* Right side actions */}
-          <div className="flex items-center space-x-6">
+          {/* Right side actions - Mais refinados */}
+          <div className="flex items-center space-x-3">
             {/* Search */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              className="group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300"
               title="Buscar perfumes"
             >
-              <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+              <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
             </button>
 
             {/* Favorites */}
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 hidden md:block">
-              <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button 
+              className="group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300 hidden md:block"
+              title="Lista de desejos"
+            >
+              <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
+              <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
             </button>
 
             {/* Cart */}
-            <Link href="/cart" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-              <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Link href="/cart" className="group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300">
+              <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 7H6L5 9z" />
               </svg>
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-md">
                   {cartItemCount}
                 </span>
               )}
+              <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
             </Link>
 
             {/* Account */}
-            {isAuthenticated ? (
+            {mounted && isAuthenticated && user ? (
               <div className="relative group">
-                <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                  <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button className="flex items-center space-x-1.5 px-3 py-2 hover:bg-amber-50 rounded-full transition-all duration-300">
+                  <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <svg className="h-4 w-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3.5 w-3.5 text-gray-500 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
-                {/* Dropdown Menu */}
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                {/* Dropdown Menu - Mais elegante */}
+                <div className="absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-50">
                   <div className="py-2">
-                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Minha Conta</p>
+                      <p className="text-sm text-gray-900 font-medium mt-0.5 truncate">{user.email}</p>
+                    </div>
+                    
+                    <Link href="/profile" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-all group/item">
+                      <svg className="w-4 h-4 mr-3 text-gray-400 group-hover/item:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
                       Meu Perfil
                     </Link>
-                    <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                    
+                    <Link href="/orders" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-all group/item">
+                      <svg className="w-4 h-4 mr-3 text-gray-400 group-hover/item:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 7H6L5 9z" />
+                      </svg>
                       Meus Pedidos
                     </Link>
-                    <Link href="/profile/addresses" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                    
+                    <Link href="/profile/addresses" className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-all group/item">
+                      <svg className="w-4 h-4 mr-3 text-gray-400 group-hover/item:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                       Endereços
                     </Link>
+                    
                     {isAdmin && (
                       <>
-                        <hr className="my-2 border-gray-200" />
-                        <Link href="/admin" className="block px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 transition-colors font-medium">
-                          <span className="flex items-center">
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            Painel Admin
-                          </span>
+                        <div className="my-2 border-t border-gray-100"></div>
+                        <Link href="/admin" className="flex items-center px-4 py-2.5 text-sm text-amber-700 hover:bg-amber-50 transition-all font-medium group/item">
+                          <svg className="w-4 h-4 mr-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Painel Admin
                         </Link>
                       </>
                     )}
-                    <hr className="my-2 border-gray-200" />
-                    <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                    
+                    <div className="my-2 border-t border-gray-100"></div>
+                    <button 
+                      onClick={handleLogout}
+                      className="flex items-center w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-all group/item"
+                    >
+                      <svg className="w-4 h-4 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
                       Sair
                     </button>
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="hidden md:flex items-center space-x-6">
-                <Link href="/login" className="text-black font-medium hover:text-gray-600 transition-colors duration-200 uppercase text-sm tracking-wide">
+            ) : mounted ? (
+              <div className="flex items-center space-x-2">
+                <Link 
+                  href="/login" 
+                  className="px-4 py-2 text-gray-700 font-medium hover:text-amber-600 hover:bg-amber-50 rounded-full transition-all duration-300 uppercase text-sm tracking-wide"
+                >
                   Entrar
                 </Link>
-                <Link href="/register" className="text-black font-medium hover:text-gray-600 transition-colors duration-200 uppercase text-sm tracking-wide">
+                <Link 
+                  href="/register" 
+                  className="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium hover:from-amber-600 hover:to-amber-700 rounded-full transition-all duration-300 uppercase text-sm tracking-wide shadow-md hover:shadow-lg"
+                >
                   Cadastrar
                 </Link>
               </div>
+            ) : (
+              <div className="w-20 h-8"></div>
             )}
 
-            {/* Mobile menu button */}
+            {/* Mobile menu button - Mais elegante */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              className="lg:hidden group relative p-2.5 hover:bg-amber-50 rounded-lg transition-all duration-300"
             >
-              <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`h-6 w-6 text-gray-700 group-hover:text-amber-600 transition-all duration-300 ${isMenuOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -240,7 +325,7 @@ export default function Header() {
                 </Link>
               ))}
               
-              {!isAuthenticated && (
+              {mounted && !isAuthenticated && (
                 <div className="pt-6 space-y-4">
                   <Link 
                     href="/login" 

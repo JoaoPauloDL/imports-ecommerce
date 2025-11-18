@@ -60,10 +60,10 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-gray-200;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white text-gray-900;
   }
 }
 
@@ -115,19 +115,35 @@
   animation: spin 1s linear infinite;
 }
 
+/* Toast animations */
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-secondary;
+  @apply bg-gray-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground rounded-md;
+  @apply bg-gray-400 rounded-md;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-foreground/60;
+  @apply bg-gray-600;
 }

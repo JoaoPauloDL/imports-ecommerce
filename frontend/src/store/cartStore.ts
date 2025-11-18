@@ -1,198 +1,215 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import api from '@/lib/api';
 
-export interface ProductVariant {
-  id: string;
-  sku: string;
-  name: string;
-  priceBrl: number;
-  compareAtPrice?: number;
-  attributes?: Record<string, any>;
-  active: boolean;
-  stock?: {
-    quantity: number;
-    reservedQuantity: number;
-  };
-}
-
-export interface Product {
+export interface CartProduct {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  shortDescription?: string;
-  categoryId: string;
-  weightKg: number;
-  dimensionsCm?: Record<string, number>;
-  active: boolean;
-  featured: boolean;
-  variants: ProductVariant[];
-  images: Array<{
-    id: string;
-    url: string;
-    altText?: string;
-    sortOrder: number;
-  }>;
-  category?: {
-    id: string;
-    name: string;
-    slug: string;
-  };
+  price: number;
+  imageUrl?: string;
+  images: string[];
+  stockQuantity: number;
+  isActive: boolean;
 }
 
 export interface CartItem {
   id: string;
-  variantId: string;
+  productId: string;
   quantity: number;
-  variant: ProductVariant & {
-    product: Pick<Product, 'id' | 'name' | 'slug'>;
-  };
+  product: CartProduct;
   createdAt: string;
   updatedAt: string;
 }
 
-interface CartState {
+export interface Cart {
+  id: string;
   items: CartItem[];
+  total: number;
+  itemCount: number;
+}
+
+interface CartState {
+  cart: Cart | null;
   isLoading: boolean;
   error: string | null;
-  
-  // Computed values
-  totalItems: number;
-  totalPrice: number;
+  sessionId: string;
   
   // Actions
-  setItems: (items: CartItem[]) => void;
-  addItem: (item: CartItem) => void;
-  updateItem: (variantId: string, quantity: number) => void;
-  removeItem: (variantId: string) => void;
-  clearCart: () => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
+  fetchCart: () => Promise<void>;
+  addToCart: (productId: string, quantity?: number) => Promise<void>;
+  updateQuantity: (productId: string, quantity: number) => Promise<void>;
+  removeItem: (productId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  mergeGuestCart: (userId: string) => Promise<void>;
+  
+  // Utils
+  getSessionId: () => string;
+  setSessionId: (id: string) => void;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
-      items: [],
+      cart: null,
       isLoading: false,
       error: null,
-      
-      get totalItems() {
-        return get().items.reduce((total, item) => total + item.quantity, 0);
-      },
-      
-      get totalPrice() {
-        return get().items.reduce((total, item) => {
-          return total + (item.variant.priceBrl * item.quantity);
-        }, 0);
-      },
+      sessionId: '',
 
-      setItems: (items: CartItem[]) => {
-        set({ items, error: null });
+      getSessionId: () => {
+        let sessionId = get().sessionId;
+        if (!sessionId) {
+          sessionId = crypto.randomUUID();
+          set({ sessionId });
+        }
+        return sessionId;
       },
 
-      addItem: (newItem: CartItem) => {
-        const items = get().items;
-        const existingIndex = items.findIndex(
-          item => item.variantId === newItem.variantId
-        );
+      setSessionId: (id: string) => {
+        set({ sessionId: id });
+      },
 
-        if (existingIndex >= 0) {
-          // Update existing item
-          const updatedItems = [...items];
-          updatedItems[existingIndex] = {
-            ...updatedItems[existingIndex],
-            quantity: updatedItems[existingIndex].quantity + newItem.quantity,
-            updatedAt: new Date().toISOString(),
-          };
-          set({ items: updatedItems, error: null });
-        } else {
-          // Add new item
+      fetchCart: async () => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          // Get userId from auth store if logged in, otherwise use sessionId
+          const sessionId = get().getSessionId();
+          const userId = localStorage.getItem('userId'); // Or from auth store
+          
+          const params = userId ? { userId } : { sessionId };
+          const response = await api.get('/api/cart', { params });
+          
+          set({ cart: response.data, isLoading: false });
+        } catch (error: any) {
+          console.error('Error fetching cart:', error);
           set({ 
-            items: [...items, newItem], 
-            error: null 
+            error: error.response?.data?.error || 'Erro ao carregar carrinho',
+            isLoading: false 
           });
         }
       },
 
-      updateItem: (variantId: string, quantity: number) => {
-        const items = get().items;
-        const updatedItems = items.map(item => 
-          item.variantId === variantId 
-            ? { ...item, quantity, updatedAt: new Date().toISOString() }
-            : item
-        );
-        set({ items: updatedItems, error: null });
+      addToCart: async (productId: string, quantity: number = 1) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const sessionId = get().getSessionId();
+          const userId = localStorage.getItem('userId');
+          
+          const response = await api.post('/api/cart/add', {
+            productId,
+            quantity,
+            ...(userId ? { userId } : { sessionId })
+          });
+          
+          set({ cart: response.data, isLoading: false });
+        } catch (error: any) {
+          console.error('Error adding to cart:', error);
+          set({ 
+            error: error.response?.data?.error || 'Erro ao adicionar ao carrinho',
+            isLoading: false 
+          });
+          throw error;
+        }
       },
 
-      removeItem: (variantId: string) => {
-        const items = get().items;
-        const filteredItems = items.filter(item => item.variantId !== variantId);
-        set({ items: filteredItems, error: null });
+      updateQuantity: async (productId: string, quantity: number) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const sessionId = get().getSessionId();
+          const userId = localStorage.getItem('userId');
+          
+          const response = await api.put('/api/cart/update', {
+            productId,
+            quantity,
+            ...(userId ? { userId } : { sessionId })
+          });
+          
+          set({ cart: response.data, isLoading: false });
+        } catch (error: any) {
+          console.error('Error updating cart:', error);
+          set({ 
+            error: error.response?.data?.error || 'Erro ao atualizar carrinho',
+            isLoading: false 
+          });
+          throw error;
+        }
       },
 
-      clearCart: () => {
-        set({ items: [], error: null });
+      removeItem: async (productId: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const sessionId = get().getSessionId();
+          const userId = localStorage.getItem('userId');
+          
+          const params = userId ? { userId, productId } : { sessionId, productId };
+          const response = await api.delete('/api/cart/remove', { params });
+          
+          set({ cart: response.data, isLoading: false });
+        } catch (error: any) {
+          console.error('Error removing from cart:', error);
+          set({ 
+            error: error.response?.data?.error || 'Erro ao remover item',
+            isLoading: false 
+          });
+          throw error;
+        }
       },
 
-      setLoading: (loading: boolean) => {
-        set({ isLoading: loading });
+      clearCart: async () => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const sessionId = get().getSessionId();
+          const userId = localStorage.getItem('userId');
+          
+          const params = userId ? { userId } : { sessionId };
+          await api.delete('/api/cart/clear', { params });
+          
+          set({ cart: { id: '', items: [], total: 0, itemCount: 0 }, isLoading: false });
+        } catch (error: any) {
+          console.error('Error clearing cart:', error);
+          set({ 
+            error: error.response?.data?.error || 'Erro ao limpar carrinho',
+            isLoading: false 
+          });
+          throw error;
+        }
       },
 
-      setError: (error: string | null) => {
-        set({ error });
+      mergeGuestCart: async (userId: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const sessionId = get().getSessionId();
+          
+          const response = await api.post('/api/cart/merge', {
+            userId,
+            sessionId
+          });
+          
+          set({ cart: response.data, isLoading: false });
+          
+          // Clear sessionId after merge
+          set({ sessionId: '' });
+        } catch (error: any) {
+          console.error('Error merging cart:', error);
+          set({ 
+            error: error.response?.data?.error || 'Erro ao mesclar carrinho',
+            isLoading: false 
+          });
+          throw error;
+        }
       },
     }),
     {
       name: 'cart-storage',
       partialize: (state) => ({
-        items: state.items,
+        sessionId: state.sessionId,
       }),
     }
   )
 );
-
-// Selectors
-export const selectCartItems = (state: CartState) => state.items;
-export const selectCartTotal = (state: CartState) => state.totalItems;
-export const selectCartPrice = (state: CartState) => state.totalPrice;
-export const selectCartLoading = (state: CartState) => state.isLoading;
-export const selectCartError = (state: CartState) => state.error;
-
-// Hook for cart operations
-export const useCart = () => {
-  const cartStore = useCartStore();
-  
-  return {
-    items: cartStore.items,
-    totalItems: cartStore.totalItems,
-    totalPrice: cartStore.totalPrice,
-    isLoading: cartStore.isLoading,
-    error: cartStore.error,
-    setItems: cartStore.setItems,
-    addItem: cartStore.addItem,
-    updateItem: cartStore.updateItem,
-    removeItem: cartStore.removeItem,
-    clearCart: cartStore.clearCart,
-    setLoading: cartStore.setLoading,
-    setError: cartStore.setError,
-  };
-};
-
-// Helper functions
-export const getCartItemById = (items: CartItem[], variantId: string) => {
-  return items.find(item => item.variantId === variantId);
-};
-
-export const getCartSubtotal = (items: CartItem[]) => {
-  return items.reduce((total, item) => {
-    return total + (item.variant.priceBrl * item.quantity);
-  }, 0);
-};
-
-export const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(price);
-};

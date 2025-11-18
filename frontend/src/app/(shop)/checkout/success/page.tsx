@@ -1,12 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import confetti from 'canvas-confetti'
 
 export default function CheckoutSuccessPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const orderId = searchParams?.get('orderId')
   const [orderNumber] = useState(() => 
-    Math.floor(Math.random() * 900000) + 100000
+    orderId || Math.floor(Math.random() * 900000) + 100000
   )
 
   useEffect(() => {

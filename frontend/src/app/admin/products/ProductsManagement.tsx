@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Toast, { ToastType } from '@/components/ui/Toast'
 
 interface Product {
   id: string
@@ -18,51 +19,91 @@ export default function ProductsManagement() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
+  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
 
   useEffect(() => {
-    // Simular carregamento de produtos
-    setTimeout(() => {
-      setProducts([
-        {
-          id: '1',
-          name: 'iPhone 15 Pro Max',
-          price: 8999.99,
-          stock: 12,
-          category: 'Eletrônicos',
-          status: 'active',
-          image: '/api/placeholder/100/100'
-        },
-        {
-          id: '2',
-          name: 'MacBook Pro M3',
-          price: 12999.99,
-          stock: 8,
-          category: 'Eletrônicos',
-          status: 'active',
-          image: '/api/placeholder/100/100'
-        },
-        {
-          id: '3',
-          name: 'AirPods Pro 2ª Geração',
-          price: 1899.99,
-          stock: 25,
-          category: 'Acessórios',
-          status: 'active',
-          image: '/api/placeholder/100/100'
-        },
-        {
-          id: '4',
-          name: 'Apple Watch Series 9',
-          price: 3499.99,
-          stock: 0,
-          category: 'Eletrônicos',
-          status: 'inactive',
-          image: '/api/placeholder/100/100'
-        }
-      ])
-      setLoading(false)
-    }, 1000)
+    fetchProducts()
   }, [])
+
+  const handleDelete = async (productId: string, productName: string) => {
+    if (!confirm(`Tem certeza que deseja excluir o produto "${productName}"?`)) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`http://localhost:5000/api/admin/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        setToast({ message: 'Produto excluído com sucesso!', type: 'success' })
+        fetchProducts() // Recarregar lista
+      } else {
+        const error = await response.json()
+        setToast({ message: `Erro ao excluir: ${error.message || 'Falha desconhecida'}`, type: 'error' })
+      }
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error)
+      setToast({ message: 'Erro de conexão ao excluir produto', type: 'error' })
+    }
+  }
+
+  const fetchProducts = async () => {
+    try {
+      console.log('🔄 Buscando produtos do backend...')
+      const token = localStorage.getItem('token')
+      console.log('🔑 Token:', token ? 'Encontrado' : 'Não encontrado')
+      
+      const response = await fetch('http://localhost:5000/api/admin/products', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      console.log('📡 Status da resposta:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('📦 Dados recebidos:', data)
+        console.log('📊 Tipo de dados:', Array.isArray(data) ? 'Array' : 'Object')
+        console.log('📊 Quantidade:', Array.isArray(data) ? data.length : 'N/A')
+        
+        // Backend retorna array direto
+        const productsArray = Array.isArray(data) ? data : (data.data || [])
+        
+        const adaptedProducts = productsArray.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          price: Number(product.price),
+          stock: product.stockQuantity || 0,
+          category: product.categories && product.categories.length > 0 
+            ? product.categories.map((c: any) => c.name).join(', ')
+            : 'Sem categoria',
+          status: product.isActive ? 'active' : 'inactive',
+          image: product.imageUrl || '/api/placeholder/100/100'
+        }))
+        
+        console.log('✅ Produtos adaptados:', adaptedProducts.length)
+        setProducts(adaptedProducts)
+      } else {
+        const errorText = await response.text()
+        console.error('❌ Erro ao carregar produtos:', response.status, errorText)
+        setProducts([])
+      }
+    } catch (error) {
+      console.error('❌ Erro ao conectar com backend:', error)
+      console.log('⚠️ Certifique-se de que o backend está rodando em http://localhost:5000')
+      setProducts([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -74,13 +115,15 @@ export default function ProductsManagement() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded mb-6"></div>
-          <div className="space-y-4">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-16 bg-gray-200 rounded"></div>
-            ))}
+      <div className="p-4 lg:p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded mb-6"></div>
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -88,16 +131,17 @@ export default function ProductsManagement() {
   }
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 lg:p-6 pt-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header responsivo */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gerenciar Produtos</h1>
-          <p className="text-gray-600">Gerencie o catálogo de produtos da loja</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">📦 Gerenciar Produtos</h1>
+          <p className="text-gray-600 text-sm lg:text-base">Gerencie o catálogo de produtos da loja</p>
         </div>
         <Link
           href="/admin/products/new"
-          className="btn-primary"
+          className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
           + Novo Produto
         </Link>
@@ -188,7 +232,10 @@ export default function ProductsManagement() {
                       >
                         Editar
                       </Link>
-                      <button className="text-red-600 hover:text-red-800 text-sm font-medium">
+                      <button 
+                        onClick={() => handleDelete(product.id, product.name)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
                         Excluir
                       </button>
                     </div>
@@ -232,6 +279,15 @@ export default function ProductsManagement() {
           <p className="text-sm text-gray-600">Fora de Estoque</p>
         </div>
       </div>
+      </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   )
 }

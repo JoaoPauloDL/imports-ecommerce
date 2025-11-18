@@ -29,17 +29,25 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value
   const userRole = request.cookies.get('user-role')?.value
   
+  console.log('🛡️ Middleware - Verificando rota:', pathname)
+  console.log('🔑 Middleware - Token presente:', !!token)
+  console.log('👤 Middleware - User role:', userRole)
+  
   // Se é rota protegida e não tem token, redirecionar para login
   if (isProtectedRoute && !token) {
+    console.log('❌ Middleware - Rota protegida sem token, redirecionando para login')
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(loginUrl)
   }
   
-  // Se é rota admin e não é admin, redirecionar
+  // Se é rota admin e não é admin, redirecionar para home
   if (isAdminRoute && userRole !== 'admin') {
+    console.log('❌ Middleware - Rota admin mas usuário não é admin, redirecionando para home')
     return NextResponse.redirect(new URL('/', request.url))
   }
+  
+  console.log('✅ Middleware - Acesso liberado para:', pathname)
   
   // Adicionar headers customizados
   const response = NextResponse.next()

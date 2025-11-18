@@ -3,31 +3,96 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/store/authStore'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuthStore()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setSuccess('')
 
     try {
-      // Aqui seria a chamada para a API de login
-      console.log('Login attempt:', formData)
-      // Simular delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log('🔐 Tentando fazer login:', formData)
       
-      // Por enquanto, redirecionar para home
-      router.push('/')
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      
+      const data = await response.json()
+      console.log('📡 Resposta do servidor:', response.status, data)
+      
+      if (response.ok && data.token && data.user) {
+        console.log('✅ Login bem-sucedido!')
+        
+        // Mostrar sucesso
+        setSuccess('Login realizado com sucesso! Redirecionando...')
+        
+        // Adaptar dados do backend para o formato do store
+        const user = {
+          id: data.user.id,
+          email: data.user.email,
+          fullName: data.user.fullName || data.user.email,
+          role: data.user.role === 'admin' ? 'ADMIN' as const : 'CLIENT' as const,
+          emailVerified: true
+        }
+        
+        const tokens = {
+          accessToken: data.token,
+          refreshToken: data.token // Usando o mesmo token por simplicidade
+        }
+        
+        console.log('💾 Salvando no store:', { user, tokens })
+        
+        // Salvar no store
+        login(user, tokens)
+        
+        // Também salvar no localStorage para compatibilidade  
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        
+        // IMPORTANTE: Salvar também em cookies para o middleware
+        document.cookie = `auth-token=${data.token}; path=/; max-age=86400`
+        document.cookie = `user-role=${data.user.role}; path=/; max-age=86400`
+        
+        console.log('💾 Dados salvos no localStorage e store')
+        console.log('🔍 Verificação final dos dados salvos:')
+        console.log('- Token:', localStorage.getItem('token')?.substring(0, 20) + '...')
+        console.log('- User:', localStorage.getItem('user'))
+        
+        // Pequeno delay para garantir que tudo foi salvo
+        setTimeout(() => {
+          console.log('🎯 Executando redirecionamento...')
+          
+          if (user.role === 'ADMIN') {
+            console.log('🔧 Redirecionando ADMIN para /admin')
+            window.location.href = '/admin'
+          } else {
+            console.log('🏠 Redirecionando CLIENT para /')
+            window.location.href = '/'
+          }
+        }, 200)
+      } else {
+        console.error('❌ Erro na resposta:', data)
+        setError(data.message || 'Erro ao fazer login')
+      }
     } catch (err) {
-      setError('Erro ao fazer login. Verifique suas credenciais.')
+      console.error('💥 Erro no login:', err)
+      setError('Erro ao conectar com o servidor. Verifique se o backend está rodando.')
     } finally {
       setLoading(false)
     }
@@ -115,6 +180,14 @@ export default function LoginPage() {
               {error}
             </div>
           )}
+
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md text-sm">
+              {success}
+            </div>
+          )}
+
+
 
           <div>
             <button

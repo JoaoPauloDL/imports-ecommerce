@@ -37,21 +37,27 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
 
       login: (user: User, tokens: AuthTokens) => {
+        console.log('🔐 AuthStore.login - Salvando estado:', { user, hasTokens: !!tokens })
         set({
           user,
           tokens,
           isAuthenticated: true,
           isLoading: false,
         });
+        console.log('✅ AuthStore.login - Estado salvo com sucesso')
       },
 
       logout: () => {
+        console.log('👋 AuthStore.logout - Limpando estado')
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         set({
           user: null,
           tokens: null,
           isAuthenticated: false,
           isLoading: false,
         });
+        console.log('✅ AuthStore.logout - Estado limpo')
       },
 
       updateUser: (userData: Partial<User>) => {
@@ -73,11 +79,25 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        tokens: state.tokens,
-        isAuthenticated: state.isAuthenticated,
-      }),
+      partialize: (state) => {
+        console.log('💾 Zustand persist - Salvando estado:', {
+          user: state.user,
+          hasTokens: !!state.tokens,
+          isAuthenticated: state.isAuthenticated
+        })
+        return {
+          user: state.user,
+          tokens: state.tokens,
+          isAuthenticated: state.isAuthenticated,
+        }
+      },
+      onRehydrateStorage: () => (state) => {
+        console.log('🔄 Zustand persist - Estado hidratado:', {
+          user: state?.user,
+          hasTokens: !!state?.tokens,
+          isAuthenticated: state?.isAuthenticated
+        })
+      }
     }
   )
 );
