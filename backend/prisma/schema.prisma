@@ -22,6 +22,7 @@ model User {
   addresses     Address[]
   orders        Order[]
   refreshTokens RefreshToken[]
+  cart          Cart?
 
   @@index([email])
   @@index([role])
@@ -61,6 +62,7 @@ model Product {
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at")
   orderItems    OrderItem[]
+  cartItems     CartItem[]
   categories    ProductCategory[]
 
   @@index([slug])
@@ -97,6 +99,8 @@ model Address {
   user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders       Order[]
 
+  @@index([userId])
+  @@index([zipCode])
   @@map("addresses")
 }
 
@@ -105,14 +109,20 @@ model Order {
   userId      String      @map("user_id")
   addressId   String      @map("address_id")
   status      String      @default("pending")
-  total       Decimal     @db.Decimal(10, 2)
   totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
+  shippingCost Decimal    @default(0) @map("shipping_cost") @db.Decimal(10, 2)
+  orderNumber String?     @unique @map("order_number") // Número do pedido para o cliente
+  paymentId   String?     @map("payment_id") // ID do pagamento (MercadoPago)
+  paymentStatus String?   @map("payment_status") // Status do pagamento
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
   items       OrderItem[]
   address     Address     @relation(fields: [addressId], references: [id])
   user        User        @relation(fields: [userId], references: [id])
 
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
   @@map("orders")
 }
 
@@ -137,4 +147,30 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique @map("user_id")
+  sessionId String?    @unique @map("session_id")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  items     CartItem[]
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String   @map("cart_id")
+  productId String   @map("product_id")
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
 }
