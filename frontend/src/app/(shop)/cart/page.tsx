@@ -34,7 +34,7 @@ export default function CartPage() {
   }
 
   const cartItems = cart?.items || []
-  const subtotal = cart?.total || 0
+  const subtotal = Number(cart?.total || 0)
   const shipping = subtotal > 500 ? 0 : 49.90
   const total = subtotal + shipping
 
@@ -76,75 +76,84 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Carrinho de Compras</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Carrinho de Compras</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Lista de Items */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm border">
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
                   Itens no Carrinho ({cartItems.length})
                 </h2>
                 <div className="space-y-4">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                      <Link href={`/products/${item.product.slug}`} className="flex-shrink-0">
-                        <Image
-                          src={item.product.imageUrl || item.product.images[0] || '/api/placeholder/80/80'}
-                          alt={item.product.name}
-                          width={80}
-                          height={80}
-                          className="rounded-lg object-cover"
-                        />
-                      </Link>
-                      
-                      <div className="flex-1 min-w-0">
-                        <Link href={`/products/${item.product.slug}`}>
-                          <h3 className="font-medium text-gray-900 hover:text-primary">
-                            {item.product.name}
-                          </h3>
+                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border border-gray-200 rounded-lg">
+                      {/* Imagem e Info do Produto */}
+                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                        <Link href={`/products/${item.product.slug}`} className="flex-shrink-0">
+                          <Image
+                            src={item.product.imageUrl || item.product.images[0] || '/api/placeholder/80/80'}
+                            alt={item.product.name}
+                            width={80}
+                            height={80}
+                            className="rounded-lg object-cover w-20 h-20"
+                          />
                         </Link>
-                        <p className="text-lg font-semibold text-primary mt-1">
-                          R$ {item.product.price.toFixed(2)}
-                        </p>
+                        
+                        <div className="flex-1 min-w-0">
+                          <Link href={`/products/${item.product.slug}`}>
+                            <h3 className="font-medium text-gray-900 hover:text-primary text-sm sm:text-base truncate">
+                              {item.product.name}
+                            </h3>
+                          </Link>
+                          <p className="text-base sm:text-lg font-semibold text-primary mt-1">
+                            R$ {Number(item.product.price).toFixed(2)}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1)}
-                          className="p-1 rounded-full hover:bg-gray-100"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                          </svg>
-                        </button>
-                        
-                        <span className="font-medium text-gray-900 w-8 text-center">
-                          {item.quantity}
-                        </span>
-                        
-                        <button
-                          onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
-                          className="p-1 rounded-full hover:bg-gray-100"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                          </svg>
-                        </button>
-                      </div>
+                      {/* Controles de Quantidade e Preço */}
+                      <div className="flex items-center justify-between sm:justify-end gap-4">
+                        {/* Quantidade */}
+                        <div className="flex items-center gap-2 sm:gap-3 bg-gray-50 rounded-lg px-2 py-1">
+                          <button
+                            onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                            className="p-1 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                            </svg>
+                          </button>
+                          
+                          <span className="font-medium text-gray-900 w-8 text-center">
+                            {item.quantity}
+                          </span>
+                          
+                          <button
+                            onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
+                            className="p-1 rounded-full hover:bg-gray-200"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          </button>
+                        </div>
 
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">
-                          R$ {(item.product.price * item.quantity).toFixed(2)}
-                        </p>
-                        <button
-                          onClick={() => handleRemoveItem(item.productId)}
-                          className="text-red-600 hover:text-red-800 text-sm mt-1"
-                        >
-                          Remover
-                        </button>
+                        {/* Preço Total e Remover */}
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900 text-base sm:text-lg whitespace-nowrap">
+                            R$ {(Number(item.product.price) * item.quantity).toFixed(2)}
+                          </p>
+                          <button
+                            onClick={() => handleRemoveItem(item.productId)}
+                            className="text-red-600 hover:text-red-800 text-xs sm:text-sm mt-1"
+                          >
+                            Remover
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -152,8 +161,8 @@ export default function CartPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-between items-center">
-              <Link href="/products" className="btn-secondary">
+            <div className="mt-6 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+              <Link href="/products" className="btn-secondary text-center">
                 ← Continuar Comprando
               </Link>
               <button
@@ -172,42 +181,42 @@ export default function CartPage() {
           </div>
 
           {/* Resumo do Pedido */}
-          <div>
-            <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
+          <div className="lg:sticky lg:top-8 h-fit">
+            <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Resumo do Pedido</h2>
               
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-sm sm:text-base text-gray-600">
                   <span>Subtotal ({cartItems.length} {cartItems.length === 1 ? 'item' : 'itens'})</span>
-                  <span>R$ {subtotal.toFixed(2)}</span>
+                  <span className="font-medium">R$ {subtotal.toFixed(2)}</span>
                 </div>
                 
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-sm sm:text-base text-gray-600">
                   <span>Frete</span>
                   <span>
                     {shipping === 0 ? (
-                      <span className="text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-md">GRÁTIS</span>
+                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded text-xs sm:text-sm">GRÁTIS</span>
                     ) : (
-                      `R$ ${shipping.toFixed(2)}`
+                      <span className="font-medium">R$ {shipping.toFixed(2)}</span>
                     )}
                   </span>
                 </div>
                 
                 {shipping > 0 && (
-                  <div className="text-sm text-amber-600 font-medium">
-                    Frete GRÁTIS em compras acima de R$ 500,00
+                  <div className="text-xs sm:text-sm text-emerald-700 font-medium bg-emerald-50 p-2 rounded">
+                    💡 Frete GRÁTIS em compras acima de R$ 500,00
                   </div>
                 )}
                 
                 <hr className="my-4" />
                 
-                <div className="flex justify-between text-lg font-semibold text-gray-900">
+                <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-900">
                   <span>Total</span>
-                  <span>R$ {total.toFixed(2)}</span>
+                  <span className="text-primary">R$ {total.toFixed(2)}</span>
                 </div>
               </div>
 
-              <Link href="/checkout" className="btn-primary w-full mb-4">
+              <Link href="/checkout" className="btn-primary w-full mb-3 text-center block py-3 sm:py-4 text-sm sm:text-base">
                 Finalizar Compra
               </Link>
 
@@ -222,14 +231,14 @@ export default function CartPage() {
 
               {/* Cupom de desconto */}
               <div className="mt-6 pt-6 border-t">
-                <h3 className="font-medium text-gray-900 mb-3">Cupom de Desconto</h3>
-                <div className="flex space-x-2">
+                <h3 className="text-sm sm:text-base font-medium text-gray-900 mb-3">Cupom de Desconto</h3>
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     placeholder="Digite seu cupom"
-                    className="input flex-1"
+                    className="input flex-1 text-sm sm:text-base px-3 py-2"
                   />
-                  <button className="btn-secondary px-4">
+                  <button className="btn-secondary px-4 py-2 text-sm sm:text-base whitespace-nowrap">
                     Aplicar
                   </button>
                 </div>
