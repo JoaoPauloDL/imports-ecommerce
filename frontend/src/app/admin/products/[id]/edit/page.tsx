@@ -120,6 +120,10 @@ export default function EditProductPage() {
     e.preventDefault()
     setSaving(true)
 
+    console.log('🔍 Estado do formData antes de enviar:', formData)
+    console.log('🔍 categoryIds especificamente:', formData.categoryIds)
+    console.log('🔍 Tipo de categoryIds:', typeof formData.categoryIds, Array.isArray(formData.categoryIds))
+
     try {
       const token = localStorage.getItem('token')
       const productData = {
@@ -135,6 +139,7 @@ export default function EditProductPage() {
       }
 
       console.log('📤 Enviando dados do produto:', productData)
+      console.log('📤 categoryIds no productData:', productData.categoryIds)
 
       const response = await fetch(`http://localhost:5000/api/admin/products/${productId}`, {
         method: 'PUT',
@@ -226,8 +231,8 @@ export default function EditProductPage() {
               </div>
 
               <div>
-                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-2">
-                  Categoria
+                <label htmlFor="categories" className="block text-sm font-medium text-gray-700 mb-2">
+                  Categorias (segure Ctrl para selecionar múltiplas)
                 </label>
                 {loadingCategories ? (
                   <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
@@ -235,13 +240,20 @@ export default function EditProductPage() {
                   </div>
                 ) : (
                   <select
-                    id="categoryId"
-                    name="categoryId"
-                    value={formData.categoryId}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    id="categories"
+                    name="categories"
+                    multiple
+                    value={formData.categoryIds}
+                    onChange={(e) => {
+                      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value)
+                      console.log('📋 Categorias selecionadas:', selectedOptions)
+                      setFormData(prev => ({
+                        ...prev,
+                        categoryIds: selectedOptions
+                      }))
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
                   >
-                    <option value="">Sem categoria</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
@@ -336,31 +348,43 @@ export default function EditProductPage() {
               <div className="text-gray-500">Carregando categorias...</div>
             ) : categories.length > 0 ? (
               <div className="space-y-2">
-                {categories.filter(cat => cat.is_active).map(category => (
-                  <label key={category.id} className="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.categoryIds.includes(category.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFormData(prev => ({
-                            ...prev,
-                            categoryIds: [...prev.categoryIds, category.id]
-                          }))
-                        } else {
-                          setFormData(prev => ({
-                            ...prev,
-                            categoryIds: prev.categoryIds.filter(id => id !== category.id)
-                          }))
-                        }
-                      }}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <span className="ml-3 text-sm font-medium text-gray-700">
-                      {category.name}
-                    </span>
-                  </label>
-                ))}
+                {categories.filter(cat => cat.is_active).map(category => {
+                  const isChecked = formData.categoryIds.includes(category.id)
+                  return (
+                    <label key={category.id} className="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          console.log(`☑️ Checkbox ${category.name} (${category.id}) mudou para: ${e.target.checked}`)
+                          console.log('☑️ categoryIds ANTES:', formData.categoryIds)
+                          
+                          setFormData(prev => {
+                            let newCategoryIds: string[]
+                            if (e.target.checked) {
+                              // Adicionar categoria
+                              newCategoryIds = [...prev.categoryIds, category.id]
+                              console.log('➕ Adicionando categoria. Novo array:', newCategoryIds)
+                            } else {
+                              // Remover categoria
+                              newCategoryIds = prev.categoryIds.filter(id => id !== category.id)
+                              console.log('➖ Removendo categoria. Novo array:', newCategoryIds)
+                            }
+                            
+                            return {
+                              ...prev,
+                              categoryIds: newCategoryIds
+                            }
+                          })
+                        }}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="ml-3 text-sm font-medium text-gray-700">
+                        {category.name}
+                      </span>
+                    </label>
+                  )
+                })}
               </div>
             ) : (
               <div className="text-gray-500 text-sm">
