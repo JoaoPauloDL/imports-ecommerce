@@ -83,12 +83,12 @@ export default function ProductCard({
               </span>
             )}
             {product.isBestSeller && (
-              <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1 text-xs font-bold tracking-wider uppercase shadow-lg">
+              <span className="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-3 py-1 text-xs font-semibold tracking-wide uppercase shadow-md">
                 Best Seller
               </span>
             )}
             {discountPercentage > 0 && (
-              <span className="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-3 py-1 text-xs font-bold tracking-wider uppercase shadow-lg">
+              <span className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-3 py-1 text-xs font-semibold tracking-wide uppercase shadow-md">
                 -{discountPercentage}%
               </span>
             )}
@@ -125,10 +125,10 @@ export default function ProductCard({
             <button
               onClick={handleAddToCart}
               disabled={product.stockStatus === 'out_of_stock'}
-              className={`px-8 py-3 font-medium tracking-wider uppercase text-sm transition-all duration-200 ${
+              className={`px-8 py-3 font-medium tracking-wide text-sm transition-all duration-300 rounded-lg ${
                 product.stockStatus === 'out_of_stock'
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl border-2 border-amber-500 hover:border-amber-600'
+                  : 'bg-gradient-to-r from-slate-800 to-slate-900 text-white hover:from-slate-900 hover:to-black shadow-lg hover:shadow-xl hover:scale-105 active:scale-95'
               }`}
             >
               {product.stockStatus === 'out_of_stock' ? 'Esgotado' : 'Adicionar'}
@@ -196,14 +196,14 @@ export default function ProductCard({
 
           {/* Stock Status */}
           {product.stockStatus === 'low_stock' && (
-            <p className="text-xs text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-md inline-block">
+            <p className="text-xs text-orange-600 font-semibold bg-orange-50 px-2 py-1 rounded-md inline-block">
               Últimas unidades!
             </p>
           )}
 
           {/* Free Shipping */}
           {product.freeShipping && (
-            <p className="text-xs text-amber-700 font-bold bg-amber-100 px-2 py-1 rounded-md inline-block">
+            <p className="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-1 rounded-md inline-block">
               Frete grátis
             </p>
           )}

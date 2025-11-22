@@ -67,34 +67,34 @@
   }
 }
 
-/* Estilos customizados para o e-commerce - Tema Preto e Branco */
+/* Estilos customizados para o e-commerce - Tema Moderno e Elegante */
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 px-6 py-3 font-medium tracking-wide transition-all duration-200 uppercase text-sm border border-amber-500 hover:border-amber-600 shadow-md hover:shadow-lg;
+    @apply bg-gradient-to-r from-slate-800 to-slate-900 text-white hover:from-slate-900 hover:to-black px-6 py-3 font-medium tracking-wide transition-all duration-300 text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98];
   }
   
   .btn-secondary {
-    @apply bg-white text-black border-2 border-black hover:bg-black hover:text-white px-6 py-3 font-medium tracking-wide transition-all duration-200 uppercase text-sm;
+    @apply bg-white text-slate-900 border border-slate-300 hover:border-slate-900 hover:bg-slate-50 px-6 py-3 font-medium tracking-wide transition-all duration-200 text-sm shadow-sm hover:shadow-md;
   }
   
   .btn-outline {
-    @apply bg-transparent text-black border border-black hover:bg-black hover:text-white px-6 py-3 font-medium tracking-wide transition-all duration-200 uppercase text-sm;
+    @apply bg-transparent text-slate-900 border border-slate-300 hover:bg-slate-900 hover:text-white hover:border-slate-900 px-6 py-3 font-medium tracking-wide transition-all duration-200 text-sm;
   }
   
   .card {
-    @apply bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+    @apply bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-slate-300;
   }
   
   .input {
-    @apply flex h-12 w-full border-b-2 border-gray-300 bg-transparent px-0 py-2 text-sm focus:border-black focus:outline-none placeholder:text-gray-500 transition-colors duration-200;
+    @apply flex h-12 w-full border border-slate-300 bg-white px-4 py-2 text-sm focus:border-slate-900 focus:ring-2 focus:ring-slate-200 focus:outline-none placeholder:text-slate-400 transition-all duration-200 rounded-lg;
   }
   
   .hero-gradient {
-    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
   }
   
   .text-gradient {
-    background: linear-gradient(135deg, #000000 0%, #666666 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
