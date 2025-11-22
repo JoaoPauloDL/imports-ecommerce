@@ -55,6 +55,7 @@ export default function HomePage() {
             }))
           
           console.log('✅ Produtos em destaque carregados do backend:', featured)
+          console.log('📋 Slugs dos produtos:', featured.map(p => `${p.name} → ${p.slug}`))
           setFeaturedProducts(featured)
         }
       }

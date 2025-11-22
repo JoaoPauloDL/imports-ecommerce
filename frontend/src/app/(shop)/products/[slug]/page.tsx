@@ -35,50 +35,72 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState('description')
 
   useEffect(() => {
-    // Simular carregamento de produto
-    setTimeout(() => {
-      // Simulação baseada no slug
-      const mockProduct: Product = {
-        id: '1',
-        name: 'iPhone 15 Pro Max',
-        price: 8999.99,
-        originalPrice: 9999.99,
-        images: [
-          '/api/placeholder/600/600',
-          '/api/placeholder/600/600',
-          '/api/placeholder/600/600',
-          '/api/placeholder/600/600'
-        ],
-        category: 'Eletrônicos',
-        rating: 4.8,
-        reviews: 127,
-        inStock: true,
-        stockCount: 15,
-        slug: params.slug as string,
-        description: `O iPhone 15 Pro Max é o mais avançado iPhone já criado. Com o chip A17 Pro, câmera profissional de 48MP e tela Super Retina XDR de 6,7 polegadas, oferece performance excepcional para todas as suas necessidades.
+    fetchProduct()
+  }, [params.slug])
 
-        Características principais:
-        • Chip A17 Pro com GPU de 6 núcleos
-        • Sistema de câmera Pro com teleobjetiva 5x
-        • Tela Super Retina XDR de 6,7"
-        • Bateria que dura o dia todo
-        • iOS 17 com recursos avançados de IA`,
+  const fetchProduct = async () => {
+    try {
+      setLoading(true)
+      const slug = params.slug as string
+      console.log('🔍 Buscando produto com slug:', slug)
+      
+      const response = await fetch(`http://localhost:5000/api/products?slug=${slug}`)
+      
+      if (!response.ok) {
+        throw new Error('Produto não encontrado')
+      }
+      
+      const result = await response.json()
+      const products = result.data || result
+      
+      if (!Array.isArray(products) || products.length === 0) {
+        console.error('❌ Produto não encontrado:', slug)
+        setProduct(null)
+        setLoading(false)
+        return
+      }
+      
+      const backendProduct = products[0]
+      console.log('✅ Produto encontrado:', backendProduct)
+      
+      // Converter para formato da página
+      const productData: Product = {
+        id: backendProduct.id,
+        name: backendProduct.name,
+        price: Number(backendProduct.price),
+        originalPrice: backendProduct.featured ? Number(backendProduct.price) * 1.2 : undefined,
+        images: backendProduct.imageUrl 
+          ? [backendProduct.imageUrl, backendProduct.imageUrl, backendProduct.imageUrl, backendProduct.imageUrl]
+          : ['/api/placeholder/600/600', '/api/placeholder/600/600'],
+        category: backendProduct.categories?.[0]?.name || 'Geral',
+        rating: 4.5 + Math.random() * 0.5,
+        reviews: Math.floor(Math.random() * 200) + 50,
+        inStock: backendProduct.stockQuantity > 0,
+        stockCount: backendProduct.stockQuantity,
+        slug: backendProduct.slug,
+        description: backendProduct.description || `${backendProduct.name} - Produto importado de alta qualidade.
+
+Características principais:
+• Produto original e importado
+• Garantia de qualidade
+• Entrega rápida e segura
+• Melhor custo-benefício`,
         specifications: {
-          'Tela': '6,7" Super Retina XDR',
-          'Chip': 'A17 Pro',
-          'Câmera': '48MP Principal, 12MP Ultra Angular, 12MP Teleobjetiva 5x',
-          'Bateria': 'Até 29 horas de reprodução de vídeo',
-          'Armazenamento': '256GB, 512GB, 1TB',
-          'Conectividade': '5G, Wi-Fi 6E, Bluetooth 5.3',
-          'Resistência': 'IP68',
-          'Dimensões': '159,9 × 76,7 × 8,25 mm',
-          'Peso': '221g'
+          'SKU': backendProduct.sku || 'N/A',
+          'Estoque': `${backendProduct.stockQuantity} unidades`,
+          'Categoria': backendProduct.categories?.[0]?.name || 'Geral',
+          'Status': backendProduct.isActive ? 'Ativo' : 'Inativo'
         }
       }
-      setProduct(mockProduct)
+      
+      setProduct(productData)
       setLoading(false)
-    }, 1000)
-  }, [params.slug])
+    } catch (error) {
+      console.error('❌ Erro ao buscar produto:', error)
+      setProduct(null)
+      setLoading(false)
+    }
+  }
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (

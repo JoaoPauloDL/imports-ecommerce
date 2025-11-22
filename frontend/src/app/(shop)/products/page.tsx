@@ -6,6 +6,7 @@ import ProductGrid from '@/components/product/ProductGrid'
 import CategoryFloatingActions from '@/components/CategoryFloatingActions'
 import ThemedHero from '@/components/ThemedHero'
 import { usePageTheme } from '@/utils/themes'
+import { useCartStore } from '@/store/cartStore'
 
 // Interface para produtos do backend
 interface Product {
@@ -29,14 +30,17 @@ interface Product {
 }
 
 // Função para converter produto do backend para formato do frontend
-const convertBackendProduct = (backendProduct: any) => ({
-  id: backendProduct.id,
-  name: backendProduct.name,
-  slug: backendProduct.slug || backendProduct.name.toLowerCase().replace(/\s+/g, '-'),
+const convertBackendProduct = (backendProduct: any) => {
+  const converted = {
+    id: backendProduct.id,
+    name: backendProduct.name,
+    slug: backendProduct.slug || backendProduct.name.toLowerCase().replace(/\s+/g, '-'),
   price: Number(backendProduct.price),
   originalPrice: backendProduct.featured ? Number(backendProduct.price) * 1.2 : undefined,
   image: backendProduct.imageUrl || '/api/placeholder/400/400',
-  category: backendProduct.category?.slug || 'geral',
+  category: backendProduct.categories?.[0]?.slug || 'geral', // Primeira categoria para compatibilidade
+  categories: backendProduct.categories || [], // Array completo de categorias
+  categorySlugs: (backendProduct.categories || []).map((c: any) => c.slug), // Array de slugs
   brand: 'Importado',
   volume: '100ml',
   concentration: 'Eau de Parfum',
@@ -45,10 +49,13 @@ const convertBackendProduct = (backendProduct: any) => ({
   reviewCount: Math.floor(Math.random() * 500) + 100,
   discount: backendProduct.featured ? 15 : undefined,
   isNew: false,
-  isBestSeller: backendProduct.featured,
-  stockStatus: backendProduct.stockQuantity > 0 ? 'in_stock' : 'out_of_stock' as const,
-  freeShipping: Number(backendProduct.price) > 100
-})
+    isBestSeller: backendProduct.featured,
+    stockStatus: backendProduct.stockQuantity > 0 ? 'in_stock' : 'out_of_stock' as const,
+    freeShipping: Number(backendProduct.price) > 100
+  }
+  console.log(`🔄 Convertendo produto: ${converted.name} → slug: ${converted.slug}`)
+  return converted
+}
 
 // Category mapping for display
 const categoryNames: Record<string, string> = {
@@ -64,6 +71,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState<any[]>([])
   const currentTheme = usePageTheme()
+  const { addToCart } = useCartStore()
 
   // Get filters from URL params
   const category = searchParams?.get('category') || ''
@@ -115,9 +123,12 @@ export default function ProductsPage() {
   const filteredProducts = useMemo(() => {
     let filteredList = [...products]
 
-    // Filter by category
+    // Filter by category - verifica se o produto tem a categoria no array de slugs
     if (category && category !== 'all') {
-      filteredList = filteredList.filter(product => product.category === category)
+      filteredList = filteredList.filter(product => 
+        product.categorySlugs?.includes(category) || product.category === category
+      )
+      console.log(`🔍 Filtrando por categoria "${category}":`, filteredList.length, 'produtos')
     }
 
     // Filter by search query
@@ -181,6 +192,16 @@ export default function ProductsPage() {
     return 'Explore nossa coleção completa de perfumes importados'
   }
 
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId, 1)
+      console.log('✅ Produto adicionado ao carrinho:', productId)
+    } catch (error) {
+      console.error('❌ Erro ao adicionar ao carrinho:', error)
+      alert('Erro ao adicionar produto ao carrinho')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <ThemedHero
@@ -199,7 +220,10 @@ export default function ProductsPage() {
           </div>
         ) : (
           <>
-            <ProductGrid products={filteredProducts} />
+            <ProductGrid 
+              products={filteredProducts}
+              onAddToCart={handleAddToCart}
+            />
             {filteredProducts.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-gray-600 text-lg">
