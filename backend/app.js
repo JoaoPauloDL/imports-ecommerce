@@ -189,6 +189,7 @@ app.get('/api/categories', async (req, res) => {
         description: true,
         imageUrl: true,
         order: true,
+        isActive: true,
         _count: {
           select: { products: true }
         }
@@ -383,15 +384,27 @@ app.get('/api/products', async (req, res) => {
       maxPrice,      // Preço máximo
       inStock,       // Apenas produtos em estoque
       sortBy,        // Campo de ordenação: price, name, createdAt
-      sortOrder      // Direção: asc ou desc
+      sortOrder,     // Direção: asc ou desc
+      slug           // Busca por slug específico
     } = req.query;
     
     // Construir where clause
     const where = { isActive: true };
     
-    // Filtro por categoria
+    // Filtro por slug (para página de detalhes)
+    if (slug) {
+      where.slug = slug;
+    }
+    
+    // Filtro por categoria (via relação many-to-many)
     if (category) {
-      where.categoryId = category;
+      where.categories = {
+        some: {
+          category: {
+            slug: category
+          }
+        }
+      };
     }
     
     // Filtro por destaque
@@ -728,9 +741,15 @@ app.post('/api/admin/products', async (req, res) => {
     // Gerar SKU automaticamente se não fornecido
     const generatedSku = sku || `SKU-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-    console.log(`📦 Criando produto: ${name}`);
-    console.log(`📂 Categorias selecionadas: ${JSON.stringify(categoryIds)}`);
+    console.log(`\n📦 ========= CRIANDO NOVO PRODUTO =========`);
+    console.log(`📝 Nome: ${name}`);
+    console.log(`💰 Preço: ${price}`);
+    console.log(`📂 CategoryIds recebido:`, categoryIds);
+    console.log(`📂 Tipo de categoryIds:`, typeof categoryIds);
+    console.log(`📂 É array?:`, Array.isArray(categoryIds));
+    console.log(`📂 Length:`, categoryIds?.length);
     console.log(`🏷️ SKU: ${generatedSku}`);
+    console.log(`📦 Body completo:`, JSON.stringify(req.body, null, 2));
 
     // Criar o produto
     const product = await prisma.product.create({
@@ -851,8 +870,14 @@ app.put('/api/admin/products/:id', async (req, res) => {
       isActive 
     } = req.body;
 
-    console.log(`📦 Atualizando produto: ${id}`);
-    console.log(`📂 Categorias: ${JSON.stringify(categoryIds)}`);
+    console.log(`\n📦 ========= ATUALIZANDO PRODUTO =========`);
+    console.log(`🆔 ID: ${id}`);
+    console.log(`📝 Nome: ${name}`);
+    console.log(`📂 CategoryIds recebido:`, categoryIds);
+    console.log(`📂 Tipo de categoryIds:`, typeof categoryIds);
+    console.log(`📂 É array?:`, Array.isArray(categoryIds));
+    console.log(`📂 Length:`, categoryIds?.length);
+    console.log(`📦 Body completo:`, JSON.stringify(req.body, null, 2));
 
     const updateData = {};
     if (name !== undefined) {
@@ -877,13 +902,17 @@ app.put('/api/admin/products/:id', async (req, res) => {
 
     // Atualizar categorias se fornecidas
     if (categoryIds !== undefined && Array.isArray(categoryIds)) {
+      console.log(`📂 Atualizando categorias para produto ${id}...`);
+      
       // Remover todas as categorias atuais
-      await prisma.productCategory.deleteMany({
+      const deleted = await prisma.productCategory.deleteMany({
         where: { productId: id }
       });
+      console.log(`   🗑️  Removidas ${deleted.count} categorias antigas`);
 
       // Adicionar novas categorias
       if (categoryIds.length > 0) {
+        console.log(`   ➕ Adicionando ${categoryIds.length} novas categorias:`, categoryIds);
         await Promise.all(
           categoryIds.map(categoryId =>
             prisma.productCategory.create({
@@ -894,7 +923,12 @@ app.put('/api/admin/products/:id', async (req, res) => {
             })
           )
         );
+        console.log(`   ✅ Categorias atualizadas com sucesso`);
+      } else {
+        console.log(`   ⚠️  Array de categoryIds está vazio!`);
       }
+    } else {
+      console.log(`   ⚠️  categoryIds não fornecido ou não é array:`, categoryIds);
     }
 
     // Buscar produto completo com categorias
