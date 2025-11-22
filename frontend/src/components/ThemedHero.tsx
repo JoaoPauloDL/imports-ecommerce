@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { usePageTheme } from '@/utils/themes'
 import Breadcrumbs, { useBreadcrumbs, BreadcrumbItem } from './Breadcrumbs'
 
@@ -8,14 +9,39 @@ interface ThemedHeroProps {
   description: string
   breadcrumbs?: BreadcrumbItem[]
   children?: React.ReactNode
+  theme?: any
 }
 
-export default function ThemedHero({ title, description, breadcrumbs, children }: ThemedHeroProps) {
-  const currentTheme = usePageTheme()
+export default function ThemedHero({ title, description, breadcrumbs, children, theme: propTheme }: ThemedHeroProps) {
+  const hookTheme = usePageTheme()
+  const [mounted, setMounted] = useState(false)
   const autoBreadcrumbs = useBreadcrumbs()
+  
+  // Usar tema passado como prop ou do hook
+  const currentTheme = propTheme || hookTheme
   
   // Usar breadcrumbs passados como props ou gerar automaticamente
   const finalBreadcrumbs = breadcrumbs || autoBreadcrumbs
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Renderização consistente no servidor e cliente
+  if (!mounted) {
+    return (
+      <div className="bg-gradient-to-br from-gray-800 via-black to-gray-900 text-white py-16 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 uppercase">
+            {title}
+          </h1>
+          <p className="text-xl font-light max-w-2xl mx-auto mb-8">
+            {description}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={`bg-gradient-to-br ${currentTheme.primary} text-white py-16 relative overflow-hidden`}>

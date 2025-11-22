@@ -1,4 +1,5 @@
-import { getActiveCategories, specialPages } from '@/services/categoryService'
+import React from 'react'
+import { getActiveCategories } from '@/services/categoryService'
 
 // Cache de temas para performance
 let themesCache: Record<string, any> = {}
@@ -95,16 +96,6 @@ async function buildDynamicThemes() {
       }
     })
 
-    // Adicionar páginas especiais
-    dynamicThemes.ofertas = {
-      primary: specialPages.ofertas.theme.primary,
-      secondary: specialPages.ofertas.theme.secondary,
-      accent: specialPages.ofertas.theme.accent,
-      text: specialPages.ofertas.theme.text,
-      name: specialPages.ofertas.name,
-      description: specialPages.ofertas.description
-    }
-
     themesCache = dynamicThemes
     lastCacheUpdate = now
     
@@ -117,30 +108,52 @@ async function buildDynamicThemes() {
 
 // Hook para obter o tema atual baseado na URL
 export function usePageTheme() {
-  if (typeof window === 'undefined') {
-    return pageThemes.default
-  }
-  
-  const pathname = window.location.pathname
-  const searchParams = new URLSearchParams(window.location.search)
-  
-  // Verificar categoria nos parâmetros de pesquisa
-  const category = searchParams.get('category')
-  if (category && pageThemes[category as keyof typeof pageThemes]) {
-    return pageThemes[category as keyof typeof pageThemes]
-  }
-  
-  // Verificar filtros especiais
-  const filter = searchParams.get('filter')
-  if (filter === 'sale') return pageThemes.ofertas
-  if (filter === 'new') return pageThemes.lancamentos
-  
-  // Verificar rotas específicas
-  if (pathname.includes('/offers')) return pageThemes.ofertas
-  if (pathname.includes('/new-arrivals')) return pageThemes.lancamentos
-  
-  // Tema padrão
-  return pageThemes.default
+  const [theme, setTheme] = React.useState(pageThemes.default)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+    
+    if (typeof window === 'undefined') {
+      return
+    }
+    
+    const pathname = window.location.pathname
+    const searchParams = new URLSearchParams(window.location.search)
+    
+    // Verificar categoria nos parâmetros de pesquisa
+    const category = searchParams.get('category')
+    if (category && pageThemes[category as keyof typeof pageThemes]) {
+      setTheme(pageThemes[category as keyof typeof pageThemes])
+      return
+    }
+    
+    // Verificar filtros especiais
+    const filter = searchParams.get('filter')
+    if (filter === 'sale') {
+      setTheme(pageThemes.ofertas)
+      return
+    }
+    if (filter === 'new') {
+      setTheme(pageThemes.lancamentos)
+      return
+    }
+    
+    // Verificar rotas específicas
+    if (pathname.includes('/offers')) {
+      setTheme(pageThemes.ofertas)
+      return
+    }
+    if (pathname.includes('/new-arrivals')) {
+      setTheme(pageThemes.lancamentos)
+      return
+    }
+    
+    // Tema padrão
+    setTheme(pageThemes.default)
+  }, [])
+
+  return theme
 }
 
 // Função para obter tema por chave
