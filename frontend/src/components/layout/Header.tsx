@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
@@ -9,14 +9,25 @@ import { usePageTheme } from '@/utils/themes'
 import { buildNavigationItems, useCategories } from '@/services/categoryService'
 import DavidImportadosLogo from '@/components/DavidImportadosLogo'
 
+interface SearchSuggestion {
+  id: string
+  name: string
+  slug: string
+  price: number
+  imageUrl: string
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const [currentPath, setCurrentPath] = useState('')
   const [navigation, setNavigation] = useState<Array<{name: string, href: string, icon?: string}>>([])
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
+  const searchRef = useRef<HTMLDivElement>(null)
 
   // Estado real do usuário e carrinho
   const authState = useAuthStore()
@@ -80,13 +91,56 @@ export default function Header() {
     }
   }, [categories, loading])
 
+  // Buscar sugestões quando digitar
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (searchTerm.length < 2) {
+        setSearchSuggestions([])
+        setShowSuggestions(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/products?search=${encodeURIComponent(searchTerm)}&limit=5`)
+        const data = await response.json()
+        setSearchSuggestions(data.products || [])
+        setShowSuggestions(true)
+      } catch (error) {
+        console.error('Erro ao buscar sugestões:', error)
+      }
+    }
+
+    const debounceTimer = setTimeout(searchProducts, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [searchTerm])
+
+  // Fechar sugestões ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchTerm.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchTerm)}`)
+      router.push(`/search?q=${encodeURIComponent(searchTerm)}`)
       setIsSearchOpen(false)
       setSearchTerm('')
+      setShowSuggestions(false)
     }
+  }
+
+  const handleSuggestionClick = (slug: string) => {
+    router.push(`/products/${slug}`)
+    setSearchTerm('')
+    setShowSuggestions(false)
+    setIsSearchOpen(false)
   }
 
   // Navegação estática removida - agora usa categorias dinâmicas
@@ -147,20 +201,101 @@ export default function Header() {
 
           {/* Right side actions - Mais refinados */}
           <div className="flex items-center space-x-3">
-            {/* Search */}
+            {/* Search com Autocomplete */}
+            <div ref={searchRef} className="relative hidden md:block">
+              <button
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300"
+                title="Buscar perfumes"
+              >
+                <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+              </button>
+
+              {/* Search Dropdown com Autocomplete */}
+              {isSearchOpen && (
+                <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
+                  <form onSubmit={handleSearch} className="p-4">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Buscar perfumes, marcas..."
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-800 focus:border-transparent"
+                        autoFocus
+                      />
+                      <svg className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </form>
+
+                  {/* Sugestões */}
+                  {showSuggestions && searchSuggestions.length > 0 && (
+                    <div className="border-t border-gray-100">
+                      <div className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Sugestões
+                      </div>
+                      <div className="max-h-96 overflow-y-auto">
+                        {searchSuggestions.map((product) => (
+                          <button
+                            key={product.id}
+                            onClick={() => handleSuggestionClick(product.slug)}
+                            className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                          >
+                            <img
+                              src={product.imageUrl || '/placeholder.png'}
+                              alt={product.name}
+                              className="w-12 h-12 object-cover rounded-lg"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                              <p className="text-sm text-emerald-600 font-semibold">R$ {Number(product.price).toFixed(2)}</p>
+                            </div>
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        onClick={handleSearch}
+                        className="w-full px-4 py-3 bg-slate-800 text-white font-medium hover:bg-slate-700 transition-colors"
+                      >
+                        Ver todos os resultados
+                      </button>
+                    </div>
+                  )}
+
+                  {showSuggestions && searchSuggestions.length === 0 && searchTerm.length >= 2 && (
+                    <div className="px-4 py-8 text-center text-gray-500">
+                      <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <p className="text-sm">Nenhum produto encontrado</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Search Button */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300"
+              className="md:hidden group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300"
               title="Buscar perfumes"
             >
               <svg className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
             </button>
 
             {/* Favorites */}
-            <button 
+            <Link 
+              href="/wishlist"
               className="group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300 hidden md:block"
               title="Lista de desejos"
             >
@@ -168,7 +303,7 @@ export default function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
               <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
-            </button>
+            </Link>
 
             {/* Cart */}
             <Link href="/cart" className="group relative p-3 hover:bg-amber-50 rounded-full transition-all duration-300">

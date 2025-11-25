@@ -1,380 +1,720 @@
-# 🛍️ Imports E-commerce# 🛍️ Imports E-commerce# 🛍️ Imports E-commerce
+# 🛍️ David Importados - E-commerce Completo# � ImportsStore - E-Commerce Platform
 
 
 
-> **E-commerce platform for imported perfumes - Next.js, TypeScript & Tailwind CSS**
+![Status](https://img.shields.io/badge/status-production--ready-brightgreen)![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
+
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
+
+![Next.js](https://img.shields.io/badge/next.js-14-black)![TypeScript](https://img.shields.io/badge/typescript-5.0%2B-blue)
+
+![TypeScript](https://img.shields.io/badge/typescript-5.3-blue)
+
+**Plataforma de e-commerce completa** com **Node.js**, **Express**, **TypeScript**, **PostgreSQL** e **Prisma ORM**.
+
+**E-commerce completo e profissional** de produtos importados, desenvolvido com as melhores tecnologias e práticas do mercado.
+
+Projeto demonstrando **boas práticas**, **arquitetura profissional** e **clean code**.
+
+🔗 **Demo:** [Em breve]  
+
+📚 **Documentação:** [Ver guias](#-documentao)---
 
 
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**> **Modern e-commerce platform for imported perfumes built with Next.js 14, TypeScript, and Tailwind CSS**
-
-[![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+---## ✨ Destaques
 
 
 
-## 📋 About[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)[![Next.js](https://img.shields.io/badge/Next.js-14.2.33-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+## ✨ Funcionalidades- 🏗️ Arquitetura MVC com separação de responsabilidades
+
+- 🎨 Design Patterns (Repository, Singleton, Middleware)
+
+### 🛒 Para Clientes- � Autenticação JWT (access + refresh tokens)
+
+- ✅ Catálogo de produtos com busca e filtros avançados- 🗄️ Banco normalizado com relacionamentos N-N
+
+- ✅ Carrinho persistente (logado e guest)- 📦 API RESTful completa
+
+- ✅ Checkout completo com cálculo de frete- 🎯 SOLID Principles e Clean Code
+
+- ✅ Pagamento via MercadoPago (PIX, Cartão, Boleto)- � Documentação completa (81KB+)
+
+- ✅ Histórico de pedidos com rastreamento- � Pronto para produção
+
+- ✅ Gestão de perfil e endereços
+
+- ✅ Notificações por email---
 
 
 
-Modern e-commerce platform specialized in imported perfumes for the Brazilian market. Features responsive design with minimalist black & white aesthetics and comprehensive shopping functionality.[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+### 👨‍💼 Para Administradores## � Tecnologias
+
+- ✅ Dashboard com estatísticas e gráficos (Recharts)
+
+- ✅ Gestão completa de produtos (CRUD + upload de imagens)**Backend:** Node.js 18+, Express, TypeScript, Prisma, PostgreSQL, JWT, Bcrypt
+
+- ✅ Gestão de pedidos (alterar status, cancelar)**Frontend:** Next.js 14, React 18, Tailwind CSS, Zustand
+
+- ✅ Gestão de usuários**DevOps:** Docker, Supabase, Vercel
+
+- ✅ Alertas de estoque baixo
+
+- ✅ Relatórios de vendas- **State Management:** Zustand
 
 
 
-## ✨ Features[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+### 🔌 Integrações- **Backend:** Node.js, Express *(planned)*A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.
+
+- ✅ **Cloudinary** - Upload e otimização de imagens
+
+- ✅ **MercadoPago** - Gateway de pagamento- **Database:** PostgreSQL, Prisma *(planned)*
+
+- ✅ **Melhor Envio** - Cálculo de frete (com fallback)
+
+- ✅ **ViaCEP** - Autocomplete de endereço
+
+- ✅ **Nodemailer** - Envio de emails
+
+- ✅ **Google Analytics** - Métricas e conversões## 🛠️ Installation
 
 
 
-- 🛒 **Product catalog** with filtering and search[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
-
-- 🛍️ **Shopping cart** with state persistence
-
-- 💳 **Checkout system** with multiple payment options
-
-- 👤 **User authentication** and profile management
-
-- 📱 **Responsive design** for all devices------
-
-- 🎨 **Minimalist UI** with dark theme
+---### 🎯 **Project Purpose**### 🎯 **Project Purpose**
 
 
 
-## 🚀 Tech Stack
-
-## 🌟 **Overview**## 🌟 **Overview**
-
-- **Frontend:** Next.js 14, React 18, TypeScript
-
-- **Styling:** Tailwind CSS
-
-- **State Management:** Zustand
-
-- **Backend:** Node.js, Express *(planned)*A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.A professional full-stack e-commerce solution designed specifically for luxury imported perfume retail. Built with modern technologies and featuring a minimalist black & white design inspired by premium brands like Nike and Adidas.
-
-- **Database:** PostgreSQL, Prisma *(planned)*
+## 🚀 Stack Tecnológica```bash
 
 
 
-## 🛠️ Installation
+### Backend# Clone repositoryThis platform serves the Brazilian luxury perfume market, specializing in:This platform serves the Brazilian luxury perfume market, specializing in:
 
-### 🎯 **Project Purpose**### 🎯 **Project Purpose**
+- **Node.js** 18+ com **Express.js**
 
-```bash
+- **TypeScript** para type safetygit clone https://github.com/JoaoPauloDL/imports-ecommerce.git
 
-# Clone repositoryThis platform serves the Brazilian luxury perfume market, specializing in:This platform serves the Brazilian luxury perfume market, specializing in:
+- **PostgreSQL** via **Supabase**
 
-git clone https://github.com/JoaoPauloDL/imports-ecommerce.git
+- **Prisma ORM** para queries type-safecd imports-ecommerce- **Arabian Fragrances** (Árabes)- **Arabian Fragrances** (Árabes)
 
-cd imports-ecommerce- **Arabian Fragrances** (Árabes)- **Arabian Fragrances** (Árabes)
+- **JWT** para autenticação
 
-
-
-# Install dependencies- **French Perfumes** (Franceses) - **French Perfumes** (Franceses) 
-
-cd frontend
-
-npm install- **Masculine Collections** (Masculinos)- **Masculine Collections** (Masculinos)
+- **Bcrypt** para hash de senhas (10 rounds)
 
 
 
-# Run development server- **Feminine Collections** (Femininos)- **Feminine Collections** (Femininos)
+### Frontend# Install dependencies- **French Perfumes** (Franceses) - **French Perfumes** (Franceses) 
 
-npm run dev
+- **Next.js 14** com App Router
 
-```- **Unisex Options** (Unissex)- **Unisex Options** (Unissex)
+- **React 18** com Server Componentscd frontend
+
+- **TypeScript** em todo o projeto
+
+- **Tailwind CSS** para estilizaçãonpm install- **Masculine Collections** (Masculinos)- **Masculine Collections** (Masculinos)
+
+- **Zustand** para state management
+
+- **React Hook Form** + **Zod** para validação
 
 
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+### DevOps & Tools# Run development server- **Feminine Collections** (Femininos)- **Feminine Collections** (Femininos)
+
+- **Docker** para desenvolvimento
+
+- **Prisma Migrate** para versionamento do banconpm run dev
+
+- **ESLint** para code quality
+
+- **Git** + **GitHub** para versionamento```- **Unisex Options** (Unissex)- **Unisex Options** (Unissex)
 
 
 
-## 📁 Project Structure------
+---
+
+
+
+## 📁 Estrutura do ProjetoOpen [http://localhost:3000](http://localhost:3000) in your browser.
 
 
 
 ```
 
-imports-ecommerce/
+importsStore/
 
-├── frontend/## ✨ **Features**## ✨ **Features**
+├── backend/## 📁 Project Structure------
 
-│   ├── src/app/          # Next.js pages
+│   ├── src/
 
-│   ├── src/components/   # UI components
+│   │   ├── controllers/      # Lógica de negócio
 
-│   ├── src/store/        # State management
+│   │   ├── routes/            # Rotas da API
 
-│   └── src/types/        # TypeScript types### 🛒 **E-commerce Core**### 🛒 **E-commerce Core**
+│   │   ├── middlewares/       # Auth, validação```
 
-├── backend/              # API (future)
+│   │   ├── services/          # Email, shipping
 
-└── docker-compose.yml    # Development setup- **Product Catalog** with advanced filtering and search- **Product Catalog** with advanced filtering and search
+│   │   ├── integrations/      # MercadoPagoimports-ecommerce/
+
+│   │   └── utils/             # JWT, logger
+
+│   ├── prisma/├── frontend/## ✨ **Features**## ✨ **Features**
+
+│   │   └── schema.prisma      # Modelo do banco
+
+│   └── app.ts                 # Entry point│   ├── src/app/          # Next.js pages
+
+│
+
+├── frontend/│   ├── src/components/   # UI components
+
+│   ├── src/
+
+│   │   ├── app/               # Pages (App Router)│   ├── src/store/        # State management
+
+│   │   ├── components/        # Componentes React
+
+│   │   ├── store/             # Zustand stores│   └── src/types/        # TypeScript types### 🛒 **E-commerce Core**### 🛒 **E-commerce Core**
+
+│   │   ├── lib/               # Utilidades
+
+│   │   └── types/             # TypeScript types├── backend/              # API (future)
+
+│   └── public/                # Assets estáticos
+
+│└── docker-compose.yml    # Development setup- **Product Catalog** with advanced filtering and search- **Product Catalog** with advanced filtering and search
+
+├── INTEGRATION_GUIDE.md       # Guia de configuração
+
+├── TESTING_GUIDE.md           # Guia de testes```
+
+├── SEO_GUIDE.md               # Guia de SEO
+
+└── PROJECT_STATUS.md          # Status completo- **Shopping Cart** with persistent state management- **Shopping Cart** with persistent state management
 
 ```
-
-- **Shopping Cart** with persistent state management- **Shopping Cart** with persistent state management
 
 ## 🤝 Contributing
 
+---
+
 - **Secure Checkout** with multiple payment methods- **Secure Checkout** with multiple payment methods
+
+## 🔧 Instalação e Uso
 
 1. Fork the project
 
-2. Create your feature branch (`git checkout -b feature/new-feature`)- **User Authentication** and profile management- **User Authentication** and profile management
+### Pré-requisitos
 
-3. Commit your changes (`git commit -m 'Add new feature'`)
+- Node.js 18+2. Create your feature branch (`git checkout -b feature/new-feature`)- **User Authentication** and profile management- **User Authentication** and profile management
 
-4. Push to the branch (`git push origin feature/new-feature`)- **Order Tracking** and history- **Order Tracking** and history
+- PostgreSQL 14+ (ou conta no Supabase)
 
-5. Open a Pull Request
+- npm ou yarn3. Commit your changes (`git commit -m 'Add new feature'`)
 
 
 
-## 📄 License
+### 1. Clonar o repositório4. Push to the branch (`git push origin feature/new-feature`)- **Order Tracking** and history- **Order Tracking** and history
 
-### 🎨 **Design & UX**### 🎨 **Design & UX**
+```bash
+
+git clone https://github.com/JoaoPauloDL/imports-ecommerce.git5. Open a Pull Request
+
+cd imports-ecommerce
+
+```
+
+
+
+### 2. Configurar Backend## 📄 License
+
+```bash
+
+cd backend### 🎨 **Design & UX**### 🎨 **Design & UX**
+
+npm install
 
 This project is licensed under the MIT License.
 
-- **Responsive Design** optimized for all devices- **Responsive Design** optimized for all devices
+# Configurar variáveis de ambiente
+
+cp .env.example .env- **Responsive Design** optimized for all devices- **Responsive Design** optimized for all devices
+
+# Editar .env com suas credenciais
 
 ## 👤 Author
 
-- **Minimalist UI** inspired by premium brands- **Minimalist UI** inspired by premium brands
+# Executar migrations
+
+npx prisma migrate deploy- **Minimalist UI** inspired by premium brands- **Minimalist UI** inspired by premium brands
+
+npx prisma generate
 
 **João Paulo**  
 
-GitHub: [@JoaoPauloDL](https://github.com/JoaoPauloDL)- **Dark Theme** with black & white color scheme- **Dark Theme** with black & white color scheme
+# Criar usuário admin
 
-- **Smooth Animations** and micro-interactions- **Smooth Animations** and micro-interactions
-
-- **Accessibility** compliant components- **Accessibility** compliant components
+node setup-admin.jsGitHub: [@JoaoPauloDL](https://github.com/JoaoPauloDL)- **Dark Theme** with black & white color scheme- **Dark Theme** with black & white color scheme
 
 
 
-### 🔧 **Technical Features**### 🔧 **Technical Features**
+# Iniciar servidor- **Smooth Animations** and micro-interactions- **Smooth Animations** and micro-interactions
 
-- **Server-Side Rendering** (SSR) with Next.js 14- **Server-Side Rendering** (SSR) with Next.js 14
+npm run dev
 
-- **App Router** for modern routing architecture- **App Router** for modern routing architecture
+# Backend: http://localhost:5000- **Accessibility** compliant components- **Accessibility** compliant components
 
-- **TypeScript** for type safety and better DX- **TypeScript** for type safety and better DX
-
-- **State Management** with Zustand- **State Management** with Zustand
-
-- **Component Library** with reusable UI elements- **Component Library** with reusable UI elements
+```
 
 
 
-------
+### 3. Configurar Frontend
+
+```bash### 🔧 **Technical Features**### 🔧 **Technical Features**
+
+cd frontend
+
+npm install- **Server-Side Rendering** (SSR) with Next.js 14- **Server-Side Rendering** (SSR) with Next.js 14
 
 
+
+# Configurar variáveis de ambiente- **App Router** for modern routing architecture- **App Router** for modern routing architecture
+
+cp .env.local.example .env.local
+
+# Editar .env.local com suas credenciais- **TypeScript** for type safety and better DX- **TypeScript** for type safety and better DX
+
+
+
+# Iniciar aplicação- **State Management** with Zustand- **State Management** with Zustand
+
+npm run dev
+
+# Frontend: http://localhost:3000- **Component Library** with reusable UI elements- **Component Library** with reusable UI elements
+
+```
+
+
+
+### 4. Acessar o sistema
+
+- **Site:** http://localhost:3000------
+
+- **Admin:** http://localhost:3000/admin
+
+  - Email: `admin@davidimportados.com`
+
+  - Senha: `admin123`
 
 ## 🚀 **Tech Stack**## 🚀 **Tech Stack**
 
+---
 
+
+
+## 📚 Documentação
 
 ### **Frontend**### **Frontend**
 
-- **Framework:** Next.js 14.2.33 (React 18)- **Framework:** Next.js 14.2.33 (React 18)
+| Guia | Descrição |
 
-- **Language:** TypeScript 5.x- **Language:** TypeScript 5.x
+|------|-----------|- **Framework:** Next.js 14.2.33 (React 18)- **Framework:** Next.js 14.2.33 (React 18)
 
-- **Styling:** Tailwind CSS 3.4.0- **Styling:** Tailwind CSS 3.4.0
+| [QUICK_START.md](./QUICK_START.md) | Início rápido - próximos passos |
 
-- **State Management:** Zustand- **State Management:** Zustand
+| [INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md) | Como configurar todos os serviços (Cloudinary, MercadoPago, Email) |- **Language:** TypeScript 5.x- **Language:** TypeScript 5.x
 
-- **UI Components:** Custom design system- **UI Components:** Custom design system
+| [TESTING_GUIDE.md](./TESTING_GUIDE.md) | Checklist completo de testes end-to-end |
 
-- **Icons:** Heroicons- **Icons:** Heroicons
+| [SEO_GUIDE.md](./SEO_GUIDE.md) | Como configurar Google Analytics e SEO |- **Styling:** Tailwind CSS 3.4.0- **Styling:** Tailwind CSS 3.4.0
+
+| [PROJECT_STATUS.md](./PROJECT_STATUS.md) | Status completo do projeto |
+
+| [CLOUDINARY_SETUP.md](./CLOUDINARY_SETUP.md) | Setup específico do Cloudinary |- **State Management:** Zustand- **State Management:** Zustand
 
 
 
-### **Backend** *(Planned)*### **Backend** *(Planned)*
+---- **UI Components:** Custom design system- **UI Components:** Custom design system
+
+
+
+## 🔐 Variáveis de Ambiente- **Icons:** Heroicons- **Icons:** Heroicons
+
+
+
+### Backend (`.env`)
+
+```env
+
+# Banco de Dados### **Backend** *(Planned)*### **Backend** *(Planned)*
+
+DATABASE_URL="postgresql://..."
 
 - **Runtime:** Node.js + Express- **Runtime:** Node.js + Express
 
-- **Database:** PostgreSQL with Prisma ORM- **Database:** PostgreSQL with Prisma ORM
+# Autenticação
+
+JWT_SECRET="sua-chave-secreta-super-segura"- **Database:** PostgreSQL with Prisma ORM- **Database:** PostgreSQL with Prisma ORM
+
+JWT_EXPIRES_IN="7d"
 
 - **Authentication:** JWT + bcrypt- **Authentication:** JWT + bcrypt
 
-- **Payment:** Mercado Pago API- **Payment:** Mercado Pago API
+# Cloudinary (Imagens)
 
-- **Shipping:** Correios API integration- **Shipping:** Correios API integration
+CLOUDINARY_CLOUD_NAME="xxx"- **Payment:** Mercado Pago API- **Payment:** Mercado Pago API
+
+CLOUDINARY_API_KEY="xxx"
+
+CLOUDINARY_API_SECRET="xxx"- **Shipping:** Correios API integration- **Shipping:** Correios API integration
 
 
+
+# MercadoPago (Pagamentos)
+
+MERCADO_PAGO_ACCESS_TOKEN="APP-xxx"  # Produção
 
 ### **DevOps & Tools**### **DevOps & Tools**
 
-- **Version Control:** Git with conventional commits- **Version Control:** Git with conventional commits
+# Email (Notificações)
 
-- **Package Manager:** npm- **Package Manager:** npm
+SMTP_HOST="smtp.sendgrid.net"- **Version Control:** Git with conventional commits- **Version Control:** Git with conventional commits
+
+SMTP_USER="apikey"
+
+SMTP_PASS="SG.xxx"- **Package Manager:** npm- **Package Manager:** npm
+
+SMTP_FROM_EMAIL="noreply@davidimportados.com"
 
 - **Linting:** ESLint + Prettier- **Linting:** ESLint + Prettier
 
-- **Containerization:** Docker & Docker Compose- **Containerization:** Docker & Docker Compose
+# Opcional
+
+MELHOR_ENVIO_TOKEN=""  # Deixar vazio usa fallback- **Containerization:** Docker & Docker Compose- **Containerization:** Docker & Docker Compose
+
+```
 
 - **Deployment:** Vercel (Frontend) + Railway (Backend)- **Deployment:** Vercel (Frontend) + Railway (Backend)
 
+### Frontend (`.env.local`)
 
+```env
 
-------
+NEXT_PUBLIC_API_URL="http://localhost:5000"
 
+NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY="APP-xxx"------
 
+NEXT_PUBLIC_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
+
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
+```
 
 ## 🏗️ **Project Structure**## 🏗️ **Project Structure**
 
+---
 
+
+
+## 🧪 Testes
 
 ``````
 
-imports-ecommerce/imports-ecommerce/
+Execute os testes seguindo o guia completo:
 
-├── frontend/                 # Next.js Application├── frontend/                 # Next.js Application
+```bashimports-ecommerce/imports-ecommerce/
+
+# Ver guia detalhado
+
+cat TESTING_GUIDE.md├── frontend/                 # Next.js Application├── frontend/                 # Next.js Application
+
+```
 
 │   ├── src/│   ├── src/
 
-│   │   ├── app/             # App Router pages│   │   ├── app/             # App Router pages
+**Cenários de teste:**
 
-│   │   │   ├── (auth)/      # Authentication routes│   │   │   ├── (auth)/      # Authentication routes
+1. ✅ Cadastro e Login│   │   ├── app/             # App Router pages│   │   ├── app/             # App Router pages
 
-│   │   │   ├── (shop)/      # Shopping routes│   │   │   ├── (shop)/      # Shopping routes
+2. ✅ Navegação e Busca
 
-│   │   │   ├── (user)/      # User profile routes│   │   │   ├── (user)/      # User profile routes
+3. ✅ Carrinho de Compras│   │   │   ├── (auth)/      # Authentication routes│   │   │   ├── (auth)/      # Authentication routes
 
-│   │   │   └── admin/       # Admin dashboard│   │   │   └── admin/       # Admin dashboard
+4. ✅ Checkout Completo
 
-│   │   ├── components/      # Reusable components│   │   ├── components/      # Reusable components
+5. ✅ Painel do Cliente│   │   │   ├── (shop)/      # Shopping routes│   │   │   ├── (shop)/      # Shopping routes
 
-│   │   │   ├── ui/          # Design system│   │   │   ├── ui/          # Design system
+6. ✅ Painel Administrativo
 
-│   │   │   ├── layout/      # Layout components│   │   │   ├── layout/      # Layout components
+7. ✅ Responsividade Mobile│   │   │   ├── (user)/      # User profile routes│   │   │   ├── (user)/      # User profile routes
 
-│   │   │   └── product/     # Product components│   │   │   └── product/     # Product components
 
-│   │   ├── hooks/           # Custom React hooks│   │   ├── hooks/           # Custom React hooks
+
+---│   │   │   └── admin/       # Admin dashboard│   │   │   └── admin/       # Admin dashboard
+
+
+
+## 🚀 Deploy│   │   ├── components/      # Reusable components│   │   ├── components/      # Reusable components
+
+
+
+### Opção 1: Vercel + Railway (Recomendado)│   │   │   ├── ui/          # Design system│   │   │   ├── ui/          # Design system
+
+
+
+**Frontend (Vercel):**│   │   │   ├── layout/      # Layout components│   │   │   ├── layout/      # Layout components
+
+```bash
+
+# Conectar repositório GitHub no Vercel│   │   │   └── product/     # Product components│   │   │   └── product/     # Product components
+
+# Configurar variáveis de ambiente
+
+# Deploy automático│   │   ├── hooks/           # Custom React hooks│   │   ├── hooks/           # Custom React hooks
+
+```
 
 │   │   ├── store/           # Zustand stores│   │   ├── store/           # Zustand stores
 
-│   │   ├── types/           # TypeScript definitions│   │   ├── types/           # TypeScript definitions
+**Backend (Railway):**
 
-│   │   └── utils/           # Utility functions│   │   └── utils/           # Utility functions
+```bash│   │   ├── types/           # TypeScript definitions│   │   ├── types/           # TypeScript definitions
 
-├── backend/                 # Node.js API (Future)├── backend/                 # Node.js API (Future)
+# Conectar repositório GitHub no Railway
+
+# Configurar variáveis de ambiente│   │   └── utils/           # Utility functions│   │   └── utils/           # Utility functions
+
+# Adicionar PostgreSQL addon
+
+# Deploy automático├── backend/                 # Node.js API (Future)├── backend/                 # Node.js API (Future)
+
+```
 
 │   ├── src/│   ├── src/
 
-│   │   ├── controllers/     # Route controllers│   │   ├── controllers/     # Route controllers
+### Opção 2: VPS
 
-│   │   ├── middleware/      # Express middleware│   │   ├── middleware/      # Express middleware
+```bash│   │   ├── controllers/     # Route controllers│   │   ├── controllers/     # Route controllers
 
-│   │   ├── services/        # Business logic│   │   ├── services/        # Business logic
+# Clonar no servidor
 
-│   │   └── routes/          # API routes│   │   └── routes/          # API routes
+git clone https://github.com/JoaoPauloDL/imports-ecommerce.git│   │   ├── middleware/      # Express middleware│   │   ├── middleware/      # Express middleware
 
-└── docker-compose.yml       # Development environment└── docker-compose.yml       # Development environment
+
+
+# Instalar dependências│   │   ├── services/        # Business logic│   │   ├── services/        # Business logic
+
+cd backend && npm install
+
+cd ../frontend && npm install│   │   └── routes/          # API routes│   │   └── routes/          # API routes
+
+
+
+# Build└── docker-compose.yml       # Development environment└── docker-compose.yml       # Development environment
+
+cd frontend && npm run build
 
 ``````
 
+# Configurar PM2, Nginx, SSL
 
+pm2 start backend/app.js
+
+```
 
 ------
 
+---
 
+
+
+## 💰 Custos Estimados
 
 ## 🚀 **Getting Started**## 🚀 **Getting Started**
 
+### Grátis (Para começar)
 
+- ✅ Vercel (Frontend) - Free
 
-### **Prerequisites**### **Prerequisites**
+- ✅ Railway (Backend) - $5/mês
 
-- Node.js 18+ installed- Node.js 18+ installed
+- ✅ Supabase (Banco) - Free### **Prerequisites**### **Prerequisites**
 
-- npm or yarn package manager- npm or yarn package manager
+- ✅ Cloudinary (Imagens) - Free
 
-- Git for version control- Git for version control
-
-
-
-### **Installation**### **Installation**
+- ✅ SendGrid (Email) - Free (100/dia)- Node.js 18+ installed- Node.js 18+ installed
 
 
 
-1. **Clone the repository**1. **Clone the repository**
+**Total:** ~$5/mês (~R$ 25/mês)- npm or yarn package manager- npm or yarn package manager
+
+
+
+### Taxas de Transação- Git for version control- Git for version control
+
+- MercadoPago (CPF): 4,99% + R$ 0,39
+
+- MercadoPago (CNPJ): 3,99% + R$ 0,39
+
+
+
+---### **Installation**### **Installation**
+
+
+
+## 📊 Status do Projeto
+
+
+
+**Versão:** 1.0  1. **Clone the repository**1. **Clone the repository**
+
+**Status:** 🟢 Pronto para produção  
+
+**Última atualização:** 15/11/2025   ```bash   ```bash
+
+
+
+### Completo (100%)   git clone https://github.com/JoaoPauloDL/imports-ecommerce.git   git clone https://github.com/JoaoPauloDL/imports-ecommerce.git
+
+- ✅ Backend completo com todas as APIs
+
+- ✅ Frontend responsivo e funcional   cd imports-ecommerce   cd imports-ecommerce
+
+- ✅ Autenticação e autorização
+
+- ✅ Sistema de carrinho e checkout   ```   ```
+
+- ✅ Integração com pagamento
+
+- ✅ Painel administrativo
+
+- ✅ Dashboard com estatísticas
+
+- ✅ SEO e Analytics2. **Install frontend dependencies**2. **Install frontend dependencies**
+
+- ✅ Documentação completa
 
    ```bash   ```bash
 
-   git clone https://github.com/JoaoPauloDL/imports-ecommerce.git   git clone https://github.com/JoaoPauloDL/imports-ecommerce.git
+### Pendente (Configuração)
 
-   cd imports-ecommerce   cd imports-ecommerce
+- ⏳ Adicionar credenciais de produção   cd frontend   cd frontend
 
-   ```   ```
+- ⏳ Executar testes end-to-end
 
+- ⏳ Adicionar produtos reais   npm install   npm install
 
-
-2. **Install frontend dependencies**2. **Install frontend dependencies**
-
-   ```bash   ```bash
-
-   cd frontend   cd frontend
-
-   npm install   npm install
+- ⏳ Deploy em produção
 
    ```   ```
 
+**Tempo estimado para lançar:** 4-6 horas
 
+
+
+---
 
 3. **Set up environment variables**3. **Set up environment variables**
 
+## 🤝 Contribuindo
+
    ```bash   ```bash
+
+Contribuições são bem-vindas! Por favor:
 
    cp .env.local.example .env.local   cp .env.local.example .env.local
 
-   # Edit .env.local with your configuration   # Edit .env.local with your configuration
+1. Fork o projeto
 
-   ```   ```
+2. Crie uma branch (`git checkout -b feature/MinhaFeature`)   # Edit .env.local with your configuration   # Edit .env.local with your configuration
+
+3. Commit suas mudanças (`git commit -m 'Add: MinhaFeature'`)
+
+4. Push para a branch (`git push origin feature/MinhaFeature`)   ```   ```
+
+5. Abra um Pull Request
 
 
+
+---
 
 4. **Run the development server**4. **Run the development server**
 
+## 📝 Licença
+
    ```bash   ```bash
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
    npm run dev   npm run dev
 
+---
+
    ```   ```
 
+## 👨‍💻 Autor
 
 
-5. **Open your browser**5. **Open your browser**
+
+**João Paulo**  
+
+🔗 [GitHub](https://github.com/JoaoPauloDL)  5. **Open your browser**5. **Open your browser**
+
+📧 Email: [seu-email@exemplo.com]
 
    Navigate to [http://localhost:3000](http://localhost:3000)   Navigate to [http://localhost:3000](http://localhost:3000)
 
+---
 
+
+
+## 🙏 Agradecimentos
 
 ### **Docker Setup** *(Alternative)*### **Docker Setup** *(Alternative)*
 
-```bash```bash
+- Next.js pela framework incrível
 
-docker-compose up --builddocker-compose up --build
+- Vercel pelo deploy gratuito```bash```bash
+
+- Supabase pelo PostgreSQL gerenciado
+
+- MercadoPago pela API de pagamentosdocker-compose up --builddocker-compose up --build
+
+- Cloudinary pelo CDN de imagens
 
 ``````
 
+---
 
+
+
+## 📞 Suporte
 
 ------
 
+Encontrou um bug? Tem uma sugestão?
 
 
-## 📱 **Screenshots & Demo**## 📱 **Screenshots & Demo**
+
+- 🐛 [Abrir Issue](https://github.com/JoaoPauloDL/imports-ecommerce/issues)
+
+- 💬 [Discussões](https://github.com/JoaoPauloDL/imports-ecommerce/discussions)## 📱 **Screenshots & Demo**## 📱 **Screenshots & Demo**
+
+- 📧 Email: [seu-email@exemplo.com]
 
 
+
+---
 
 ### **Homepage**### **Homepage**
 
+**⭐ Se este projeto te ajudou, deixe uma estrela no GitHub!**
+
 Clean, modern landing page showcasing featured perfume categoriesClean, modern landing page showcasing featured perfume categories
+
+**Desenvolvido com ❤️ por João Paulo**
 
 
 

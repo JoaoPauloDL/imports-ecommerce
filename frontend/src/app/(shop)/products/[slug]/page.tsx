@@ -6,6 +6,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import Toast, { ToastType } from '@/components/ui/Toast'
+import ReviewList from '@/components/product/ReviewList'
+import ReviewForm from '@/components/product/ReviewForm'
 
 interface Product {
   id: string
@@ -33,6 +35,7 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState('description')
+  const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0)
 
   useEffect(() => {
     fetchProduct()
@@ -373,14 +376,17 @@ Características principais:
             )}
 
             {activeTab === 'reviews' && (
-              <div className="bg-white rounded-lg p-6">
-                <div className="text-center py-8">
-                  <div className="flex justify-center items-center mb-4">
-                    {renderStars(product.rating)}
-                    <span className="ml-2 text-2xl font-bold">{product.rating}</span>
-                  </div>
-                  <p className="text-gray-600 mb-4">Baseado em {product.reviews} avaliações</p>
-                  <p className="text-gray-500">Sistema de avaliações em desenvolvimento</p>
+              <div className="space-y-6">
+                <ReviewForm 
+                  productId={product.id}
+                  onReviewSubmitted={() => setReviewRefreshTrigger(prev => prev + 1)}
+                />
+                
+                <div className="border-t pt-6">
+                  <ReviewList 
+                    productId={product.id}
+                    refreshTrigger={reviewRefreshTrigger}
+                  />
                 </div>
               </div>
             )}

@@ -23,6 +23,8 @@ model User {
   orders        Order[]
   refreshTokens RefreshToken[]
   cart          Cart?
+  reviews       Review[]
+  wishlist      Wishlist[]
 
   @@index([email])
   @@index([role])
@@ -64,6 +66,8 @@ model Product {
   orderItems    OrderItem[]
   cartItems     CartItem[]
   categories    ProductCategory[]
+  reviews       Review[]
+  wishlist      Wishlist[]
 
   @@index([slug])
   @@index([isActive])
@@ -173,4 +177,39 @@ model CartItem {
 
   @@unique([cartId, productId])
   @@map("cart_items")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  userId    String   @map("user_id")
+  rating    Int      // 1 a 5 estrelas
+  comment   String?  @db.Text
+  isVerified Boolean @default(false) @map("is_verified") // Compra verificada
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId]) // Um usuário só pode avaliar cada produto uma vez
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+  @@map("wishlist")
 }

@@ -2878,6 +2878,340 @@ app.post('/api/shipping/calculate', async (req, res) => {
   }
 });
 
+// ====================
+// WISHLIST (Lista de Desejos)
+// ====================
+
+// Listar wishlist do usuário
+app.get('/api/wishlist', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    const wishlistItems = await prisma.wishlist.findMany({
+      where: { userId },
+      include: {
+        product: {
+          include: {
+            categories: {
+              include: {
+                category: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json({ wishlist: wishlistItems });
+  } catch (error) {
+    console.error('Erro ao buscar wishlist:', error);
+    res.status(500).json({ error: 'Erro ao buscar lista de desejos' });
+  }
+});
+
+// Adicionar produto à wishlist
+app.post('/api/wishlist', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { productId } = req.body;
+    
+    if (!productId) {
+      return res.status(400).json({ error: 'productId é obrigatório' });
+    }
+    
+    // Verificar se produto existe
+    const product = await prisma.product.findUnique({
+      where: { id: productId }
+    });
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Produto não encontrado' });
+    }
+    
+    // Verificar se já existe na wishlist
+    const existing = await prisma.wishlist.findUnique({
+      where: {
+        userId_productId: {
+          userId,
+          productId
+        }
+      }
+    });
+    
+    if (existing) {
+      return res.status(400).json({ error: 'Produto já está na lista de desejos' });
+    }
+    
+    // Adicionar à wishlist
+    const wishlistItem = await prisma.wishlist.create({
+      data: {
+        userId,
+        productId
+      },
+      include: {
+        product: {
+          include: {
+            categories: {
+              include: {
+                category: true
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    res.status(201).json({ wishlistItem });
+  } catch (error) {
+    console.error('Erro ao adicionar à wishlist:', error);
+    res.status(500).json({ error: 'Erro ao adicionar à lista de desejos' });
+  }
+});
+
+// Remover produto da wishlist
+app.delete('/api/wishlist/:productId', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { productId } = req.params;
+    
+    const wishlistItem = await prisma.wishlist.findUnique({
+      where: {
+        userId_productId: {
+          userId,
+          productId
+        }
+      }
+    });
+    
+    if (!wishlistItem) {
+      return res.status(404).json({ error: 'Item não encontrado na lista de desejos' });
+    }
+    
+    await prisma.wishlist.delete({
+      where: {
+        userId_productId: {
+          userId,
+          productId
+        }
+      }
+    });
+    
+    res.json({ message: 'Produto removido da lista de desejos' });
+  } catch (error) {
+    console.error('Erro ao remover da wishlist:', error);
+    res.status(500).json({ error: 'Erro ao remover da lista de desejos' });
+  }
+});
+
+// Verificar se produto está na wishlist
+app.get('/api/wishlist/check/:productId', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { productId } = req.params;
+    
+    const wishlistItem = await prisma.wishlist.findUnique({
+      where: {
+        userId_productId: {
+          userId,
+          productId
+        }
+      }
+    });
+    
+    res.json({ inWishlist: !!wishlistItem });
+  } catch (error) {
+    console.error('Erro ao verificar wishlist:', error);
+    res.status(500).json({ error: 'Erro ao verificar lista de desejos' });
+  }
+});
+
+// ====================
+// REVIEWS (Avaliações de Produtos)
+// ====================
+
+// Listar avaliações de um produto
+app.get('/api/products/:productId/reviews', async (req, res) => {
+  try {
+    const { productId } = req.params;
+    
+    const reviews = await prisma.review.findMany({
+      where: { productId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    // Calcular média de avaliações
+    const avgRating = reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
+    
+    res.json({
+      reviews,
+      stats: {
+        total: reviews.length,
+        averageRating: parseFloat(avgRating.toFixed(1)),
+        distribution: {
+          5: reviews.filter(r => r.rating === 5).length,
+          4: reviews.filter(r => r.rating === 4).length,
+          3: reviews.filter(r => r.rating === 3).length,
+          2: reviews.filter(r => r.rating === 2).length,
+          1: reviews.filter(r => r.rating === 1).length
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar avaliações:', error);
+    res.status(500).json({ error: 'Erro ao buscar avaliações' });
+  }
+});
+
+// Criar avaliação
+app.post('/api/products/:productId/reviews', verifyToken, async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { rating, comment } = req.body;
+    const userId = req.user.userId;
+    
+    // Validações
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Avaliação deve ser entre 1 e 5 estrelas' });
+    }
+    
+    // Verificar se produto existe
+    const product = await prisma.product.findUnique({ where: { id: productId } });
+    if (!product) {
+      return res.status(404).json({ error: 'Produto não encontrado' });
+    }
+    
+    // Verificar se usuário já avaliou
+    const existingReview = await prisma.review.findUnique({
+      where: {
+        productId_userId: {
+          productId,
+          userId
+        }
+      }
+    });
+    
+    if (existingReview) {
+      return res.status(400).json({ error: 'Você já avaliou este produto' });
+    }
+    
+    // Verificar se usuário comprou o produto (opcional - compra verificada)
+    const hasPurchased = await prisma.orderItem.findFirst({
+      where: {
+        productId,
+        order: {
+          userId,
+          status: 'delivered'
+        }
+      }
+    });
+    
+    const review = await prisma.review.create({
+      data: {
+        productId,
+        userId,
+        rating,
+        comment: comment || null,
+        isVerified: !!hasPurchased
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    res.status(201).json({ review });
+  } catch (error) {
+    console.error('Erro ao criar avaliação:', error);
+    res.status(500).json({ error: 'Erro ao criar avaliação' });
+  }
+});
+
+// Atualizar avaliação
+app.put('/api/reviews/:reviewId', verifyToken, async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { rating, comment } = req.body;
+    const userId = req.user.userId;
+    
+    const review = await prisma.review.findUnique({ where: { id: reviewId } });
+    
+    if (!review) {
+      return res.status(404).json({ error: 'Avaliação não encontrada' });
+    }
+    
+    if (review.userId !== userId) {
+      return res.status(403).json({ error: 'Você não pode editar esta avaliação' });
+    }
+    
+    const updatedReview = await prisma.review.update({
+      where: { id: reviewId },
+      data: {
+        rating: rating || review.rating,
+        comment: comment !== undefined ? comment : review.comment,
+        updatedAt: new Date()
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    res.json({ review: updatedReview });
+  } catch (error) {
+    console.error('Erro ao atualizar avaliação:', error);
+    res.status(500).json({ error: 'Erro ao atualizar avaliação' });
+  }
+});
+
+// Deletar avaliação
+app.delete('/api/reviews/:reviewId', verifyToken, async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const userId = req.user.userId;
+    const userRole = req.user.role;
+    
+    const review = await prisma.review.findUnique({ where: { id: reviewId } });
+    
+    if (!review) {
+      return res.status(404).json({ error: 'Avaliação não encontrada' });
+    }
+    
+    // Apenas o próprio usuário ou admin pode deletar
+    if (review.userId !== userId && userRole !== 'admin') {
+      return res.status(403).json({ error: 'Você não pode deletar esta avaliação' });
+    }
+    
+    await prisma.review.delete({ where: { id: reviewId } });
+    
+    res.json({ message: 'Avaliação deletada com sucesso' });
+  } catch (error) {
+    console.error('Erro ao deletar avaliação:', error);
+    res.status(500).json({ error: 'Erro ao deletar avaliação' });
+  }
+});
+
 // Middleware de tratamento de erros
 app.use((error, req, res, next) => {
   console.error('💥 Erro não tratado:', error);
