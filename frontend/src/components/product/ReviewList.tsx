@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Star, ThumbsUp, ShieldCheck, Trash2, Edit2 } from 'lucide-react';
 import StarRating from './StarRating';
-import Button from '../ui/Button';
+import { Button } from '../ui/Button';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';

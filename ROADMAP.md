@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP - ImportsStore E-commerce
 
-**Última Atualização:** 24 de Novembro de 2025  
-**Status Geral do Projeto:** 🟢 75% Completo - Em Desenvolvimento Ativo
+**Última Atualização:** 28 de Novembro de 2025  
+**Status Geral do Projeto:** 🟢 80% Completo - Em Desenvolvimento Ativo
 
 ---
 
@@ -9,16 +9,41 @@
 
 | Categoria | Completo | Total | Percentual |
 |-----------|----------|-------|------------|
-| **Backend APIs** | 28 | 32 | 87.5% |
-| **Frontend Pages** | 18 | 21 | 85.7% |
+| **Backend APIs** | 32 | 35 | 91.4% |
+| **Frontend Pages** | 20 | 21 | 95.2% |
 | **Integrações** | 2 | 4 | 50% |
-| **Database Models** | 11 | 12 | 91.7% |
+| **Database Models** | 12 | 12 | 100% |
 
-**Progresso Geral:** 75% ✅
+**Progresso Geral:** 80% ✅
 
 ---
 
 ## ✅ IMPLEMENTAÇÕES RECENTES (Novembro 2025)
+
+### 💖 Sistema de Wishlist/Favoritos (28/11/2025)
+**Status:** 100% Funcional
+
+**Backend:** (4 Endpoints)
+- `GET /api/wishlist` - Lista favoritos do usuário
+- `POST /api/wishlist` - Adicionar produto (validação de duplicatas)
+- `DELETE /api/wishlist/:productId` - Remover produto
+- `GET /api/wishlist/check/:productId` - Verificar se está na wishlist
+
+**Database:**
+- Modelo `Wishlist` no Prisma
+  - userId, productId, createdAt
+  - Unique constraint: [userId, productId]
+  - Relações: User.wishlist[], Product.wishlist[]
+
+**Frontend:**
+- **useWishlistStore** (Zustand) - Estado global com persist
+- **WishlistButton** - Botão de coração (2 variantes: icon e button)
+- **Página /wishlist** - Grid completo de produtos salvos
+  - Adicionar ao carrinho direto da wishlist
+  - Remover com animação
+  - Empty state quando vazia
+- **Integrado no ProductCard** - Coração no canto superior direito
+- **Link no Header** - Acesso rápido à wishlist
 
 ### 🔍 Sistema de Busca Completo (24/11/2025)
 **Status:** 100% Funcional

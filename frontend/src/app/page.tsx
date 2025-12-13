@@ -175,25 +175,33 @@ export default function HomePage() {
       name: "Perfumes Árabes",
       description: "Oud, Âmbar & Especiarias",
       link: "/products?category=arabes",
-      image: "/collection-arabes.jpg"
+      image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80",
+      gradient: "from-amber-900/80 via-orange-900/70 to-black/80",
+      icon: "✦"
     },
     {
       name: "Perfumes Franceses", 
       description: "Elegância & Sofisticação",
       link: "/products?category=franceses",
-      image: "/collection-franceses.jpg"
+      image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800&q=80",
+      gradient: "from-purple-900/80 via-pink-900/70 to-black/80",
+      icon: "⚜"
     },
     {
       name: "Masculinos",
       description: "Força & Personalidade",
       link: "/products?category=masculinos", 
-      image: "/collection-masculinos.jpg"
+      image: "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800&q=80",
+      gradient: "from-slate-900/80 via-blue-900/70 to-black/80",
+      icon: "♔"
     },
     {
       name: "Femininos",
       description: "Delicadeza & Charme",
       link: "/products?category=femininos", 
-      image: "/collection-femininos.jpg"
+      image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&q=80",
+      gradient: "from-rose-900/80 via-pink-900/70 to-black/80",
+      icon: "❀"
     }
   ]
 
@@ -268,9 +276,10 @@ export default function HomePage() {
       </section>
 
       {/* Collections Grid */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <p className="text-amber-600 font-semibold tracking-wider uppercase mb-3">Coleções Premium</p>
             <h2 className="text-4xl md:text-5xl font-black tracking-tight text-black mb-4">
               EXPLORE NOSSAS CATEGORIAS
             </h2>
@@ -279,28 +288,65 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {collections.map((collection, index) => (
               <Link
                 key={index}
                 href={collection.link}
-                className="group relative overflow-hidden bg-gray-100 aspect-[4/5] hover:shadow-xl transition-all duration-500"
+                className="group relative overflow-hidden rounded-2xl aspect-[3/4] shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
               >
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-500" />
-                <div className="absolute inset-0 flex flex-col justify-end p-8">
-                  <h3 className="text-3xl font-black text-white mb-2 tracking-tight">
+                {/* Imagem de Fundo */}
+                <div className="absolute inset-0 bg-gray-900">
+                  <Image
+                    src={collection.image}
+                    alt=""
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    priority={index < 2}
+                  />
+                </div>
+
+                {/* Overlay Gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-b ${collection.gradient} transition-opacity duration-500 group-hover:opacity-90`} />
+
+                {/* Efeito de Brilho no Hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                </div>
+
+                {/* Conteúdo */}
+                <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
+                  {/* Ícone Decorativo */}
+                  <div className="text-5xl mb-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                    {collection.icon}
+                  </div>
+
+                  <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight leading-tight">
                     {collection.name}
                   </h3>
-                  <p className="text-white/80 font-medium mb-4">
+                  <p className="text-white/90 font-medium mb-4 text-sm md:text-base">
                     {collection.description}
                   </p>
-                  <div className="inline-flex items-center text-white font-medium tracking-wide uppercase text-sm group-hover:text-amber-300 transition-colors duration-300">
+                  
+                  {/* CTA Button */}
+                  <div className="inline-flex items-center text-white font-bold tracking-wide uppercase text-xs md:text-sm group-hover:text-amber-300 transition-colors duration-300">
                     Ver Perfumes
-                    <svg className="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg className="ml-2 h-4 w-4 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
+
+                  {/* Linha Decorativa */}
+                  <div className="w-0 group-hover:w-16 h-0.5 bg-amber-400 mt-4 transition-all duration-500" />
                 </div>
+
+                {/* Badge de Tendência (aleatório para efeito) */}
+                {index === 0 && (
+                  <div className="absolute top-4 right-4 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase shadow-lg">
+                    Destaque
+                  </div>
+                )}
               </Link>
             ))}
           </div>
@@ -345,9 +391,10 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <p className="text-amber-600 font-semibold tracking-wider uppercase mb-3">Best Sellers</p>
             <h2 className="text-4xl md:text-5xl font-black tracking-tight text-black mb-4">
               FRAGRÂNCIAS EM DESTAQUE
             </h2>
@@ -356,61 +403,74 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product) => (
               <Link 
                 key={product.id} 
                 href={`/products/${product.slug}`}
-                className="group relative bg-white overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group relative bg-white rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 transform hover:-translate-y-2"
               >
-                <div className="relative aspect-square overflow-hidden">
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400 text-sm">{product.name}</span>
-                  </div>
-                  {product.isNew && (
-                    <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1 text-xs font-bold tracking-wide uppercase shadow-lg">
-                      New
-                    </div>
-                  )}
-                  {product.originalPrice && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white px-3 py-1 text-xs font-bold tracking-wide uppercase shadow-lg">
-                      Sale
-                    </div>
-                  )}
+                {/* Product Image */}
+                <div className="relative aspect-square overflow-hidden bg-white">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-contain p-6 group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
                   
-                  {/* Hover Effect */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="bg-white text-black px-6 py-3 font-medium tracking-wide uppercase text-sm">
-                        Ver Detalhes
+                  {/* Badges */}
+                  <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                    {product.isNew && (
+                      <span className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-1.5 text-xs font-bold tracking-wide uppercase shadow-lg rounded-full">
+                        Novo
                       </span>
-                    </div>
+                    )}
+                    {product.originalPrice && (
+                      <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1.5 text-xs font-bold tracking-wide uppercase shadow-lg rounded-full">
+                        -{Math.round((1 - product.price / product.originalPrice) * 100)}%
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-6">
+                    <span className="bg-white text-black px-6 py-2.5 font-bold tracking-wide uppercase text-sm rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      Ver Detalhes
+                    </span>
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+                {/* Product Info */}
+                <div className="p-5">
+                  <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-2">
                     {product.brand}
                   </p>
-                  <h3 className="text-lg font-bold text-black mb-1 group-hover:text-amber-600 transition-colors duration-200">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-amber-600 transition-colors duration-200">
                     {product.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3">{product.category}</p>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xl font-bold text-black">
+                  <p className="text-sm text-gray-500 mb-3">{product.category}</p>
+                  
+                  {/* Price */}
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span className="text-2xl font-black text-gray-900">
                       R$ {typeof product.price === 'number' ? product.price.toFixed(2).replace('.', ',') : product.price}
                     </span>
                     {product.originalPrice && (
                       <>
-                        <span className="text-lg text-gray-500 line-through">
+                        <span className="text-sm text-gray-400 line-through">
                           R$ {typeof product.originalPrice === 'number' ? product.originalPrice.toFixed(2).replace('.', ',') : product.originalPrice}
-                        </span>
-                        <span className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded-md font-bold">
-                          {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
                         </span>
                       </>
                     )}
                   </div>
+                  
+                  {product.originalPrice && (
+                    <div className="mt-2 inline-block bg-green-50 text-green-700 px-2.5 py-1 rounded-md text-xs font-bold">
+                      Economize R$ {(product.originalPrice - product.price).toFixed(2).replace('.', ',')}
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}
@@ -419,9 +479,12 @@ export default function HomePage() {
           <div className="text-center mt-12">
             <Link 
               href="/products"
-              className="inline-block bg-gradient-to-r from-amber-500 to-amber-600 text-white px-12 py-4 font-medium tracking-wide uppercase hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-10 py-4 rounded-full font-bold tracking-wide uppercase hover:from-amber-600 hover:to-amber-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               Ver Todos os Perfumes
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
           </div>
         </div>

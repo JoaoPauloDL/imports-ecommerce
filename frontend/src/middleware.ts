@@ -8,13 +8,14 @@ export function middleware(request: NextRequest) {
   // Rotas que precisam de autenticação
   const protectedRoutes = [
     '/profile',
-    '/orders',
-    '/admin',
-    '/checkout'
+    '/orders'
   ]
   
   // Rotas de admin que precisam de permissão especial
   const adminRoutes = ['/admin']
+  
+  // Rotas públicas (não precisam autenticação)
+  const publicRoutes = ['/checkout', '/cart', '/verify-email']
   
   // Verificar se é uma rota protegida
   const isProtectedRoute = protectedRoutes.some(route => 

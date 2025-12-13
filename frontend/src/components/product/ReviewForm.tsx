@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Star } from 'lucide-react';
+import { Star, Send } from 'lucide-react';
 import StarRating from './StarRating';
-import Button from '../ui/Button';
+import { Button } from '../ui/Button';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { toast } from '@/lib/toast';

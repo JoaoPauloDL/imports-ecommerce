@@ -71,10 +71,14 @@ export default function ProductCard({
     >
       <Link href={`/products/${product.slug}`} className="block">
         {/* Product Image */}
-        <div className="relative aspect-square overflow-hidden bg-gray-100">
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-400 text-sm">{product.name}</span>
-          </div>
+        <div className="relative aspect-square overflow-hidden bg-white border border-gray-200 flex items-center justify-center p-4">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
           
           {/* Badges */}
           <div className="absolute top-4 left-4 flex flex-col gap-2">

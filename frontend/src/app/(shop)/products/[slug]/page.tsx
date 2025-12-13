@@ -36,6 +36,10 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState('description')
   const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     fetchProduct()
@@ -131,6 +135,46 @@ Características principais:
     }
   }
 
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index)
+    setIsLightboxOpen(true)
+  }
+
+  const closeLightbox = () => {
+    setIsLightboxOpen(false)
+    setIsZoomed(false)
+  }
+
+  const nextImage = () => {
+    if (!product) return
+    setLightboxIndex((prev) => (prev + 1) % product.images.length)
+  }
+
+  const prevImage = () => {
+    if (!product) return
+    setLightboxIndex((prev) => (prev - 1 + product.images.length) % product.images.length)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setMousePosition({ x, y })
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isLightboxOpen) return
+      
+      if (e.key === 'Escape') closeLightbox()
+      if (e.key === 'ArrowRight') nextImage()
+      if (e.key === 'ArrowLeft') prevImage()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isLightboxOpen, lightboxIndex])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -197,34 +241,85 @@ Características principais:
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Imagens */}
-          <div>
-            <div className="aspect-square mb-4">
-              <Image
-                src={product.images[selectedImage]}
-                alt={product.name}
-                width={600}
-                height={600}
-                className="w-full h-full object-cover rounded-lg"
-              />
+          {/* Galeria de Imagens Profissional */}
+          <div className="space-y-4">
+            {/* Imagem Principal com Zoom */}
+            <div 
+              className="relative aspect-square bg-white rounded-lg overflow-hidden cursor-zoom-in group border-2 border-gray-200 flex items-center justify-center p-4"
+              onClick={() => openLightbox(selectedImage)}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsZoomed(true)}
+              onMouseLeave={() => setIsZoomed(false)}
+            >
+              <div 
+                className="w-full h-full transition-transform duration-300 flex items-center justify-center"
+                style={{
+                  transform: isZoomed ? 'scale(2)' : 'scale(1)',
+                  transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`
+                }}
+              >
+                <Image
+                  src={product.images[selectedImage]}
+                  alt={product.name}
+                  fill
+                  className="object-contain p-4"
+                  priority
+                />
+              </div>
+              
+              {/* Ícone de Zoom */}
+              <div className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                </svg>
+              </div>
+
+              {/* Badge de desconto */}
+              {product.originalPrice && (
+                <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  -{Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                </div>
+              )}
             </div>
+
+            {/* Thumbnails */}
             <div className="grid grid-cols-4 gap-2">
               {product.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`aspect-square rounded-lg overflow-hidden border-2 ${
-                    selectedImage === index ? 'border-primary' : 'border-gray-200'
+                  onMouseEnter={() => setSelectedImage(index)}
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 bg-white flex items-center justify-center p-1 ${
+                    selectedImage === index 
+                      ? 'border-blue-600 ring-2 ring-blue-600 ring-offset-2' 
+                      : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
                   <Image
                     src={image}
                     alt={`${product.name} ${index + 1}`}
-                    width={150}
-                    height={150}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-contain p-1"
                   />
+                  {selectedImage === index && (
+                    <div className="absolute inset-0 bg-blue-600/10"></div>
+                  )}
                 </button>
+              ))}
+            </div>
+
+            {/* Indicador de posição */}
+            <div className="flex justify-center items-center gap-2">
+              {product.images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`h-2 rounded-full transition-all ${
+                    selectedImage === index 
+                      ? 'w-8 bg-blue-600' 
+                      : 'w-2 bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
               ))}
             </div>
           </div>
@@ -400,6 +495,101 @@ Características principais:
           type={toast.type}
           onClose={() => setToast(null)}
         />
+      )}
+
+      {/* Lightbox Modal */}
+      {isLightboxOpen && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* Botão Fechar */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 z-50"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Contador */}
+          <div className="absolute top-4 left-4 text-white text-lg font-medium">
+            {lightboxIndex + 1} / {product.images.length}
+          </div>
+
+          {/* Botão Anterior */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              prevImage()
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black/50 rounded-full p-3 hover:bg-black/70 transition-all"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Imagem */}
+          <div 
+            className="relative max-w-5xl max-h-[90vh] w-full h-full flex items-center justify-center p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={product.images[lightboxIndex]}
+              alt={`${product.name} ${lightboxIndex + 1}`}
+              width={1200}
+              height={1200}
+              className="object-contain max-h-full max-w-full"
+              priority
+            />
+          </div>
+
+          {/* Botão Próximo */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              nextImage()
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black/50 rounded-full p-3 hover:bg-black/70 transition-all"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Thumbnails no Lightbox */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-xl overflow-x-auto p-2">
+            {product.images.map((image, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightboxIndex(index)
+                }}
+                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                  lightboxIndex === index
+                    ? 'border-white scale-110'
+                    : 'border-gray-500 opacity-60 hover:opacity-100'
+                }`}
+              >
+                <Image
+                  src={image}
+                  alt={`Thumbnail ${index + 1}`}
+                  width={64}
+                  height={64}
+                  className="object-cover w-full h-full"
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Instruções */}
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+            Use as setas ← → ou clique nas imagens para navegar. ESC para fechar.
+          </div>
+        </div>
       )}
     </div>
   )

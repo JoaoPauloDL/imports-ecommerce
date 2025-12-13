@@ -5,7 +5,22 @@ import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useAuthStore } from '@/store/authStore'
 import Image from 'next/image'
-import toast from 'react-hot-toast'
+
+// Toast customizado
+const toast = {
+  success: (message: string) => {
+    const event = new CustomEvent('show-toast', {
+      detail: { message, type: 'success' }
+    })
+    window.dispatchEvent(event)
+  },
+  error: (message: string) => {
+    const event = new CustomEvent('show-toast', {
+      detail: { message, type: 'error' }
+    })
+    window.dispatchEvent(event)
+  }
+}
 
 interface ShippingOption {
   id: string
@@ -72,16 +87,17 @@ export default function CheckoutPage() {
   // Redirect se não estiver autenticado
   useEffect(() => {
     if (!isAuthenticated) {
+      toast.error('Faça login para finalizar sua compra')
       router.push('/login?redirect=/checkout')
     }
   }, [isAuthenticated, router])
 
   // Redirect se carrinho vazio
   useEffect(() => {
-    if (items.length === 0 && isAuthenticated) {
+    if (items && items.length === 0) {
       router.push('/cart')
     }
-  }, [items, router, isAuthenticated])
+  }, [items, router])
 
   // Preencher dados do usuário quando carregar
   useEffect(() => {

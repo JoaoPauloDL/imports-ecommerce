@@ -8,6 +8,12 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const { v2: cloudinary } = require('cloudinary');
 const { sendOrderConfirmation, sendStatusUpdate } = require('./email.service');
+const { 
+  generateVerificationToken, 
+  sendVerificationEmail, 
+  sendWelcomeEmail, 
+  isEmailConfigured 
+} = require('./email-verification.service');
 require('dotenv').config();
 
 // Configurar Cloudinary
@@ -121,8 +127,13 @@ app.get('/health', (req, res) => {
 
 // Upload de múltiplas imagens
 app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), async (req, res) => {
+  console.log('🎯 Requisição de upload recebida!');
+  console.log('📋 Headers:', req.headers.authorization ? 'Token presente' : 'Token ausente');
+  console.log('📦 Arquivos recebidos:', req.files ? req.files.length : 0);
+  
   try {
     if (!req.files || req.files.length === 0) {
+      console.log('⚠️  Nenhum arquivo foi enviado');
       return res.status(400).json({ error: 'Nenhuma imagem foi enviada' });
     }
 
@@ -1211,12 +1222,33 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
+    // Verificar se email foi verificado (buscar campo completo)
+    const fullUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { 
+        id: true, 
+        email: true, 
+        fullName: true, 
+        role: true, 
+        emailVerified: true 
+      }
+    });
+
+    if (!fullUser.emailVerified) {
+      console.log('⚠️ Login bloqueado - Email não verificado');
+      return res.status(403).json({ 
+        error: 'Email não verificado',
+        message: 'Por favor, verifique seu email antes de fazer login. Verifique sua caixa de entrada e spam.',
+        emailVerified: false
+      });
+    }
+
     // Gerar JWT token
     const token = jwt.sign(
       { 
-        userId: user.id, 
-        email: user.email,
-        role: user.role 
+        userId: fullUser.id, 
+        email: fullUser.email,
+        role: fullUser.role 
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
@@ -1224,18 +1256,18 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
 
     // Atualizar último login
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: fullUser.id },
       data: { lastLoginAt: new Date() }
     });
     
-    console.log(`✅ Login autorizado: ${user.email}`);
+    console.log(`✅ Login autorizado: ${fullUser.email}`);
     res.json({
       token,
       user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role
+        id: fullUser.id,
+        email: fullUser.email,
+        fullName: fullUser.fullName,
+        role: fullUser.role
       }
     });
   } catch (error) {
@@ -1273,6 +1305,10 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     // Hash da senha
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Gerar token de verificação
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
     // Criar usuário
     const user = await prisma.user.create({
       data: {
@@ -1282,7 +1318,9 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
         phone,
         role: 'customer',
         isActive: true,
-        emailVerified: false
+        emailVerified: false,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires
       },
       select: {
         id: true,
@@ -1292,7 +1330,19 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
       }
     });
 
-    // Gerar JWT token
+    // Enviar email de verificação (não bloquear se falhar)
+    if (isEmailConfigured()) {
+      try {
+        await sendVerificationEmail(email, user.fullName || email, verificationToken);
+        console.log(`📧 Email de verificação enviado para: ${email}`);
+      } catch (emailError) {
+        console.error('⚠️ Falha ao enviar email de verificação:', emailError.message);
+      }
+    } else {
+      console.log('⚠️ SMTP não configurado - Email de verificação não enviado');
+    }
+
+    // Gerar JWT token (permite login mas não checkout até verificar)
     const token = jwt.sign(
       { 
         userId: user.id, 
@@ -1306,7 +1356,10 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     console.log(`✅ Usuário registrado: ${user.email}`);
     res.status(201).json({
       token,
-      user
+      user,
+      message: isEmailConfigured() 
+        ? 'Conta criada! Verifique seu email para ativar.'
+        : 'Conta criada com sucesso!'
     });
   } catch (error) {
     console.error('❌ Erro no registro:', error);
@@ -1362,6 +1415,163 @@ app.post('/api/auth/refresh', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('❌ Erro ao renovar token:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// ====================
+// VERIFICAÇÃO DE EMAIL
+// ====================
+
+// Verificar email com token
+app.get('/api/auth/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token de verificação não fornecido' });
+    }
+
+    console.log(`📧 Verificando email com token: ${token.substring(0, 10)}...`);
+
+    // Buscar usuário com o token
+    const user = await prisma.user.findFirst({
+      where: {
+        emailVerificationToken: token,
+        emailVerificationExpires: {
+          gte: new Date() // Token ainda não expirou
+        }
+      }
+    });
+
+    if (!user) {
+      console.log('❌ Token inválido ou expirado');
+      return res.status(400).json({ 
+        error: 'Token inválido ou expirado',
+        message: 'Este link de verificação é inválido ou já expirou. Solicite um novo email de verificação.'
+      });
+    }
+
+    // Atualizar usuário como verificado
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null
+      }
+    });
+
+    // Enviar email de boas-vindas
+    if (isEmailConfigured()) {
+      try {
+        await sendWelcomeEmail(user.email, user.fullName || user.email);
+        console.log(`📧 Email de boas-vindas enviado para: ${user.email}`);
+      } catch (emailError) {
+        console.error('⚠️ Falha ao enviar email de boas-vindas:', emailError.message);
+      }
+    }
+
+    console.log(`✅ Email verificado: ${user.email}`);
+    res.json({ 
+      success: true,
+      message: 'Email verificado com sucesso! Você já pode fazer login.',
+      user: {
+        email: user.email,
+        fullName: user.fullName
+      }
+    });
+  } catch (error) {
+    console.error('❌ Erro ao verificar email:', error);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      message: error.message 
+    });
+  }
+});
+
+// Reenviar email de verificação
+app.post('/api/auth/resend-verification', authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email é obrigatório' });
+    }
+
+    console.log(`📧 Reenviando email de verificação para: ${email}`);
+
+    // Buscar usuário
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        emailVerified: true,
+        isActive: true
+      }
+    });
+
+    if (!user) {
+      // Não revelar se email existe ou não (segurança)
+      return res.json({ 
+        message: 'Se o email existir em nossa base, um novo link de verificação será enviado.' 
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(400).json({ error: 'Conta desativada' });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ 
+        error: 'Email já verificado',
+        message: 'Este email já foi verificado. Você pode fazer login normalmente.'
+      });
+    }
+
+    // Gerar novo token
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    // Atualizar usuário com novo token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires
+      }
+    });
+
+    // Enviar email
+    if (isEmailConfigured()) {
+      try {
+        await sendVerificationEmail(email, user.fullName || email, verificationToken);
+        console.log(`✅ Email de verificação reenviado para: ${email}`);
+      } catch (emailError) {
+        console.error('❌ Erro ao enviar email:', emailError);
+        return res.status(500).json({ 
+          error: 'Falha ao enviar email',
+          message: 'Não foi possível enviar o email de verificação. Tente novamente mais tarde.'
+        });
+      }
+    } else {
+      return res.status(500).json({ 
+        error: 'Email não configurado',
+        message: 'O serviço de email não está configurado no servidor.'
+      });
+    }
+
+    res.json({ 
+      success: true,
+      message: 'Email de verificação enviado! Verifique sua caixa de entrada e spam.'
+    });
+  } catch (error) {
+    console.error('❌ Erro ao reenviar email:', error);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      message: error.message 
+    });
   }
 });
 

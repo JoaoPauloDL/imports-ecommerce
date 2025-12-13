@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Toast, { ToastType } from '@/components/ui/Toast'
+import ImageUpload from '@/components/admin/ImageUpload'
 
 interface Category {
   id: string
@@ -46,6 +47,7 @@ export default function EditProductPage() {
     stockQuantity: '',
     categoryIds: [] as string[], // Array de IDs de categorias
     imageUrl: '',
+    images: [] as string[], // Array de URLs de imagens
     featured: false,
     isActive: true
   })
@@ -80,6 +82,7 @@ export default function EditProductPage() {
           stockQuantity: product.stockQuantity?.toString() || '',
           categoryIds: product.categories ? product.categories.map((c: any) => c.id) : [],
           imageUrl: product.imageUrl || '',
+          images: product.images || (product.imageUrl ? [product.imageUrl] : []),
           featured: product.featured || false,
           isActive: product.isActive !== false
         })
@@ -310,20 +313,33 @@ export default function EditProductPage() {
                   placeholder="Ex: IPHONE-15-PRO"
                 />
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
-                  URL da Imagem
-                </label>
-                <input
-                  type="url"
-                  id="imageUrl"
-                  name="imageUrl"
-                  value={formData.imageUrl}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            {/* Upload de Imagens */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Imagens do Produto *
+              </label>
+              <p className="text-sm text-gray-500 mb-3">
+                Arraste e solte até 5 imagens. A primeira será a imagem principal.
+              </p>
+              <ImageUpload
+                images={formData.images}
+                onImagesChange={(newImages) => {
+                  console.log('🖼️ Imagens atualizadas:', newImages);
+                  setFormData(prev => ({
+                    ...prev,
+                    imageUrl: newImages[0] || '',
+                    images: newImages
+                  }));
+                }}
+                maxImages={5}
+              />
+              {formData.images.length > 0 && (
+                <div className="mt-2 p-2 bg-green-50 rounded text-sm text-green-700">
+                  ✅ {formData.images.length} imagem(ns) carregada(s)
+                </div>
+              )}
             </div>
 
             <div className="mt-6">

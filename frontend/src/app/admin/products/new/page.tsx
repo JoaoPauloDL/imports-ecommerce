@@ -271,64 +271,33 @@ export default function NewProductPage() {
                   placeholder="Ex: IPHONE-15-PRO (deixe vazio para gerar automaticamente)"
                 />
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Imagens do Produto
-                </label>
-                
-                {/* Imagem Principal */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Imagem Principal (URL)</label>
-                  <input
-                    type="url"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://exemplo.com/imagem-principal.jpg"
-                  />
-                  {formData.imageUrl && (
-                    <div className="mt-2">
-                      <img 
-                        src={formData.imageUrl} 
-                        alt="Preview" 
-                        className="w-24 h-24 object-cover rounded border"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
+            {/* Upload de Imagens */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Imagens do Produto *
+              </label>
+              <p className="text-sm text-gray-500 mb-3">
+                Envie até 5 imagens. A primeira será a imagem principal.
+              </p>
+              <ImageUpload
+                images={formData.images}
+                onImagesChange={(newImages) => {
+                  console.log('🖼️ Imagens atualizadas:', newImages);
+                  setFormData(prev => ({
+                    ...prev,
+                    imageUrl: newImages[0] || '',
+                    images: newImages
+                  }));
+                }}
+                maxImages={5}
+              />
+              {formData.images.length > 0 && (
+                <div className="mt-2 p-2 bg-green-50 rounded text-sm text-green-700">
+                  ✅ {formData.images.length} imagem(ns) pronta(s) para envio
                 </div>
-
-                {/* Imagens Adicionais */}
-              {/* Upload de Imagens */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Imagens do Produto *
-                </label>
-                <p className="text-sm text-gray-500 mb-3">
-                  Envie até 5 imagens. A primeira será a imagem principal.
-                </p>
-                <ImageUpload
-                  images={formData.images.length > 0 ? formData.images : (formData.imageUrl ? [formData.imageUrl] : [])}
-                  onImagesChange={(newImages) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      imageUrl: newImages[0] || '',
-                      images: newImages
-                    }));
-                  }}
-                  maxImages={5}
-                />
-              </div>                <div className="mt-3 p-3 bg-blue-50 rounded-md">
-                  <p className="text-xs text-blue-700">
-                    💡 <strong>Dica:</strong> Em breve teremos upload direto de arquivos! 
-                    Por enquanto, use URLs de imagens hospedadas (ex: Imgur, Cloudinary).
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="mt-6">

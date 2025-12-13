@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { toast } from '@/lib/toast';
 
 export default function WishlistPage() {
@@ -185,97 +185,6 @@ export default function WishlistPage() {
                     >
                       Ver Detalhes
                     </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-          <h2 className="text-2xl font-black text-black mb-6 uppercase tracking-tight text-center">
-            Como funciona a Lista de Desejos
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-black mb-2">1. Favorite</h3>
-              <p className="text-gray-600 text-sm">
-                Clique no ícone do coração nos perfumes que você gosta
-              </p>
-            </div>
-
-            <div>
-              <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-black mb-2">2. Organize</h3>
-              <p className="text-gray-600 text-sm">
-                Todos ficam salvos aqui na sua lista pessoal
-              </p>
-            </div>
-
-            <div>
-              <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-black mb-2">3. Compre</h3>
-              <p className="text-gray-600 text-sm">
-                Adicione ao carrinho quando estiver pronto para comprar
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Benefits */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
-          <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
-            <h3 className="font-bold text-black mb-3 flex items-center">
-              <svg className="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 17H4l5 5v-5z" />
-              </svg>
-              Acompanhe Promoções
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Receba notificações quando os perfumes da sua lista entrarem em promoção
-            </p>
-          </div>
-
-          <div className="bg-green-50 border border-green-200 p-6 rounded-lg">
-            <h3 className="font-bold text-black mb-3 flex items-center">
-              <svg className="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Compare Facilmente
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Tenha todos seus favoritos em um lugar só para comparar preços e características
-            </p>
-          </div>
-
-          <div className="bg-purple-50 border border-purple-200 p-6 rounded-lg">
-            <h3 className="font-bold text-black mb-3 flex items-center">
-              <svg className="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-              </svg>
-              Presentes Especiais
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Compartilhe sua lista com pessoas queridas para dar dicas de presentes
-            </p>
-          </div>
-
                   </div>
                 </div>
               </div>
