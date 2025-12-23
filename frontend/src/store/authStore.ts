@@ -51,6 +51,12 @@ export const useAuthStore = create<AuthState>()(
         console.log('👋 AuthStore.logout - Limpando estado')
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        localStorage.removeItem('userId')
+        
+        // Limpar cookies
+        document.cookie = 'auth-token=; path=/; max-age=0'
+        document.cookie = 'user-role=; path=/; max-age=0'
+        
         set({
           user: null,
           tokens: null,
@@ -58,6 +64,9 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
         });
         console.log('✅ AuthStore.logout - Estado limpo')
+        
+        // Recarregar a página para limpar todos os stores
+        window.location.href = '/login'
       },
 
       updateUser: (userData: Partial<User>) => {

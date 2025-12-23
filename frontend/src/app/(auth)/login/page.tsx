@@ -4,10 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
+import { useCartStore } from '@/store/cartStore'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuthStore()
+  const { fetchCart } = useCartStore()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -64,12 +66,17 @@ export default function LoginPage() {
         // Também salvar no localStorage para compatibilidade  
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('userId', data.user.id) // Importante para o carrinho
         
         // IMPORTANTE: Salvar também em cookies para o middleware
         document.cookie = `auth-token=${data.token}; path=/; max-age=86400`
         document.cookie = `user-role=${data.user.role}; path=/; max-age=86400`
         
         console.log('💾 Dados salvos no localStorage e store')
+        
+        // Limpar e recarregar o carrinho do usuário específico
+        console.log('🛒 Carregando carrinho do usuário...')
+        await fetchCart()
         console.log('🔍 Verificação final dos dados salvos:')
         console.log('- Token:', localStorage.getItem('token')?.substring(0, 20) + '...')
         console.log('- User:', localStorage.getItem('user'))

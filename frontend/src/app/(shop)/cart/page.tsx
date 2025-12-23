@@ -35,8 +35,7 @@ export default function CartPage() {
 
   const cartItems = cart?.items || []
   const subtotal = Number(cart?.total || 0)
-  const shipping = subtotal > 500 ? 0 : 49.90
-  const total = subtotal + shipping
+  // Não calcular frete aqui - será calculado no checkout
 
   if (loading) {
     return (
@@ -191,27 +190,20 @@ export default function CartPage() {
                 
                 <div className="flex justify-between text-sm sm:text-base text-gray-600">
                   <span>Frete</span>
-                  <span>
-                    {shipping === 0 ? (
-                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded text-xs sm:text-sm">GRÁTIS</span>
-                    ) : (
-                      <span className="font-medium">R$ {shipping.toFixed(2)}</span>
-                    )}
-                  </span>
+                  <span className="text-gray-500 text-sm">Calcular no checkout</span>
                 </div>
                 
-                {shipping > 0 && (
-                  <div className="text-xs sm:text-sm text-emerald-700 font-medium bg-emerald-50 p-2 rounded">
-                    💡 Frete GRÁTIS em compras acima de R$ 500,00
-                  </div>
-                )}
+                <div className="text-xs sm:text-sm text-blue-700 font-medium bg-blue-50 p-2 rounded">
+                  ℹ️ O frete será calculado com base no seu CEP no checkout
+                </div>
                 
                 <hr className="my-4" />
                 
                 <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-900">
-                  <span>Total</span>
-                  <span className="text-primary">R$ {total.toFixed(2)}</span>
+                  <span>Subtotal</span>
+                  <span className="text-primary">R$ {subtotal.toFixed(2)}</span>
                 </div>
+                <p className="text-xs text-gray-500 text-center">+ frete (a calcular)</p>
               </div>
 
               <Link href="/checkout" className="btn-primary w-full mb-3 text-center block py-3 sm:py-4 text-sm sm:text-base">

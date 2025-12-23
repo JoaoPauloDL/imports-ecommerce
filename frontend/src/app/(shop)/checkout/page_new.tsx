@@ -27,14 +27,13 @@ interface ShippingOption {
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { cart, fetchCart, clearCart } = useCartStore()
-  const { user, isAuthenticated, tokens } = useAuthStore()
+  const { items, total: cartTotal, clearCart } = useCartStore()
+  const { user, isAuthenticated } = useAuthStore()
   
   const [loading, setLoading] = useState(false)
   const [loadingShipping, setLoadingShipping] = useState(false)
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
   const [selectedShipping, setSelectedShipping] = useState<string>('')
-  const [isInitializing, setIsInitializing] = useState(true)
   
   // Form data
   const [fullName, setFullName] = useState(user?.fullName || '')
@@ -52,60 +51,26 @@ export default function CheckoutPage() {
   
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'debit' | 'pix' | 'boleto'>('pix')
 
-  // Extrair items e total do cart
-  const items = cart?.items || []
-  const cartTotal = cart?.total || 0
-
   useEffect(() => {
-    console.log('🔍 Debug cart structure:', {
-      cart,
-      items,
-      itemsLength: items.length,
-      firstItem: items[0],
-      firstItemFull: JSON.stringify(items[0], null, 2)
-    })
-  }, [cart, items])
-
-  useEffect(() => {
-    const loadCheckout = async () => {
-      console.log('🏁 Carregando checkout...')
-      await fetchCart()
-      console.log('✅ Carrinho carregado')
-      setIsInitializing(false)
+    if (!isAuthenticated) {
+      toast.error('Faça login para finalizar sua compra')
+      router.push('/login?redirect=/checkout')
     }
-    loadCheckout()
-  }, [fetchCart])
+  }, [isAuthenticated, router])
 
   useEffect(() => {
-    if (!isInitializing) {
-      console.log('🔍 Verificando autenticação e carrinho...', { isAuthenticated, itemsCount: items.length })
-      
-      if (!isAuthenticated) {
-        console.log('❌ Não autenticado, redirecionando para login')
-        toast.error('Faça login para finalizar sua compra')
-        router.push('/login?redirect=/checkout')
-        return
-      }
-      
-      if (items.length === 0) {
-        console.log('⚠️ Carrinho vazio, redirecionando...')
-        router.push('/cart')
-      }
+    if (items && items.length === 0) {
+      router.push('/cart')
     }
-  }, [isInitializing, isAuthenticated, items, router])
+  }, [items, router])
 
   useEffect(() => {
     if (user) {
-      console.log('👤 Carregando dados do usuário:', user)
       setFullName(user.fullName || '')
       setEmail(user.email || '')
       setPhone(user.phone || '')
     }
   }, [user])
-
-  useEffect(() => {
-    console.log('🛒 Estado do carrinho:', { cart, items, itemsLength: items.length, isAuthenticated, isInitializing })
-  }, [cart, items, isAuthenticated, isInitializing])
 
   const handleZipCodeBlur = async () => {
     const cep = zipCode.replace(/\D/g, '')
@@ -137,42 +102,9 @@ export default function CheckoutPage() {
   }
 
   const calculateShipping = async (zipCodeValue: string) => {
-    if (!items || items.length === 0) {
-      console.log('⚠️ Sem items para calcular frete')
-      toast.error('Carrinho vazio')
-      return
-    }
-
-    if (!zipCodeValue || zipCodeValue.length !== 8) {
-      console.log('⚠️ CEP inválido:', zipCodeValue)
-      toast.error('CEP inválido. Digite um CEP válido com 8 dígitos.')
-      return
-    }
-
     try {
       setLoadingShipping(true)
-      const token = tokens?.accessToken || localStorage.getItem('token')
-      
-      console.log('📦 Iniciando cálculo de frete')
-      console.log('📦 CEP:', zipCodeValue)
-      console.log('📦 Token presente:', !!token)
-      
-      // Mapear items de forma simples
-      const shippingItems = items.map(item => ({
-        weight: 0.5,
-        length: 20,
-        height: 10,
-        width: 15,
-        quantity: item.quantity || 1,
-        value: Number(item.product?.price || item.price || 100)
-      }))
-      
-      const payload = {
-        zipCode: zipCodeValue,
-        items: shippingItems
-      }
-      
-      console.log('📦 Enviando payload:', payload)
+      const token = localStorage.getItem('token')
       
       const response = await fetch('http://localhost:5000/api/shipping/calculate', {
         method: 'POST',
@@ -180,28 +112,29 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          toZipCode: zipCodeValue,
+          items: items.map(item => ({
+            weight: 0.5,
+            length: 20,
+            height: 10,
+            width: 15,
+            quantity: item.quantity,
+            value: Number(item.product.price)
+          }))
+        })
       })
       
-      console.log('📦 Status da resposta:', response.status)
-      
       const data = await response.json()
-      console.log('📦 Dados recebidos:', data)
       
-      // Backend sempre retorna options, mesmo em erro (fallback)
-      if (data.options && Array.isArray(data.options)) {
+      if (response.ok && data.options) {
         setShippingOptions(data.options)
         if (data.options.length > 0) {
           setSelectedShipping(data.options[0].id)
-          console.log('✅ Frete calculado com sucesso!')
-          toast.success(`${data.options.length} opções de frete disponíveis`)
-        } else {
-          console.log('⚠️ Nenhuma opção de frete retornada')
-          toast.error('Nenhuma opção de frete disponível para este CEP')
         }
+        toast.success('Frete calculado!')
       } else {
-        console.error('❌ Resposta inválida:', data)
-        toast.error(data.error || data.message || 'Erro ao calcular frete')
+        toast.error(data.message || 'Erro ao calcular frete')
       }
     } catch (err) {
       console.error('Erro ao calcular frete:', err)
@@ -216,35 +149,9 @@ export default function CheckoutPage() {
     
     try {
       setLoading(true)
-      
-      // Verificar autenticação
-      if (!isAuthenticated || !tokens?.accessToken) {
-        console.log('❌ Não autenticado ou sem token')
-        toast.error('Sessão expirada. Faça login novamente.')
-        router.push('/login?redirect=/checkout')
-        return
-      }
-      
-      const token = tokens.accessToken
-      
-      console.log('🔑 Verificando token...')
-      
-      // Tentar um request simples primeiro para ver se o token está válido
-      const testResponse = await fetch('http://localhost:5000/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      
-      if (testResponse.status === 401) {
-        console.log('❌ Token expirado')
-        toast.error('Sessão expirada. Faça login novamente.')
-        router.push('/login?redirect=/checkout')
-        return
-      }
-      
-      console.log('✅ Token válido, continuando...')
+      const token = localStorage.getItem('token')
 
       console.log('📍 Criando endereço...')
-      
       const addressResponse = await fetch('http://localhost:5000/api/addresses', {
         method: 'POST',
         headers: {
@@ -264,21 +171,11 @@ export default function CheckoutPage() {
       })
 
       const addressData = await addressResponse.json()
-      console.log('📍 Resposta do endereço:', addressResponse.status, addressData)
+      console.log('✅ Endereço criado:', addressData)
 
       if (!addressResponse.ok) {
-        throw new Error(addressData.message || addressData.error || 'Erro ao criar endereço')
+        throw new Error(addressData.message || 'Erro ao criar endereço')
       }
-
-      // O ID pode vir em addressData.id ou addressData.address.id
-      const addressId = addressData.id || addressData.address?.id
-      
-      if (!addressId) {
-        console.error('❌ Estrutura de resposta inesperada:', addressData)
-        throw new Error('Endereço criado mas ID não encontrado na resposta')
-      }
-      
-      console.log('✅ Endereço criado com ID:', addressId)
 
       console.log('📦 Criando pedido...')
       const orderPayload = {
@@ -287,7 +184,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: Number(item.product.price)
         })),
-        addressId: addressId,
+        addressId: addressData.address.id,
         shippingCost: shippingOptions.find(opt => opt.id === selectedShipping)?.price || 0,
         paymentMethod: paymentMethod
       }
@@ -345,17 +242,6 @@ export default function CheckoutPage() {
   const totalWithShipping = cartTotal + shippingCost
 
   const isFormValid = fullName && email && phone && zipCode && street && number && city && state && selectedShipping
-
-  if (isInitializing) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800 mb-4"></div>
-          <p className="text-gray-600">Carregando checkout...</p>
-        </div>
-      </div>
-    )
-  }
 
   if (!isAuthenticated || !items || items.length === 0) {
     return null
@@ -496,19 +382,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Botão para calcular frete manualmente */}
-              {zipCode.length === 8 && !loadingShipping && shippingOptions.length === 0 && (
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => calculateShipping(zipCode)}
-                    className="btn-secondary w-full"
-                  >
-                    Calcular Frete
-                  </button>
-                </div>
-              )}
-
               {/* Opções de Frete */}
               {loadingShipping && (
                 <div className="mt-4 text-center py-4">
@@ -541,9 +414,7 @@ export default function CheckoutPage() {
                           />
                           <div className="ml-3">
                             <p className="font-medium text-gray-900">{option.name}</p>
-                            <p className="text-sm text-gray-500">
-                              {typeof option.company === 'string' ? option.company : option.company?.name || 'Transportadora'}
-                            </p>
+                            <p className="text-sm text-gray-500">{option.company}</p>
                             <p className="text-sm text-gray-500">{option.deliveryTime}</p>
                           </div>
                         </div>

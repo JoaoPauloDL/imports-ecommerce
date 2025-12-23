@@ -35,6 +35,11 @@ interface CartState {
   error: string | null;
   sessionId: string;
   
+  // Computed properties
+  items: CartItem[];
+  total: number;
+  itemCount: number;
+  
   // Actions
   fetchCart: () => Promise<void>;
   addToCart: (productId: string, quantity?: number) => Promise<void>;
@@ -55,6 +60,19 @@ export const useCartStore = create<CartState>()(
       isLoading: false,
       error: null,
       sessionId: '',
+
+      // Computed getters
+      get items() {
+        return get().cart?.items || [];
+      },
+      
+      get total() {
+        return get().cart?.total || 0;
+      },
+      
+      get itemCount() {
+        return get().cart?.itemCount || 0;
+      },
 
       getSessionId: () => {
         let sessionId = get().sessionId;

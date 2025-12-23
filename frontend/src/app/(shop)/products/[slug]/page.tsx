@@ -135,6 +135,20 @@ Características principais:
     }
   }
 
+  const handleBuyNow = async () => {
+    if (!product) return
+    
+    try {
+      // Adicionar ao carrinho
+      await addToCart(product.id, quantity)
+      
+      // Redirecionar direto para checkout
+      router.push('/checkout')
+    } catch (error) {
+      setToast({ message: 'Erro ao processar compra. Tente novamente.', type: 'error' })
+    }
+  }
+
   const openLightbox = (index: number) => {
     setLightboxIndex(index)
     setIsLightboxOpen(true)
@@ -391,7 +405,11 @@ Características principais:
               >
                 Adicionar ao Carrinho
               </button>
-              <button className="btn-secondary w-full">
+              <button 
+                onClick={handleBuyNow}
+                disabled={!product.inStock}
+                className="btn-secondary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Comprar Agora
               </button>
             </div>
