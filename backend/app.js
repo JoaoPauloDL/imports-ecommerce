@@ -729,7 +729,8 @@ app.post('/api/admin/products', async (req, res) => {
     const { 
       name, 
       description, 
-      price, 
+      price,
+      originalPrice,
       sku, 
       stockQuantity, 
       categoryIds, // Array de IDs das categorias
@@ -769,6 +770,7 @@ app.post('/api/admin/products', async (req, res) => {
         slug,
         description,
         price: parseFloat(price),
+        originalPrice: originalPrice ? parseFloat(originalPrice) : null,
         sku: generatedSku,
         stockQuantity: parseInt(stockQuantity) || 0,
         imageUrl,
@@ -872,7 +874,8 @@ app.put('/api/admin/products/:id', async (req, res) => {
     const { 
       name, 
       description, 
-      price, 
+      price,
+      originalPrice,
       sku, 
       stockQuantity, 
       categoryIds, // Array de IDs das categorias
@@ -899,6 +902,7 @@ app.put('/api/admin/products/:id', async (req, res) => {
     }
     if (description !== undefined) updateData.description = description;
     if (price !== undefined) updateData.price = parseFloat(price);
+    if (originalPrice !== undefined) updateData.originalPrice = originalPrice ? parseFloat(originalPrice) : null;
     if (sku !== undefined) updateData.sku = sku;
     if (stockQuantity !== undefined) updateData.stockQuantity = parseInt(stockQuantity);
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
@@ -2546,7 +2550,7 @@ app.post('/api/orders/:id/cancel', verifyToken, async (req, res) => {
 // Criar preferência de pagamento
 app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
   try {
-    const { orderId, items, total } = req.body;
+    const { orderId } = req.body;
     const userId = req.user.userId;
     
     console.log(`💳 Criando preferência de pagamento para pedido: ${orderId}`);
@@ -2557,62 +2561,99 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       });
     }
 
-    const mercadopago = require('mercadopago');
+    if (!process.env.FRONTEND_URL) {
+      return res.status(500).json({ 
+        error: 'FRONTEND_URL não configurado no .env' 
+      });
+    }
+
+    // SDK v2.0.15 - Nova sintaxe
+    const { MercadoPagoConfig, Preference } = require('mercadopago');
     
-    mercadopago.configure({
-      access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
+    const client = new MercadoPagoConfig({ 
+      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+      options: { timeout: 5000 }
+    });
+    
+    const preference = new Preference(client);
+
+    // Buscar pedido com itens e usuário
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        },
+        user: {
+          select: { email: true, fullName: true, phone: true }
+        }
+      }
     });
 
-    // Buscar dados do usuário para preencher
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { email: true, fullName: true, phone: true }
-    });
+    if (!order) {
+      return res.status(404).json({ error: 'Pedido não encontrado' });
+    }
 
-    const preference = {
-      items: items.map(item => ({
-        id: item.product.id,
+    if (!order.items || order.items.length === 0) {
+      return res.status(400).json({ error: 'Pedido sem itens' });
+    }
+
+    // Construir objeto payer de forma segura
+    const payer = {
+      name: order.user.fullName || 'Cliente',
+      email: order.user.email
+    };
+
+    // Adicionar telefone apenas se for válido (área + número)
+    if (order.user.phone) {
+      const phoneDigits = order.user.phone.replace(/\D/g, '');
+      if (phoneDigits.length >= 10) {
+        const areaCode = phoneDigits.substring(0, 2);
+        const number = phoneDigits.substring(2);
+        payer.phone = {
+          area_code: areaCode,
+          number: number
+        };
+      }
+    }
+
+    const body = {
+      items: order.items.map(item => ({
         title: item.product.name,
-        description: item.product.description || item.product.name,
-        picture_url: item.product.imageUrl || '',
-        category_id: 'perfumes',
         quantity: item.quantity,
         currency_id: 'BRL',
         unit_price: parseFloat(item.product.price)
       })),
-      payer: {
-        name: user.fullName || 'Cliente',
-        email: user.email,
-        phone: {
-          number: user.phone || ''
-        }
-      },
+      payer: payer,
       back_urls: {
         success: `${process.env.FRONTEND_URL}/checkout/success?orderId=${orderId}`,
         failure: `${process.env.FRONTEND_URL}/checkout/failure?orderId=${orderId}`,
         pending: `${process.env.FRONTEND_URL}/checkout/pending?orderId=${orderId}`
       },
-      auto_return: 'approved',
       external_reference: orderId,
-      notification_url: `${process.env.API_URL}/api/webhooks/mercadopago`,
-      statement_descriptor: 'DAVID IMPORTADOS',
-      expires: false
+      statement_descriptor: 'DAVIDIMPORTADOS'
     };
 
-    const response = await mercadopago.preferences.create(preference);
+    console.log('📋 Preferência a ser criada:', JSON.stringify(body, null, 2));
+
+    const response = await preference.create({ body });
     
-    console.log(`✅ Preferência criada: ${response.body.id}`);
+    console.log(`✅ Preferência criada: ${response.id}`);
     
     res.json({
-      id: response.body.id,
-      init_point: response.body.init_point, // URL para redirecionar
-      sandbox_init_point: response.body.sandbox_init_point
+      id: response.id,
+      init_point: response.init_point, // URL para redirecionar
+      sandbox_init_point: response.sandbox_init_point
     });
   } catch (error) {
     console.error('❌ Erro ao criar preferência:', error);
+    console.error('❌ Detalhes:', error.response?.data || error.message);
     res.status(500).json({ 
       error: 'Erro ao processar pagamento',
-      message: error.message 
+      message: error.message,
+      details: error.response?.data || null
     });
   }
 });

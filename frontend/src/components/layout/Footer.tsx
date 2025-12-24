@@ -9,7 +9,6 @@ export default function Footer() {
       links: [
         { name: 'Produtos', href: '/products' },
         { name: 'Ofertas', href: '/offers' },
-        { name: 'Lançamentos', href: '/new-arrivals' },
         { name: 'Categorias', href: '/categories' }
       ]
     },
@@ -18,17 +17,13 @@ export default function Footer() {
       links: [
         { name: 'Central de Ajuda', href: '/help' },
         { name: 'Fale Conosco', href: '/contact' },
-        { name: 'Trocas e Devoluções', href: '/returns' },
         { name: 'Rastrear Pedido', href: '/track' }
       ]
     },
     {
       title: 'Empresa',
       links: [
-        { name: 'Sobre Nós', href: '/about' },
-        { name: 'Trabalhe Conosco', href: '/careers' },
-        { name: 'Imprensa', href: '/press' },
-        { name: 'Sustentabilidade', href: '/sustainability' }
+        { name: 'Sobre Nós', href: '/about' }
       ]
     },
     {
@@ -36,8 +31,7 @@ export default function Footer() {
       links: [
         { name: 'Minha Conta', href: '/profile' },
         { name: 'Meus Pedidos', href: '/orders' },
-        { name: 'Lista de Desejos', href: '/wishlist' },
-        { name: 'Endereços', href: '/profile/addresses' }
+        { name: 'Lista de Desejos', href: '/wishlist' }
       ]
     }
   ]
@@ -96,29 +90,6 @@ export default function Footer() {
 
   return (
     <footer className="bg-gray-900 text-white">
-      {/* Newsletter */}
-      <div className="bg-primary py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold mb-2">Fique por dentro das novidades!</h3>
-            <p className="mb-6 opacity-90">Receba ofertas exclusivas e lançamentos em primeira mão</p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Seu melhor email"
-                className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
-              />
-              <button className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                Inscrever-se
-              </button>
-            </div>
-            <p className="text-sm opacity-80 mt-3">
-              🎁 Ganhe 10% de desconto na primeira compra!
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer Content */}
       <div className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -126,25 +97,15 @@ export default function Footer() {
             {/* Company Info */}
             <div className="lg:col-span-1">
               <Link href="/" className="flex items-center mb-4">
-                <span className="text-2xl font-bold text-white">Imports Store</span>
+                <span className="text-2xl font-bold text-white">DAVID <span className="text-amber-500">IMPORTADOS</span></span>
               </Link>
               <p className="text-gray-400 mb-4 text-sm">
-                Sua loja de produtos importados com qualidade excepcional e os melhores preços do mercado.
+                Perfumaria de luxo com produtos 100% originais e importados.
               </p>
               
               {/* Social Links */}
               <div className="flex space-x-4">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    className="text-gray-400 hover:text-white transition-colors"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {social.icon}
-                  </a>
-                ))}
+                <span className="text-gray-500 text-sm">Siga-nos nas redes sociais</span>
               </div>
             </div>
 
@@ -174,27 +135,26 @@ export default function Footer() {
               <div>
                 <h4 className="font-semibold mb-3">📞 Atendimento</h4>
                 <div className="text-gray-400 text-sm space-y-1">
-                  <p>WhatsApp: (11) 99999-9999</p>
-                  <p>Email: atendimento@importsstore.com</p>
-                  <p>Horário: Seg-Sex 9h às 18h</p>
+                  <p>Entre em contato através da página</p>
+                  <Link href="/contact" className="text-amber-500 hover:text-amber-400">Fale Conosco</Link>
                 </div>
               </div>
               
               <div>
                 <h4 className="font-semibold mb-3">🚚 Entrega</h4>
                 <div className="text-gray-400 text-sm space-y-1">
-                  <p>Frete grátis acima de R$ 500</p>
-                  <p>Entrega expressa em 2-5 dias</p>
-                  <p>Rastreamento em tempo real</p>
+                  <p>Enviamos para todo o Brasil</p>
+                  <p>Frete calculado no checkout</p>
+                  <p>Rastreamento disponível</p>
                 </div>
               </div>
               
               <div>
                 <h4 className="font-semibold mb-3">🛡️ Garantias</h4>
                 <div className="text-gray-400 text-sm space-y-1">
-                  <p>30 dias para trocas</p>
-                  <p>Garantia oficial</p>
-                  <p>Compra 100% segura</p>
+                  <p>Produtos 100% originais</p>
+                  <p>Pagamento seguro</p>
+                  <p>Dados criptografados</p>
                 </div>
               </div>
             </div>
@@ -236,18 +196,10 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
             <div className="mb-2 md:mb-0">
-              <p>&copy; {currentYear} Imports Store. Todos os direitos reservados.</p>
+              <p>&copy; {currentYear} David Importados. Todos os direitos reservados.</p>
             </div>
-            <div className="flex space-x-4">
-              <Link href="/privacy" className="hover:text-white transition-colors">
-                Política de Privacidade
-              </Link>
-              <Link href="/terms" className="hover:text-white transition-colors">
-                Termos de Uso
-              </Link>
-              <Link href="/cookies" className="hover:text-white transition-colors">
-                Cookies
-              </Link>
+            <div className="text-center">
+              <p>Perfumaria de Luxo</p>
             </div>
           </div>
         </div>

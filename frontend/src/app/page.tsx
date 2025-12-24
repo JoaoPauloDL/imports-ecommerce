@@ -47,9 +47,9 @@ export default function HomePage() {
               name: product.name,
               slug: product.slug,
               price: Number(product.price),
-              originalPrice: Number(product.price) * 1.2, // Simular preço original
-              category: product.category?.name || 'Geral',
-              image: product.imageUrl || '/api/placeholder/300/300',
+              originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
+              category: product.categories?.[0]?.name || 'Geral',
+              image: product.imageUrl || 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&q=80',
               isNew: false,
               brand: 'Importado'
             }))
@@ -61,56 +61,12 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error('Erro ao buscar produtos em destaque:', error)
-      console.warn('⚠️ Usando produtos de fallback')
-      // Usar produtos de fallback em caso de erro
-      setFeaturedProducts(defaultFeaturedProducts)
+      // Não há produtos de fallback - melhor mostrar vazio que dados falsos
+      setFeaturedProducts([])
     }
   }
 
-  const defaultFeaturedProducts = [
-    {
-      id: '1',
-      name: "OUD ROYAL ARABESQUE",
-      slug: "oud-royal-arabesque",
-      price: 299.90,
-      originalPrice: 399.90,
-      category: "Perfumes Árabes",
-      image: "/product-1.jpg",
-      isNew: true,
-      brand: "Al Haramain"
-    },
-    {
-      id: '2', 
-      name: "CHANEL No. 5 PARIS",
-      slug: "chanel-no-5-paris",
-      price: 549.99,
-      category: "Perfumes Franceses",
-      image: "/product-2.jpg",
-      isNew: false,
-      brand: "Chanel"
-    },
-    {
-      id: '3',
-      name: "SAUVAGE DIOR",
-      slug: "sauvage-dior",
-      price: 389.90,
-      originalPrice: 459.90,
-      category: "Masculinos", 
-      image: "/product-3.jpg",
-      isNew: false,
-      brand: "Dior"
-    },
-    {
-      id: '4',
-      name: "MISS DIOR BLOOMING",
-      slug: "miss-dior-blooming",
-      price: 429.99,
-      category: "Femininos",
-      image: "/product-4.jpg", 
-      isNew: true,
-      brand: "Dior"
-    }
-  ]
+  const defaultFeaturedProducts: any[] = []
 
   const heroSlides = [
     {
@@ -118,7 +74,7 @@ export default function HomePage() {
       subtitle: "PERFUMARIA DE LUXO",
       description: "Fragrâncias exclusivas e sofisticadas das melhores casas internacionais",
       cta: "Descobrir Coleção",
-      image: "/hero-1.jpg",
+      gradient: "linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)",
       dark: true
     },
     {
@@ -126,7 +82,7 @@ export default function HomePage() {
       subtitle: "ORIENTE MÉDIO AUTÊNTICO", 
       description: "Aromas intensos e luxuosos que despertam os sentidos",
       cta: "Explorar Árabes",
-      image: "/hero-2.jpg", 
+      gradient: "linear-gradient(135deg, #1a0f0a 0%, #8B4513 50%, #1a0f0a 100%)",
       dark: true
     },
     {
@@ -134,7 +90,7 @@ export default function HomePage() {
       subtitle: "ELEGÂNCIA PARISIENSE",
       description: "O refinamento e a sofisticação das tradicionais parfumeries francesas",
       cta: "Ver França",
-      image: "/hero-3.jpg",
+      gradient: "linear-gradient(135deg, #0a0a1a 0%, #4B0082 50%, #0a0a1a 100%)",
       dark: true
     }
   ]
@@ -147,7 +103,6 @@ export default function HomePage() {
       description: "Fragrâncias exclusivas das melhores casas internacionais",
       cta: "Descobrir",
       ctaLink: "/products",
-      image: "/hero-1.jpg",
       gradient: "linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)"
     },
     {
@@ -156,8 +111,7 @@ export default function HomePage() {
       description: "Aromas intensos e luxuosos que despertam os sentidos",
       cta: "Explorar",
       ctaLink: "/products?category=arabes",
-      image: "/hero-2.jpg",
-      gradient: "linear-gradient(135deg, #1a0f0a 0%, #2d1810 50%, #1a0f0a 100%)"
+      gradient: "linear-gradient(135deg, #1a0f0a 0%, #8B4513 50%, #1a0f0a 100%)"
     },
     {
       title: "PERFUMES\nFRANCESES",
@@ -165,8 +119,7 @@ export default function HomePage() {
       description: "Refinamento das tradicionais parfumeries francesas",
       cta: "Ver França",
       ctaLink: "/products?category=franceses",
-      image: "/hero-3.jpg",
-      gradient: "linear-gradient(135deg, #0a0a1a 0%, #151530 50%, #0a0a1a 100%)"
+      gradient: "linear-gradient(135deg, #0a0a1a 0%, #4B0082 50%, #0a0a1a 100%)"
     }
   ]
 
@@ -228,10 +181,9 @@ export default function HomePage() {
             className={`absolute inset-0 transition-opacity duration-1000 ${
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
+            style={{ background: slide.gradient }}
           >
-            <div className={`h-full flex items-center justify-center ${
-              slide.dark ? 'bg-black text-white' : 'bg-gray-100 text-black'
-            }`}>
+            <div className="h-full flex items-center justify-center text-white">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <div className="max-w-4xl mx-auto">
                   <p className="text-sm font-medium tracking-wider uppercase mb-4 opacity-80 text-amber-400">
@@ -245,11 +197,7 @@ export default function HomePage() {
                   </p>
                   <Link 
                     href="/products"
-                    className={`inline-block px-12 py-4 text-lg font-medium tracking-wide uppercase transition-all duration-300 ${
-                      slide.dark 
-                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl border-2 border-amber-500 hover:border-amber-600' 
-                        : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl'
-                    }`}
+                    className="inline-block px-12 py-4 text-lg font-medium tracking-wide uppercase transition-all duration-300 bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl border-2 border-amber-500 hover:border-amber-600"
                   >
                     {slide.cta}
                   </Link>
@@ -363,8 +311,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">FRETE GRÁTIS</h3>
-              <p className="text-gray-600">Em compras acima de R$ 200 para todo o Brasil</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">ENTREGA RÁPIDA</h3>
+              <p className="text-gray-600">Enviamos para todo o Brasil com segurança</p>
             </div>
             
             <div className="text-center">
@@ -374,7 +322,7 @@ export default function HomePage() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">PRODUTOS ORIGINAIS</h3>
-              <p className="text-gray-600">100% autênticos direto dos fabricantes</p>
+              <p className="text-gray-600">100% autênticos e importados</p>
             </div>
             
             <div className="text-center">
@@ -383,8 +331,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">ATENDIMENTO VIP</h3>
-              <p className="text-gray-600">Suporte especializado e personalizado</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">COMPRA SEGURA</h3>
+              <p className="text-gray-600">Pagamento protegido e dados criptografados</p>
             </div>
           </div>
         </div>

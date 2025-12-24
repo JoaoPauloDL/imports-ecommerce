@@ -20,6 +20,7 @@ export default function NewProductPage() {
     name: '',
     description: '',
     price: '',
+    originalPrice: '',
     sku: '',
     stockQuantity: '',
     categoryIds: [] as string[], // Array de IDs das categorias
@@ -83,6 +84,7 @@ export default function NewProductPage() {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
+        originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : null,
         sku: formData.sku,
         stockQuantity: parseInt(formData.stockQuantity) || 0,
         categoryIds: formData.categoryIds, // Array de categorias
@@ -239,6 +241,38 @@ export default function NewProductPage() {
                   step="0.01"
                   min="0"
                   value={formData.price}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Preço Original (R$)
+                  <span className="text-gray-500 text-xs ml-2">(opcional - para mostrar desconto)</span>
+                </label>
+                <input
+                  type="number"
+                  name="originalPrice"
+                  step="0.01"
+                  min="0"
+                  value={formData.originalPrice}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Preço Original (R$)
+                  <span className="text-gray-500 text-xs ml-2">(opcional - para mostrar desconto)</span>
+                </label>
+                <input
+                  type="number"
+                  name="originalPrice"
+                  step="0.01"
+                  min="0"
+                  value={formData.originalPrice}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="0.00"

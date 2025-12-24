@@ -43,6 +43,7 @@ export default function EditProductPage() {
     name: '',
     description: '',
     price: '',
+    originalPrice: '',
     sku: '',
     stockQuantity: '',
     categoryIds: [] as string[], // Array de IDs de categorias
@@ -78,6 +79,7 @@ export default function EditProductPage() {
           name: product.name || '',
           description: product.description || '',
           price: product.price?.toString() || '',
+          originalPrice: product.originalPrice?.toString() || '',
           sku: product.sku || '',
           stockQuantity: product.stockQuantity?.toString() || '',
           categoryIds: product.categories ? product.categories.map((c: any) => c.id) : [],
@@ -133,6 +135,7 @@ export default function EditProductPage() {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
+        originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : null,
         sku: formData.sku,
         stockQuantity: parseInt(formData.stockQuantity) || 0,
         categoryIds: formData.categoryIds, // Array de IDs
@@ -280,6 +283,24 @@ export default function EditProductPage() {
                   value={formData.price}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-2">
+                  Preço Original (R$)
+                  <span className="text-gray-500 text-xs ml-2">(opcional - para mostrar desconto)</span>
+                </label>
+                <input
+                  type="number"
+                  id="originalPrice"
+                  name="originalPrice"
+                  step="0.01"
+                  min="0"
+                  value={formData.originalPrice}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
                 />
               </div>
 

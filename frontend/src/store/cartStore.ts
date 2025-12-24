@@ -113,7 +113,18 @@ export const useCartStore = create<CartState>()(
           set({ isLoading: true, error: null });
           
           const sessionId = get().getSessionId();
-          const userId = localStorage.getItem('userId');
+          
+          // Tentar pegar userId do authStore
+          let userId: string | null = null;
+          try {
+            const authStore = (await import('./authStore')).useAuthStore.getState();
+            userId = authStore.user?.id || null;
+          } catch (e) {
+            // Se authStore não estiver disponível, tentar localStorage
+            userId = localStorage.getItem('userId');
+          }
+          
+          console.log('🛒 AddToCart params:', { productId, quantity, userId, sessionId });
           
           const response = await api.post('/api/cart/add', {
             productId,
@@ -124,6 +135,7 @@ export const useCartStore = create<CartState>()(
           set({ cart: response.data, isLoading: false });
         } catch (error: any) {
           console.error('Error adding to cart:', error);
+          console.error('Error details:', error.response?.data);
           set({ 
             error: error.response?.data?.error || 'Erro ao adicionar ao carrinho',
             isLoading: false 

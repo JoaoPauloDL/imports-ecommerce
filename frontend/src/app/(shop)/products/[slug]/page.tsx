@@ -75,7 +75,7 @@ export default function ProductDetailPage() {
         id: backendProduct.id,
         name: backendProduct.name,
         price: Number(backendProduct.price),
-        originalPrice: backendProduct.featured ? Number(backendProduct.price) * 1.2 : undefined,
+        originalPrice: backendProduct.originalPrice ? Number(backendProduct.originalPrice) : undefined,
         images: backendProduct.imageUrl 
           ? [backendProduct.imageUrl, backendProduct.imageUrl, backendProduct.imageUrl, backendProduct.imageUrl]
           : ['/api/placeholder/600/600', '/api/placeholder/600/600'],
@@ -142,10 +142,12 @@ Características principais:
       // Adicionar ao carrinho
       await addToCart(product.id, quantity)
       
-      // Redirecionar direto para checkout
+      // Só redirecionar se adicionar com sucesso
       router.push('/checkout')
     } catch (error) {
+      console.error('Erro ao comprar agora:', error)
       setToast({ message: 'Erro ao processar compra. Tente novamente.', type: 'error' })
+      // NÃO redirecionar se houver erro
     }
   }
 
@@ -352,7 +354,7 @@ Características principais:
             </div>
 
             <div className="mb-6">
-              {product.originalPrice && (
+              {product.originalPrice && product.originalPrice > product.price && (
                 <p className="text-lg text-gray-500 line-through mb-1">
                   R$ {product.originalPrice.toFixed(2)}
                 </p>
@@ -360,7 +362,7 @@ Características principais:
               <p className="text-4xl font-bold text-primary">
                 R$ {product.price.toFixed(2)}
               </p>
-              {product.originalPrice && (
+              {product.originalPrice && product.originalPrice > product.price && (
                 <p className="text-sm text-amber-600 font-bold bg-amber-50 px-3 py-1 rounded-md inline-block">
                   Economia de R$ {(product.originalPrice - product.price).toFixed(2)} 
                   ({Math.round((1 - product.price / product.originalPrice) * 100)}% OFF)
@@ -414,14 +416,13 @@ Características principais:
               </button>
             </div>
 
-            {/* Informações de Entrega */}
+            {/* Informações Importantes */}
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Informações de Entrega</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">Informações Importantes</h3>
               <div className="space-y-2 text-sm text-gray-600">
-                <p className="text-amber-600 font-bold">📦 Frete GRÁTIS para todo o Brasil</p>
-                <p>🚚 Entrega expressa em 2-5 dias úteis</p>
-                <p>🔄 30 dias para trocas e devoluções</p>
-                <p>🛡️ Garantia oficial do fabricante</p>
+                <p>📦 Frete calculado no checkout</p>
+                <p>🛡️ Produto 100% original e importado</p>
+                <p>🔄 Política de trocas e devoluções disponível</p>
               </div>
             </div>
           </div>

@@ -344,7 +344,7 @@ export default function CheckoutPage() {
   const shippingCost = selectedShippingOption?.price || 0
   const totalWithShipping = cartTotal + shippingCost
 
-  const isFormValid = fullName && email && phone && zipCode && street && number && city && state && selectedShipping
+  const isFormValid = fullName && email && phone && zipCode && street && number && neighborhood && city && state && selectedShipping
 
   if (isInitializing) {
     return (

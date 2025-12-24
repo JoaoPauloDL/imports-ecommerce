@@ -58,6 +58,7 @@ model Product {
   slug          String      @unique
   description   String?
   price         Decimal     @db.Decimal(10, 2)
+  originalPrice Decimal?    @map("original_price") @db.Decimal(10, 2)
   sku           String      @unique
   stockQuantity Int         @default(0) @map("stock_quantity")
   isActive      Boolean     @default(true) @map("is_active")
