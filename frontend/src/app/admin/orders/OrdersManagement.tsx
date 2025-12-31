@@ -21,7 +21,7 @@ export default function OrdersManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');''
+  const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -287,10 +287,10 @@ export default function OrdersManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {formatPrice(order.totalAmount + order.shippingCost)}
+                        {formatPrice((order.totalAmount || 0) + (order.shippingCost || 0))}
                       </div>
                       <div className="text-sm text-gray-500">
-                        + {formatPrice(order.shippingCost)} frete
+                        + {formatPrice(order.shippingCost || 0)} frete
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

@@ -26,7 +26,12 @@ export default function NewProductPage() {
     categoryIds: [] as string[], // Array de IDs das categorias
     imageUrl: '',
     images: [] as string[], // Array de URLs de imagens
-    featured: false
+    featured: false,
+    // Campos de dimensões para frete
+    weight: '',    // Peso em kg
+    height: '',    // Altura em cm
+    width: '',     // Largura em cm
+    length: ''     // Comprimento em cm
   });
 
   useEffect(() => {
@@ -90,7 +95,12 @@ export default function NewProductPage() {
         categoryIds: formData.categoryIds, // Array de categorias
         imageUrl: formData.imageUrl,
         images: formData.images, // Array de imagens
-        featured: formData.featured
+        featured: formData.featured,
+        // Campos de dimensões para frete
+        weight: formData.weight ? parseFloat(formData.weight) : null,
+        height: formData.height ? parseFloat(formData.height) : null,
+        width: formData.width ? parseFloat(formData.width) : null,
+        length: formData.length ? parseFloat(formData.length) : null
       };
 
       console.log('📤 Enviando produto:', productData);
@@ -344,6 +354,76 @@ export default function NewProductPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Descreva as características do produto..."
               />
+            </div>
+
+            {/* Campos de Dimensões para Frete */}
+            <div className="mt-6">
+              <h3 className="text-md font-semibold text-gray-800 mb-3">📦 Dimensões para Frete</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Informe as dimensões do produto para cálculo preciso de frete. Se não informado, valores padrão serão usados.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Peso (kg)
+                  </label>
+                  <input
+                    type="number"
+                    name="weight"
+                    step="0.001"
+                    min="0"
+                    value={formData.weight}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Altura (cm)
+                  </label>
+                  <input
+                    type="number"
+                    name="height"
+                    step="0.1"
+                    min="0"
+                    value={formData.height}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="10"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Largura (cm)
+                  </label>
+                  <input
+                    type="number"
+                    name="width"
+                    step="0.1"
+                    min="0"
+                    value={formData.width}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="15"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Comprimento (cm)
+                  </label>
+                  <input
+                    type="number"
+                    name="length"
+                    step="0.1"
+                    min="0"
+                    value={formData.length}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="20"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="mt-6">

@@ -6,15 +6,43 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const crypto = require('crypto');
 const { v2: cloudinary } = require('cloudinary');
-const { sendOrderConfirmation, sendStatusUpdate } = require('./email.service');
+const { sendOrderConfirmation, sendStatusUpdate, sendWelcomeEmail, sendEmailVerification, sendPasswordReset, sendContactEmail, sendNewOrderNotification } = require('./email.service');
 const { 
   generateVerificationToken, 
   sendVerificationEmail, 
-  sendWelcomeEmail, 
+  sendWelcomeEmail: sendWelcomeEmailOld, 
   isEmailConfigured 
 } = require('./email-verification.service');
 require('dotenv').config();
+
+// ====================
+// SENTRY - Monitoramento de Erros
+// ====================
+let Sentry = null;
+if (process.env.SENTRY_DSN) {
+  try {
+    Sentry = require('@sentry/node');
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV || 'development',
+      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.2 : 1.0,
+      integrations: [],
+    });
+    console.log('✅ Sentry inicializado para monitoramento de erros');
+  } catch (error) {
+    console.log('⚠️ Sentry não está instalado. Instale com: npm install @sentry/node');
+  }
+}
+
+// Função helper para capturar erros no Sentry
+function captureError(error, context = {}) {
+  console.error('❌ Erro:', error.message);
+  if (Sentry) {
+    Sentry.captureException(error, { extra: context });
+  }
+}
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -100,10 +128,43 @@ const authLimiter = rateLimit({
 
 app.use('/api/', generalLimiter);
 
+// Configuração CORS para produção
+const allowedOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000', 'http://localhost:5000'];
+
+// Sempre permitir o FRONTEND_URL se configurado
+if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: function (origin, callback) {
+    // Permitir requisições sem origin (como mobile apps ou curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else if (process.env.NODE_ENV === 'development') {
+      // Em desenvolvimento, permitir qualquer origem localhost
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Origem não permitida pelo CORS'));
+      }
+    } else {
+      console.warn(`⚠️ CORS: Origem bloqueada: ${origin}`);
+      callback(new Error('Origem não permitida pelo CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// Log das origens permitidas no startup
+console.log('🔒 CORS - Origens permitidas:', allowedOrigins);
+
 app.use(express.json({ limit: '10mb' })); // Limite de tamanho do body
 
 // Middleware de logging
@@ -736,7 +797,11 @@ app.post('/api/admin/products', async (req, res) => {
       categoryIds, // Array de IDs das categorias
       imageUrl, 
       images, // Array de URLs de imagens
-      featured 
+      featured,
+      weight,    // Peso em kg
+      height,    // Altura em cm
+      width,     // Largura em cm
+      length     // Comprimento em cm
     } = req.body;
 
     if (!name || !price) {
@@ -775,7 +840,11 @@ app.post('/api/admin/products', async (req, res) => {
         stockQuantity: parseInt(stockQuantity) || 0,
         imageUrl,
         images: images || [],
-        featured: !!featured
+        featured: !!featured,
+        weight: weight ? parseFloat(weight) : null,
+        height: height ? parseFloat(height) : null,
+        width: width ? parseFloat(width) : null,
+        length: length ? parseFloat(length) : null
       }
     });
 
@@ -881,7 +950,11 @@ app.put('/api/admin/products/:id', async (req, res) => {
       categoryIds, // Array de IDs das categorias
       imageUrl, 
       featured,
-      isActive 
+      isActive,
+      weight,    // Peso em kg
+      height,    // Altura em cm
+      width,     // Largura em cm
+      length     // Comprimento em cm
     } = req.body;
 
     console.log(`\n📦 ========= ATUALIZANDO PRODUTO =========`);
@@ -908,6 +981,11 @@ app.put('/api/admin/products/:id', async (req, res) => {
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
     if (featured !== undefined) updateData.featured = !!featured;
     if (isActive !== undefined) updateData.isActive = !!isActive;
+    // Campos de dimensões para frete
+    if (weight !== undefined) updateData.weight = weight ? parseFloat(weight) : null;
+    if (height !== undefined) updateData.height = height ? parseFloat(height) : null;
+    if (width !== undefined) updateData.width = width ? parseFloat(width) : null;
+    if (length !== undefined) updateData.length = length ? parseFloat(length) : null;
 
     // Atualizar produto
     const product = await prisma.product.update({
@@ -1572,6 +1650,183 @@ app.post('/api/auth/resend-verification', authLimiter, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Erro ao reenviar email:', error);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      message: error.message 
+    });
+  }
+});
+
+// ====================
+// RECUPERAÇÃO DE SENHA
+// ====================
+
+// Solicitar recuperação de senha
+app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email é obrigatório' });
+    }
+
+    console.log(`🔐 Solicitação de recuperação de senha para: ${email}`);
+
+    // Buscar usuário
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        isActive: true
+      }
+    });
+
+    // Sempre retornar mesma mensagem (segurança - não revelar se email existe)
+    const successMessage = 'Se o email existir em nossa base, você receberá instruções para redefinir sua senha.';
+
+    if (!user || !user.isActive) {
+      return res.json({ success: true, message: successMessage });
+    }
+
+    // Gerar token de reset
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    // Salvar token no banco (usando campo emailVerificationToken temporariamente)
+    // Em produção, criar campos específicos: passwordResetToken, passwordResetExpires
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationToken: `RESET_${resetToken}`,
+        emailVerificationExpires: resetExpires
+      }
+    });
+
+    // Enviar email
+    await sendPasswordReset(user, resetToken);
+
+    console.log(`✅ Email de recuperação enviado para: ${email}`);
+    res.json({ success: true, message: successMessage });
+  } catch (error) {
+    console.error('❌ Erro ao solicitar recuperação de senha:', error);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      message: error.message 
+    });
+  }
+});
+
+// Redefinir senha com token
+app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token e nova senha são obrigatórios' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'A senha deve ter pelo menos 6 caracteres' });
+    }
+
+    console.log(`🔐 Redefinindo senha com token: ${token.substring(0, 10)}...`);
+
+    // Buscar usuário com o token
+    const user = await prisma.user.findFirst({
+      where: {
+        emailVerificationToken: `RESET_${token}`,
+        emailVerificationExpires: {
+          gte: new Date()
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({ 
+        error: 'Token inválido ou expirado',
+        message: 'Este link de recuperação é inválido ou já expirou. Solicite um novo.'
+      });
+    }
+
+    // Hash da nova senha
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Atualizar usuário
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        emailVerificationToken: null,
+        emailVerificationExpires: null
+      }
+    });
+
+    console.log(`✅ Senha redefinida para: ${user.email}`);
+    res.json({ 
+      success: true,
+      message: 'Senha redefinida com sucesso! Você já pode fazer login.'
+    });
+  } catch (error) {
+    console.error('❌ Erro ao redefinir senha:', error);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      message: error.message 
+    });
+  }
+});
+
+// ====================
+// FORMULÁRIO DE CONTATO
+// ====================
+
+app.post('/api/contact', authLimiter, async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    // Validações
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ 
+        error: 'Todos os campos são obrigatórios',
+        fields: { name: !name, email: !email, subject: !subject, message: !message }
+      });
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Email inválido' });
+    }
+
+    // Validar tamanho da mensagem
+    if (message.length < 10) {
+      return res.status(400).json({ error: 'A mensagem deve ter pelo menos 10 caracteres' });
+    }
+
+    if (message.length > 5000) {
+      return res.status(400).json({ error: 'A mensagem deve ter no máximo 5000 caracteres' });
+    }
+
+    console.log(`📩 Nova mensagem de contato de: ${name} (${email})`);
+
+    // Enviar email
+    const sent = await sendContactEmail(name, email, subject, message);
+
+    if (!sent) {
+      return res.status(500).json({ 
+        error: 'Falha ao enviar mensagem',
+        message: 'Não foi possível enviar sua mensagem. Por favor, tente novamente ou entre em contato por outro canal.'
+      });
+    }
+
+    console.log(`✅ Mensagem de contato enviada com sucesso`);
+    res.json({ 
+      success: true,
+      message: 'Mensagem enviada com sucesso! Responderemos em breve.'
+    });
+  } catch (error) {
+    console.error('❌ Erro ao enviar mensagem de contato:', error);
     res.status(500).json({ 
       error: 'Erro interno do servidor',
       message: error.message 
@@ -2290,6 +2545,14 @@ app.post('/api/orders', verifyToken, async (req, res) => {
       console.error('⚠️ Erro ao enviar email (pedido criado com sucesso):', emailError.message);
     }
     
+    // Notificar o admin sobre novo pedido
+    try {
+      await sendNewOrderNotification(result, result.user);
+      console.log('📧 Notificação de novo pedido enviada para admin');
+    } catch (adminEmailError) {
+      console.error('⚠️ Erro ao notificar admin:', adminEmailError.message);
+    }
+    
     res.status(201).json({
       success: true,
       order: {
@@ -2660,10 +2923,53 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
 
 // Webhook do MercadoPago
 app.post('/api/webhooks/mercadopago', async (req, res) => {
+  let webhookLog = null;
+  
   try {
     console.log('📬 Webhook MercadoPago recebido:', req.body);
     
-    const { type, data } = req.body;
+    const { type, data, action } = req.body;
+    
+    // Criar log do webhook imediatamente
+    webhookLog = await prisma.webhookLog.create({
+      data: {
+        source: 'mercadopago',
+        eventType: type || action || 'unknown',
+        payload: JSON.stringify(req.body),
+        status: 'received'
+      }
+    });
+    
+    // Validar assinatura do webhook (se configurado)
+    const signature = req.headers['x-signature'];
+    const requestId = req.headers['x-request-id'];
+    
+    if (process.env.MERCADO_PAGO_WEBHOOK_SECRET && signature) {
+      const crypto = require('crypto');
+      
+      // Formato: ts=xxx,v1=xxx
+      const parts = signature.split(',');
+      const ts = parts.find(p => p.startsWith('ts='))?.split('=')[1];
+      const v1 = parts.find(p => p.startsWith('v1='))?.split('=')[1];
+      
+      if (ts && v1) {
+        // Criar string para validação
+        const manifest = `id:${data?.id};request-id:${requestId};ts:${ts};`;
+        const hmac = crypto.createHmac('sha256', process.env.MERCADO_PAGO_WEBHOOK_SECRET);
+        hmac.update(manifest);
+        const calculatedSignature = hmac.digest('hex');
+        
+        if (calculatedSignature !== v1) {
+          console.warn('⚠️ Assinatura do webhook inválida');
+          await prisma.webhookLog.update({
+            where: { id: webhookLog.id },
+            data: { status: 'failed', error: 'Assinatura inválida' }
+          });
+          return res.status(401).send('Invalid signature');
+        }
+        console.log('✅ Assinatura do webhook validada');
+      }
+    }
     
     // Responder imediatamente ao webhook
     res.status(200).send('OK');
@@ -2685,17 +2991,32 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
       
       const orderId = paymentData.external_reference;
       
+      // Atualizar log com paymentId e orderId
+      await prisma.webhookLog.update({
+        where: { id: webhookLog.id },
+        data: { 
+          paymentId: String(data.id),
+          orderId: orderId || null
+        }
+      });
+      
       if (!orderId) {
         console.log('⚠️ Pedido não encontrado no external_reference');
+        await prisma.webhookLog.update({
+          where: { id: webhookLog.id },
+          data: { status: 'failed', error: 'external_reference não encontrado' }
+        });
         return;
       }
       
       // Atualizar status do pedido baseado no status do pagamento
       let orderStatus = 'pending';
+      let shouldUpdateStock = false;
       
       switch (paymentData.status) {
         case 'approved':
           orderStatus = 'processing';
+          shouldUpdateStock = true;
           console.log('✅ Pagamento aprovado!');
           break;
         case 'pending':
@@ -2710,10 +3031,34 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
           break;
       }
       
-      // Atualizar pedido
+      // Buscar pedido atual para verificar se já foi processado
+      const existingOrder = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { items: true }
+      });
+      
+      if (!existingOrder) {
+        console.log('⚠️ Pedido não encontrado no banco');
+        await prisma.webhookLog.update({
+          where: { id: webhookLog.id },
+          data: { status: 'failed', error: 'Pedido não encontrado no banco' }
+        });
+        return;
+      }
+      
+      // Evitar reprocessamento: só atualiza estoque se pedido ainda não foi processado
+      const alreadyProcessed = existingOrder.status === 'processing' || 
+                               existingOrder.status === 'shipped' || 
+                               existingOrder.status === 'delivered';
+      
+      // Atualizar pedido com status do pagamento
       const order = await prisma.order.update({
         where: { id: orderId },
-        data: { status: orderStatus },
+        data: { 
+          status: orderStatus,
+          paymentId: String(data.id),
+          paymentStatus: paymentData.status
+        },
         include: {
           user: true,
           items: {
@@ -2726,6 +3071,34 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
       
       console.log(`✅ Pedido ${orderId} atualizado para ${orderStatus}`);
       
+      // Atualizar estoque se pagamento aprovado e ainda não foi processado
+      if (shouldUpdateStock && !alreadyProcessed) {
+        console.log('📦 Atualizando estoque dos produtos...');
+        
+        for (const item of order.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stockQuantity: {
+                decrement: item.quantity
+              }
+            }
+          });
+          console.log(`  - ${item.product.name}: -${item.quantity} unidades`);
+        }
+        
+        console.log('✅ Estoque atualizado com sucesso');
+      }
+      
+      // Atualizar log como processado
+      await prisma.webhookLog.update({
+        where: { id: webhookLog.id },
+        data: { 
+          status: 'processed',
+          processedAt: new Date()
+        }
+      });
+      
       // Enviar email de atualização de status
       if (orderStatus === 'processing') {
         sendStatusUpdate(order, order.user, orderStatus).catch(err => 
@@ -2735,7 +3108,54 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
     }
   } catch (error) {
     console.error('❌ Erro no webhook:', error);
+    
+    // Atualizar log com erro
+    if (webhookLog) {
+      await prisma.webhookLog.update({
+        where: { id: webhookLog.id },
+        data: { 
+          status: 'failed',
+          error: error.message
+        }
+      }).catch(e => console.error('Erro ao atualizar log:', e));
+    }
+    
     // Não retornar erro para não fazer o MercadoPago retentar
+  }
+});
+
+// Listar logs de webhooks (admin)
+app.get('/api/admin/webhooks', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, source, status } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const where = {};
+    if (source) where.source = source;
+    if (status) where.status = status;
+    
+    const [logs, total] = await Promise.all([
+      prisma.webhookLog.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: parseInt(limit)
+      }),
+      prisma.webhookLog.count({ where })
+    ]);
+    
+    res.json({
+      logs,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao listar webhooks:', error);
+    res.status(500).json({ error: 'Erro ao listar logs de webhooks' });
   }
 });
 
@@ -3020,13 +3440,37 @@ app.get('/api/addresses/user/:userId', verifyToken, async (req, res) => {
 // Calcular frete (Melhor Envio)
 app.post('/api/shipping/calculate', async (req, res) => {
   try {
-    const { zipCode, items } = req.body;
+    const { zipCode, items, productIds } = req.body;
     
     if (!zipCode) {
       return res.status(400).json({ error: 'CEP é obrigatório' });
     }
     
     console.log(`📦 Calculando frete para CEP: ${zipCode}`);
+    console.log(`📦 Items recebidos:`, items?.length || 0);
+    console.log(`📦 ProductIds recebidos:`, productIds?.length || 0);
+    
+    // Buscar dimensões reais dos produtos se tivermos IDs
+    let realProducts = [];
+    if (productIds && productIds.length > 0) {
+      realProducts = await prisma.product.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true, weight: true, height: true, width: true, length: true, price: true }
+      });
+      console.log(`📦 Produtos encontrados com dimensões:`, realProducts.length);
+    }
+    
+    // Criar mapa de produtos por ID para lookup rápido
+    const productMap = {};
+    realProducts.forEach(p => {
+      productMap[p.id] = {
+        weight: p.weight ? parseFloat(p.weight) : 0.5,
+        height: p.height ? parseFloat(p.height) : 10,
+        width: p.width ? parseFloat(p.width) : 15,
+        length: p.length ? parseFloat(p.length) : 20,
+        value: p.price ? parseFloat(p.price) : 100
+      };
+    });
     
     // Se não tiver token do Melhor Envio, retornar valores fixos de exemplo
     if (!process.env.MELHOR_ENVIO_TOKEN) {
@@ -3060,24 +3504,63 @@ app.post('/api/shipping/calculate', async (req, res) => {
     // Integração real com Melhor Envio
     const axios = require('axios');
     
-    // Calcular dimensões e peso dos produtos
-    const packages = items.map(item => ({
-      height: 10, // cm - você deve pegar do produto
-      width: 15,
-      length: 20,
-      weight: 0.5 // kg - você deve pegar do produto
-    }));
+    // Calcular dimensões e peso totais dos produtos
+    // Soma pesos, usa maior dimensão de cada eixo
+    let totalWeight = 0;
+    let maxHeight = 10;
+    let maxWidth = 15;
+    let maxLength = 20;
+    let totalValue = 0;
+    
+    if (items && items.length > 0) {
+      items.forEach(item => {
+        const productData = item.productId ? productMap[item.productId] : null;
+        const quantity = item.quantity || 1;
+        
+        if (productData) {
+          // Usar dados reais do produto
+          totalWeight += productData.weight * quantity;
+          maxHeight = Math.max(maxHeight, productData.height);
+          maxWidth = Math.max(maxWidth, productData.width);
+          maxLength = Math.max(maxLength, productData.length);
+          totalValue += productData.value * quantity;
+        } else {
+          // Usar valores do item ou defaults
+          totalWeight += (item.weight || 0.5) * quantity;
+          maxHeight = Math.max(maxHeight, item.height || 10);
+          maxWidth = Math.max(maxWidth, item.width || 15);
+          maxLength = Math.max(maxLength, item.length || 20);
+          totalValue += (item.value || 100) * quantity;
+        }
+      });
+    } else {
+      totalWeight = 0.5;
+      totalValue = 100;
+    }
+    
+    // Garantir peso mínimo de 0.3kg
+    totalWeight = Math.max(totalWeight, 0.3);
+    
+    console.log(`📦 Dimensões calculadas: ${maxHeight}x${maxWidth}x${maxLength}cm, ${totalWeight}kg, R$${totalValue}`);
     
     const response = await axios.post(
       'https://melhorenvio.com.br/api/v2/me/shipment/calculate',
       {
         from: {
-          postal_code: process.env.MELHOR_ENVIO_FROM_ZIP || '01310100'
+          postal_code: process.env.MELHOR_ENVIO_CEP_ORIGEM || '01310100'
         },
         to: {
           postal_code: zipCode.replace(/\D/g, '')
         },
-        package: packages[0] // Simplificado - usar primeiro pacote
+        products: [{
+          id: 'package',
+          width: maxWidth,
+          height: maxHeight,
+          length: maxLength,
+          weight: totalWeight,
+          insurance_value: totalValue,
+          quantity: 1
+        }]
       },
       {
         headers: {
@@ -3089,17 +3572,20 @@ app.post('/api/shipping/calculate', async (req, res) => {
       }
     );
     
-    const options = response.data.map(option => ({
-      id: option.id,
-      name: option.name,
-      price: parseFloat(option.price),
-      deliveryTime: option.delivery_time + ' dias úteis',
-      company: option.company
-    }));
+    const options = response.data
+      .filter(option => !option.error) // Filtrar opções com erro
+      .map(option => ({
+        id: option.id?.toString() || option.name,
+        name: option.name,
+        price: parseFloat(option.price || option.custom_price || 0),
+        deliveryTime: `${option.delivery_time || option.delivery_range?.min || 5} dias úteis`,
+        company: option.company
+      }));
     
+    console.log(`✅ ${options.length} opções de frete encontradas`);
     res.json({ options });
   } catch (error) {
-    console.error('❌ Erro ao calcular frete:', error);
+    console.error('❌ Erro ao calcular frete:', error.response?.data || error.message);
     
     // Retornar valores de fallback em caso de erro
     res.json({
@@ -3477,6 +3963,34 @@ app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Rota não encontrada',
     path: req.originalUrl
+  });
+});
+
+// ====================
+// ERROR HANDLER GLOBAL
+// ====================
+app.use((err, req, res, next) => {
+  console.error('❌ Erro não tratado:', err);
+  
+  // Capturar no Sentry
+  if (Sentry) {
+    Sentry.captureException(err, {
+      extra: {
+        method: req.method,
+        path: req.path,
+        body: req.body,
+        query: req.query,
+        user: req.user?.userId || 'anonymous'
+      }
+    });
+  }
+  
+  // Responder com erro
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Erro interno do servidor' 
+      : err.message,
+    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
   });
 });
 

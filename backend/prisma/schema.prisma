@@ -65,6 +65,11 @@ model Product {
   imageUrl      String?     @map("image_url")
   images        String[]    @default([]) // Array de URLs das imagens
   featured      Boolean     @default(false)
+  // Campos para cálculo de frete (Melhor Envio)
+  weight        Decimal?    @db.Decimal(10, 3) // Peso em kg
+  height        Decimal?    @db.Decimal(10, 2) // Altura em cm
+  width         Decimal?    @db.Decimal(10, 2) // Largura em cm
+  length        Decimal?    @db.Decimal(10, 2) // Comprimento em cm
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at")
   orderItems    OrderItem[]
@@ -216,4 +221,24 @@ model Wishlist {
   @@index([userId])
   @@index([productId])
   @@map("wishlist")
+}
+
+// Log de Webhooks para auditoria
+model WebhookLog {
+  id          String   @id @default(cuid())
+  source      String   // 'mercadopago', 'melhorenvio', etc
+  eventType   String   @map("event_type")
+  payload     String   @db.Text
+  status      String   @default("received") // received, processed, failed
+  orderId     String?  @map("order_id")
+  paymentId   String?  @map("payment_id")
+  error       String?  @db.Text
+  processedAt DateTime? @map("processed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([source])
+  @@index([eventType])
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("webhook_logs")
 }

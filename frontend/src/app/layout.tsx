@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer'
 import BottomNavigation from '@/components/layout/BottomNavigation'
 import AuthProvider from '@/components/AuthProvider'
 import ToastProvider from '@/components/ui/ToastProvider'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -90,17 +91,19 @@ export default function RootLayout({
         )}
       </head>
       <body className={inter.className}>
-        <AuthProvider>
-          <div className="min-h-screen bg-background flex flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-            <BottomNavigation />
-          </div>
-          <ToastProvider />
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <div className="min-h-screen bg-background flex flex-col">
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+              <BottomNavigation />
+            </div>
+            <ToastProvider />
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

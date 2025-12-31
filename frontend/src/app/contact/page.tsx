@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { toast } from '@/lib/toast'
+import api from '@/lib/api'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -10,12 +11,21 @@ export default function ContactPage() {
     subject: '',
     message: ''
   })
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement contact form submission
-    console.log('Contact form submitted:', formData)
-    toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.')
+    setIsLoading(true)
+    
+    try {
+      await api.post('/contact', formData)
+      toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.')
+      setFormData({ name: '', email: '', subject: '', message: '' })
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Erro ao enviar mensagem. Tente novamente.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -122,9 +132,10 @@ export default function ContactPage() {
 
               <button
                 type="submit"
-                className="w-full bg-black text-white py-4 font-bold text-sm tracking-wide uppercase hover:bg-gray-800 transition-colors duration-200"
+                disabled={isLoading}
+                className="w-full bg-black text-white py-4 font-bold text-sm tracking-wide uppercase hover:bg-gray-800 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Enviar Mensagem
+                {isLoading ? 'Enviando...' : 'Enviar Mensagem'}
               </button>
             </form>
           </div>
