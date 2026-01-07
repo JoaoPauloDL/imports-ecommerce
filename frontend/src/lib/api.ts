@@ -15,11 +15,11 @@ api.interceptors.request.use(
   (config) => {
     // Tenta pegar o token do Zustand store primeiro
     const { tokens } = useAuthStore.getState();
-    let token = tokens?.accessToken;
+    let token: string | undefined = tokens?.accessToken;
     
     // Fallback: tenta pegar do localStorage
     if (!token) {
-      token = localStorage.getItem('token');
+      token = localStorage.getItem('token') || undefined;
     }
     
     if (token) {
@@ -92,7 +92,9 @@ export interface ApiResponse<T = any> {
   errors?: any[];
 }
 
-export interface PaginatedResponse<T = any> extends ApiResponse<T> {
+export interface PaginatedResponse<T = any> {
+  success: boolean;
+  message?: string;
   data: {
     items?: T[];
     pagination?: {
@@ -102,6 +104,7 @@ export interface PaginatedResponse<T = any> extends ApiResponse<T> {
       totalPages: number;
     };
   };
+  errors?: any[];
 }
 
 // Funções helper para requisições
@@ -118,8 +121,8 @@ export const apiRequest = {
     return api.put(url, data);
   },
   
-  delete: <T = any>(url: string): Promise<AxiosResponse<ApiResponse<T>>> => {
-    return api.delete(url);
+  delete: <T = any>(url: string, config?: any): Promise<AxiosResponse<ApiResponse<T>>> => {
+    return api.delete(url, config);
   },
   
   patch: <T = any>(url: string, data?: any): Promise<AxiosResponse<ApiResponse<T>>> => {

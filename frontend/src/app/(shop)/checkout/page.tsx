@@ -39,7 +39,7 @@ export default function CheckoutPage() {
   // Form data
   const [fullName, setFullName] = useState(user?.fullName || '')
   const [email, setEmail] = useState(user?.email || '')
-  const [phone, setPhone] = useState(user?.phone || '')
+  const [phone, setPhone] = useState('')
   const [document, setDocument] = useState('')
   
   const [zipCode, setZipCode] = useState('')
@@ -99,7 +99,6 @@ export default function CheckoutPage() {
       console.log('👤 Carregando dados do usuário:', user)
       setFullName(user.fullName || '')
       setEmail(user.email || '')
-      setPhone(user.phone || '')
     }
   }, [user])
 
@@ -164,7 +163,7 @@ export default function CheckoutPage() {
         height: 10,
         width: 15,
         quantity: item.quantity || 1,
-        value: Number(item.product?.price || item.price || 100)
+        value: Number(item.product?.price || 100)
       }))
       
       const payload = {
@@ -174,7 +173,7 @@ export default function CheckoutPage() {
       
       console.log('📦 Enviando payload:', payload)
       
-      const response = await fetch('http://localhost:5000/api/shipping/calculate', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shipping/calculate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -230,7 +229,7 @@ export default function CheckoutPage() {
       console.log('🔑 Verificando token...')
       
       // Tentar um request simples primeiro para ver se o token está válido
-      const testResponse = await fetch('http://localhost:5000/api/auth/me', {
+      const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       
@@ -245,7 +244,7 @@ export default function CheckoutPage() {
 
       console.log('📍 Criando endereço...')
       
-      const addressResponse = await fetch('http://localhost:5000/api/addresses', {
+      const addressResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/addresses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -293,7 +292,7 @@ export default function CheckoutPage() {
       }
       console.log('📦 Payload do pedido:', orderPayload)
 
-      const orderResponse = await fetch('http://localhost:5000/api/orders', {
+      const orderResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -310,7 +309,7 @@ export default function CheckoutPage() {
       }
 
       console.log('💳 Criando preferência de pagamento...')
-      const paymentResponse = await fetch('http://localhost:5000/api/payment/create-preference', {
+      const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -542,7 +541,7 @@ export default function CheckoutPage() {
                           <div className="ml-3">
                             <p className="font-medium text-gray-900">{option.name}</p>
                             <p className="text-sm text-gray-500">
-                              {typeof option.company === 'string' ? option.company : option.company?.name || 'Transportadora'}
+                              {option.company || 'Transportadora'}
                             </p>
                             <p className="text-sm text-gray-500">{option.deliveryTime}</p>
                           </div>

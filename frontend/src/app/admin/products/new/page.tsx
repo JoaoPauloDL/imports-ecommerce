@@ -8,6 +8,7 @@ import ImageUpload from '@/components/admin/ImageUpload';
 interface Category {
   id: string;
   name: string;
+  isActive?: boolean;
 }
 
 export default function NewProductPage() {
@@ -41,7 +42,7 @@ export default function NewProductPage() {
   const fetchCategories = async () => {
     try {
       console.log('📂 Carregando categorias do banco de dados...');
-      const response = await fetch('http://localhost:5000/api/categories');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
       if (response.ok) {
         const data = await response.json();
         const categoriesList = Array.isArray(data) ? data : data.data || [];
@@ -53,7 +54,7 @@ export default function NewProductPage() {
       setCategories([]);
     } catch (error) {
       console.error('❌ Erro ao conectar com backend:', error);
-      console.log('⚠️ Certifique-se de que o backend está rodando em http://localhost:5000');
+      console.log('⚠️ Certifique-se de que o backend está rodando');
       setCategories([]);
     }
   };
@@ -105,7 +106,7 @@ export default function NewProductPage() {
 
       console.log('📤 Enviando produto:', productData);
 
-      const response = await fetch('http://localhost:5000/api/admin/products', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/products`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authToken}`,
@@ -456,7 +457,7 @@ export default function NewProductPage() {
                 console.log('🔑 Token do localStorage:', token);
                 
                 try {
-                  const response = await fetch('http://localhost:5000/api/auth/login', {
+                  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

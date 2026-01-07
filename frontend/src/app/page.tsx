@@ -32,7 +32,7 @@ export default function HomePage() {
 
   const fetchFeaturedProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`)
       if (response.ok) {
         const result = await response.json()
         const products = result.data || result
@@ -103,6 +103,7 @@ export default function HomePage() {
       description: "Fragrâncias exclusivas das melhores casas internacionais",
       cta: "Descobrir",
       ctaLink: "/products",
+      image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80",
       gradient: "linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)"
     },
     {
@@ -111,6 +112,7 @@ export default function HomePage() {
       description: "Aromas intensos e luxuosos que despertam os sentidos",
       cta: "Explorar",
       ctaLink: "/products?category=arabes",
+      image: "https://images.unsplash.com/photo-1590736704728-f4730bb30770?w=800&q=80",
       gradient: "linear-gradient(135deg, #1a0f0a 0%, #8B4513 50%, #1a0f0a 100%)"
     },
     {
@@ -119,6 +121,7 @@ export default function HomePage() {
       description: "Refinamento das tradicionais parfumeries francesas",
       cta: "Ver França",
       ctaLink: "/products?category=franceses",
+      image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800&q=80",
       gradient: "linear-gradient(135deg, #0a0a1a 0%, #4B0082 50%, #0a0a1a 100%)"
     }
   ]

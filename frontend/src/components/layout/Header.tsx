@@ -40,12 +40,13 @@ export default function Header() {
     setMounted(true)
   }, [])
   
-  // Carregar carrinho quando montar o componente
+  // Carregar carrinho quando montar o componente ou quando usuário mudar
   useEffect(() => {
     if (mounted) {
+      console.log('🛒 Header - Recarregando carrinho. User:', user?.id || 'guest')
       fetchCart()
     }
-  }, [mounted, fetchCart])
+  }, [mounted, fetchCart, user?.id])
   
   // Verificar se é admin
   const isAdmin = user && (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN')
@@ -101,7 +102,7 @@ export default function Header() {
       }
 
       try {
-        const response = await fetch(`http://localhost:5000/api/products?search=${encodeURIComponent(searchTerm)}&limit=5`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?search=${encodeURIComponent(searchTerm)}&limit=5`)
         const data = await response.json()
         setSearchSuggestions(data.products || [])
         setShowSuggestions(true)

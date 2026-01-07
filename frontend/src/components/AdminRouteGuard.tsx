@@ -63,7 +63,7 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">🔍 Verificando permissões...</p>
-          <p className="text-xs text-gray-500 mt-2">Conectando com http://localhost:5000</p>
+          <p className="text-xs text-gray-500 mt-2">Conectando com o servidor...</p>
         </div>
       </div>
     )

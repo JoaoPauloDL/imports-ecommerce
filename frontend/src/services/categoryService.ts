@@ -61,7 +61,7 @@ const categoryThemes: Record<string, {
 // Função para buscar categorias ativas do BACKEND
 export async function getActiveCategories(): Promise<Category[]> {
   try {
-    const response = await fetch('http://localhost:5000/api/categories')
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`)
     
     if (!response.ok) {
       console.error('Erro ao buscar categorias:', response.status)

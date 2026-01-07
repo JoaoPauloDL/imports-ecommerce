@@ -2,15 +2,16 @@
 
 import React from 'react';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label?: string;
   error?: string;
   helperText?: string;
   fullWidth?: boolean;
-  variant?: 'default' | 'minimal' | 'underline'
+  variant?: 'default' | 'minimal' | 'underline';
+  onChange?: (value: string) => void;
 }
 
-const getInputClasses = (variant: string, error?: string, fullWidth?: boolean, className?: string) => {
+const getInputClasses = (variant: 'default' | 'minimal' | 'underline', error?: string, fullWidth?: boolean, className?: string) => {
   const baseClasses = fullWidth ? 'w-full' : 'w-auto'
   
   const variantClasses = {
@@ -35,9 +36,16 @@ export default function Input({
   fullWidth = false,
   variant = 'minimal',
   className,
+  onChange,
   ...inputProps
 }: InputProps) {
   const inputId = React.useId();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChange) {
+      onChange(e.target.value);
+    }
+  };
 
   return (
     <div className={`space-y-2 ${fullWidth ? 'w-full' : ''}`}>
@@ -54,6 +62,7 @@ export default function Input({
       <input
         id={inputId}
         className={getInputClasses(variant, error, fullWidth, className)}
+        onChange={handleChange}
         {...inputProps}
       />
       

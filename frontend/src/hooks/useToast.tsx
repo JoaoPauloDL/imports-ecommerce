@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import Toast, { ToastType } from '@/components/ui/Toast'
 
 export function useToast() {
@@ -14,16 +14,19 @@ export function useToast() {
     setToast(null)
   }, [])
 
-  const ToastContainer = useCallback(() => {
-    if (!toast) return null
-    
-    return (
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        onClose={hideToast}
-      />
-    )
+  const ToastContainer = useMemo(() => {
+    const ToastComponent = () => {
+      if (!toast) return null
+      
+      return (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      )
+    }
+    return ToastComponent
   }, [toast, hideToast])
 
   return {

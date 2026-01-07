@@ -81,7 +81,7 @@ function SearchContent() {
       params.append('page', page.toString())
       params.append('limit', '12')
       
-      const response = await fetch(`http://localhost:5000/api/products?${params.toString()}`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?${params.toString()}`)
       const data = await response.json()
       
       setProducts(data.products || [])

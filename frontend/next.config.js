@@ -16,10 +16,14 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    // Em produção, as chamadas vão direto para a API
+    // Em desenvolvimento, fazemos proxy para localhost
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*',
+        destination: `${apiUrl}/api/:path*`,
       },
     ]
   },

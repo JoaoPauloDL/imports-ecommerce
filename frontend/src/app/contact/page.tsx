@@ -240,8 +240,3 @@ export default function ContactPage() {
     </div>
   )
 }
-
-export const metadata = {
-  title: 'Fale Conosco | Perfumes Importados',
-  description: 'Entre em contato conosco. Estamos prontos para esclarecer suas dúvidas sobre perfumes importados via WhatsApp, e-mail ou telefone.',
-}

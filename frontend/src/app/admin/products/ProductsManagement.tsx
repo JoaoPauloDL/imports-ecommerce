@@ -32,7 +32,7 @@ export default function ProductsManagement() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/admin/products/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -59,7 +59,7 @@ export default function ProductsManagement() {
       const token = localStorage.getItem('token')
       console.log('🔑 Token:', token ? 'Encontrado' : 'Não encontrado')
       
-      const response = await fetch('http://localhost:5000/api/admin/products', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/products`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -98,7 +98,7 @@ export default function ProductsManagement() {
       }
     } catch (error) {
       console.error('❌ Erro ao conectar com backend:', error)
-      console.log('⚠️ Certifique-se de que o backend está rodando em http://localhost:5000')
+      console.log('⚠️ Certifique-se de que o backend está rodando')
       setProducts([])
     } finally {
       setLoading(false)

@@ -95,13 +95,19 @@ export const useCartStore = create<CartState>()(
           const sessionId = get().getSessionId();
           const userId = localStorage.getItem('userId'); // Or from auth store
           
+          console.log('🛒 FetchCart - Buscando carrinho:', { userId, sessionId });
+          
           const params = userId ? { userId } : { sessionId };
           const response = await api.get('/api/cart', { params });
+          
+          console.log('🛒 FetchCart - Resposta:', response.data);
           
           set({ cart: response.data, isLoading: false });
         } catch (error: any) {
           console.error('Error fetching cart:', error);
+          // Se der erro, limpar o carrinho para evitar inconsistência
           set({ 
+            cart: { id: '', items: [], total: 0, itemCount: 0 },
             error: error.response?.data?.error || 'Erro ao carregar carrinho',
             isLoading: false 
           });
@@ -239,6 +245,8 @@ export const useCartStore = create<CartState>()(
       name: 'cart-storage',
       partialize: (state) => ({
         sessionId: state.sessionId,
+        // Também persistir o carrinho para evitar inconsistências visuais
+        cart: state.cart,
       }),
     }
   )

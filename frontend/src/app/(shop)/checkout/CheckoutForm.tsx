@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCartStore } from '../../../store/cartStore';
 import { useAuthStore } from '../../../store/authStore';
 import Input from '../../../components/ui/Input';
-import Button from '../../../components/ui/Button';
+import { Button } from '../../../components/ui/Button';
 import { formatPrice } from '../../../lib/utils';
 
 export default function CheckoutForm() {
@@ -218,7 +218,7 @@ export default function CheckoutForm() {
             </label>
           </div>
 
-          <Button onClick={() => setStep(2)} variant="primary" size="lg" fullWidth>
+          <Button onClick={() => setStep(2)} variant="default" size="lg" className="w-full">
             Continuar para Entrega
           </Button>
         </div>
@@ -279,7 +279,7 @@ export default function CheckoutForm() {
             </div>
           </div>
 
-          <Button onClick={() => setStep(3)} variant="primary" size="lg" fullWidth>
+          <Button onClick={() => setStep(3)} variant="default" size="lg" className="w-full">
             Continuar para Pagamento
           </Button>
         </div>
@@ -417,9 +417,9 @@ export default function CheckoutForm() {
           <Button
             onClick={handleSubmitOrder}
             loading={loading}
-            variant="primary"
+            variant="default"
             size="lg"
-            fullWidth
+            className="w-full"
           >
             {loading ? 'Processando...' : 'Finalizar Pedido'}
           </Button>
@@ -443,7 +443,7 @@ export default function CheckoutForm() {
                 <p className="text-xs text-gray-600">Qtd: {item.quantity}</p>
               </div>
               <p className="text-sm font-medium text-gray-900">
-                {formatPrice(item.price * item.quantity)}
+                {formatPrice((item.product?.price || 0) * item.quantity)}
               </p>
             </div>
           ))}

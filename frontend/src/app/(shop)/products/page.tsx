@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ProductGrid from '@/components/product/ProductGrid'
 import CategoryFloatingActions from '@/components/CategoryFloatingActions'
@@ -66,7 +66,7 @@ const categoryNames: Record<string, string> = {
   'unissex': 'Unissex'
 }
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState<any[]>([])
@@ -86,7 +86,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       console.log('🔄 Buscando produtos do backend...')
-      const response = await fetch('http://localhost:5000/api/products')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`)
       
       if (response.ok) {
         const result = await response.json()
@@ -112,7 +112,7 @@ export default function ProductsPage() {
       }
     } catch (error) {
       console.error('❌ Erro ao buscar produtos:', error)
-      console.log('⚠️ Verifique se o backend está rodando em http://localhost:5000')
+      console.log('⚠️ Verifique se o backend está rodando')
       setProducts([])
     } finally {
       setLoading(false)
@@ -239,5 +239,28 @@ export default function ProductsPage() {
       
       <CategoryFloatingActions />
     </div>
+  )
+}
+
+// Loading fallback component
+function ProductsLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Main export with Suspense boundary
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<ProductsLoading />}>
+      <ProductsContent />
+    </Suspense>
   )
 }

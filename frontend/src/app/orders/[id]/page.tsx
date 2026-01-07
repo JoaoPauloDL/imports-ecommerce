@@ -66,7 +66,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
       
       const token = localStorage.getItem('token')
       
-      const response = await fetch(`http://localhost:5000/api/orders/${params.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${params.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -96,7 +96,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
       setCancelling(true)
       const token = localStorage.getItem('token')
       
-      const response = await fetch(`http://localhost:5000/api/orders/${params.id}/cancel`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${params.id}/cancel`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

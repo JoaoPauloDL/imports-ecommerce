@@ -66,7 +66,7 @@ export default function EditProductPage() {
   const fetchProduct = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/admin/products/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/products/${productId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -115,7 +115,7 @@ export default function EditProductPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/categories')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`)
       if (response.ok) {
         const data = await response.json()
         if (Array.isArray(data)) {
@@ -162,7 +162,7 @@ export default function EditProductPage() {
       console.log('📤 Enviando dados do produto:', productData)
       console.log('📤 categoryIds no productData:', productData.categoryIds)
 
-      const response = await fetch(`http://localhost:5000/api/admin/products/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

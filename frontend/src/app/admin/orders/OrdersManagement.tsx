@@ -47,7 +47,7 @@ export default function OrdersManagement() {
         params.append('status', filterStatus);
       }
 
-      const response = await fetch(`http://localhost:5000/api/admin/orders?${params}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/orders?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -79,7 +79,7 @@ export default function OrdersManagement() {
 
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

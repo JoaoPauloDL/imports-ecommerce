@@ -34,7 +34,7 @@ export default function CategoriesManagement() {
   const fetchCategories = async () => {
     try {
       console.log('🔄 Buscando categorias...')
-      const response = await fetch('http://localhost:5000/api/categories')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`)
       
       if (response.ok) {
         const data = await response.json()
@@ -71,7 +71,7 @@ export default function CategoriesManagement() {
     setCreating(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/categories', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -105,7 +105,7 @@ export default function CategoriesManagement() {
 
   const toggleCategoryStatus = async (categoryId: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/categories/${categoryId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/${categoryId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -292,7 +292,7 @@ export default function CategoriesManagement() {
             </div>
             <p>Nenhuma categoria encontrada</p>
             <p className="text-sm text-gray-400 mt-1">
-              ⚠️ Verifique se o backend está rodando em http://localhost:5000
+              ⚠️ Verifique se o backend está rodando
             </p>
             <button 
               onClick={fetchCategories}
@@ -353,7 +353,7 @@ export default function CategoriesManagement() {
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <h3 className="text-sm font-semibold mb-2 text-blue-800">✅ Status do Sistema:</h3>
         <div className="text-xs space-y-1 text-blue-700">
-          <p>🔗 Backend: <a href="http://localhost:5000/health" target="_blank" className="underline">http://localhost:5000</a></p>
+          <p>🔗 Backend conectado</p>
           <p>📊 Categorias carregadas: {categories.length}</p>
           <p>🔄 Última atualização: {new Date().toLocaleTimeString()}</p>
           <p>🛍️ Essas são as categorias de perfumes que você implementou!</p>

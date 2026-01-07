@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -98,9 +99,11 @@ export default function WishlistPage() {
               <p className="text-gray-600 mb-6">
                 Explore nossos produtos e clique no ícone de coração para salvar seus favoritos!
               </p>
-              <Button href="/products" variant="primary">
-                Ver Produtos
-              </Button>
+              <Link href="/products">
+                <Button variant="default">
+                  Ver Produtos
+                </Button>
+              </Link>
             </div>
           </div>
         ) : (

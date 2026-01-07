@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Star, Send } from 'lucide-react';
+import Link from 'next/link';
 import StarRating from './StarRating';
 import { Button } from '../ui/Button';
 import { useAuthStore } from '@/store/authStore';
@@ -58,9 +59,11 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
         <p className="text-gray-600 mb-4">
           Faça login para avaliar este produto
         </p>
-        <Button href="/login" variant="primary">
-          Fazer Login
-        </Button>
+        <Link href="/login">
+          <Button variant="default">
+            Fazer Login
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -101,7 +104,7 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
 
       <Button
         type="submit"
-        variant="primary"
+        variant="default"
         disabled={isSubmitting || rating === 0}
         className="w-full"
       >

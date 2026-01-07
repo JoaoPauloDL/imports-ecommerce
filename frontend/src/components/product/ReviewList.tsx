@@ -203,7 +203,7 @@ export default function ReviewList({ productId, refreshTrigger = 0 }: ReviewList
                   <div className="flex gap-2">
                     <Button
                       onClick={() => handleUpdate(review.id)}
-                      variant="primary"
+                      variant="default"
                       size="sm"
                     >
                       Salvar

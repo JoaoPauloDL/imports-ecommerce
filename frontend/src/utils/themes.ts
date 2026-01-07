@@ -84,15 +84,18 @@ async function buildDynamicThemes() {
     const categories = await getActiveCategories()
     const dynamicThemes: Record<string, any> = { ...pageThemes }
 
-    // Adicionar temas das categorias dinâmicas
+    // Adicionar temas das categorias dinâmicas (usa pageThemes como fallback)
     categories.forEach(category => {
-      dynamicThemes[category.slug] = {
-        primary: category.theme.primary,
-        secondary: category.theme.secondary,
-        accent: category.theme.accent,
-        text: category.theme.text,
-        name: category.name,
-        description: category.description
+      // Se o tema já existe em pageThemes, usa ele; senão usa o default
+      if (!dynamicThemes[category.slug]) {
+        dynamicThemes[category.slug] = {
+          primary: pageThemes.default.primary,
+          secondary: pageThemes.default.secondary,
+          accent: pageThemes.default.accent,
+          text: pageThemes.default.text,
+          name: category.name,
+          description: category.description || ''
+        }
       }
     })
 

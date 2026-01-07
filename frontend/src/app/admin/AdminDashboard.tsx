@@ -57,7 +57,7 @@ export default function AdminDashboard() {
 
       // Buscar estatísticas
       console.log('📊 Buscando estatísticas...')
-      const statsResponse = await fetch('http://localhost:5000/api/admin/dashboard', { headers })
+      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, { headers })
       
       if (!statsResponse.ok) {
         throw new Error(`Stats request failed: ${statsResponse.status}`)
