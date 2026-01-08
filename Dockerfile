@@ -5,10 +5,13 @@ WORKDIR /app
 
 # Copiar apenas o backend (evita copiar frontend)
 COPY backend/package*.json ./backend/
-RUN cd backend && npm install --production
+RUN cd backend && npm install
 
 # Copiar o código do backend
 COPY backend ./backend
+
+# Gerar Prisma client
+RUN cd backend && npx prisma generate
 
 # Variáveis de ambiente
 ENV NODE_ENV=production
