@@ -1,18 +1,19 @@
-# Build stage
-FROM node:18-alpine AS builder
+FROM node:18-alpine
+
 WORKDIR /app
+
+# Copiar package do backend
 COPY backend/package*.json ./
+
+# Instalar dependências
 RUN npm install
+
+# Copiar todo o código do backend
 COPY backend .
 
-# Production stage
-FROM node:18-alpine
-WORKDIR /app
-
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app /app
-
+# Variáveis de ambiente
 ENV NODE_ENV=production
 EXPOSE 5000
 
+# Rodar o backend
 CMD ["node", "app.js"]

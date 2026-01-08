@@ -7,7 +7,6 @@
   "deploy": {
     "numReplicas": 1,
     "sleepApplication": false,
-    "restartPolicyMaxRetries": 10,
-    "startCommand": "cd backend && node app.js"
+    "restartPolicyMaxRetries": 10
   }
 }
