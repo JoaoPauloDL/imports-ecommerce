@@ -1,34 +1,18 @@
-# Build backend
-FROM node:18-alpine AS backend-builder
-WORKDIR /app/backend
+# Build stage
+FROM node:18-alpine AS builder
+WORKDIR /app
 COPY backend/package*.json ./
 RUN npm install
 COPY backend .
-RUN npm run build 2>/dev/null || true
 
-# Build frontend
-FROM node:18-alpine AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend .
-RUN npm run build
-
-# Final image - roda frontend (Next.js) como main
+# Production stage
 FROM node:18-alpine
 WORKDIR /app
 
-# Copy backend
-COPY --from=backend-builder /app/backend ./backend
-WORKDIR /app/backend
-RUN npm install --production
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app /app
 
-# Copy frontend
-COPY --from=frontend-builder /app/frontend /app/frontend
-
-# Voltar para backend como main
-WORKDIR /app/backend
-
+ENV NODE_ENV=production
 EXPOSE 5000
 
 CMD ["node", "app.js"]
