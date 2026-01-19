@@ -68,7 +68,7 @@ export default function RootLayout({
   const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="overflow-x-hidden">
       <head>
         {/* Google Analytics */}
         {GA_MEASUREMENT_ID && (
@@ -90,7 +90,7 @@ export default function RootLayout({
           </>
         )}
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} overflow-x-hidden`}>
         <ErrorBoundary>
           <AuthProvider>
             <div className="min-h-screen bg-background flex flex-col">
