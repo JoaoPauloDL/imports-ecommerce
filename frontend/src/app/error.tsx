@@ -12,16 +12,6 @@ export default function Error({
   useEffect(() => {
     // Log do erro
     console.error('❌ Erro na aplicação:', error)
-    
-    // Enviar para analytics/Sentry se configurado
-    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-      try {
-        const Sentry = require('@sentry/nextjs')
-        Sentry.captureException(error)
-      } catch (e) {
-        console.log('Sentry não disponível')
-      }
-    }
   }, [error])
 
   return (

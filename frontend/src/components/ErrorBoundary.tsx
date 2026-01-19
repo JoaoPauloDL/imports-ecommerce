@@ -23,21 +23,6 @@ export default class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('❌ Erro capturado pelo ErrorBoundary:', error, errorInfo)
-    
-    // Enviar para Sentry se configurado
-    if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
-      // Sentry será inicializado no _app ou layout
-      try {
-        const Sentry = require('@sentry/nextjs')
-        Sentry.captureException(error, {
-          extra: {
-            componentStack: errorInfo.componentStack
-          }
-        })
-      } catch (e) {
-        console.log('Sentry não disponível')
-      }
-    }
   }
 
   render() {

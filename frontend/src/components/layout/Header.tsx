@@ -404,7 +404,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="w-20 h-8"></div>
-            )}}
+            )}
 
             {/* Mobile menu button - Mais elegante */}
             <button
