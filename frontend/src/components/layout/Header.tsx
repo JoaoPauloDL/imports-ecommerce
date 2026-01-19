@@ -397,14 +397,14 @@ export default function Header() {
                 </Link>
                 <Link 
                   href="/register" 
-                  className="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium hover:from-amber-600 hover:to-amber-700 rounded-full transition-all duration-300 uppercase text-sm tracking-wide shadow-md hover:shadow-lg"
+                  className="hidden sm:block px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium hover:from-amber-600 hover:to-amber-700 rounded-full transition-all duration-300 uppercase text-sm tracking-wide shadow-md hover:shadow-lg"
                 >
                   Cadastrar
                 </Link>
               </div>
             ) : (
               <div className="w-20 h-8"></div>
-            )}
+            )}}
 
             {/* Mobile menu button - Mais elegante */}
             <button
