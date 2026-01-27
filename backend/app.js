@@ -3464,40 +3464,20 @@ app.post('/api/shipping/calculate', async (req, res) => {
     const productMap = {};
     realProducts.forEach(p => {
       productMap[p.id] = {
-        weight: p.weight ? parseFloat(p.weight) : 0.5,
-        height: p.height ? parseFloat(p.height) : 10,
-        width: p.width ? parseFloat(p.width) : 15,
-        length: p.length ? parseFloat(p.length) : 20,
+        weight: p.weight ? parseFloat(p.weight) : 0.35,
+        height: p.height ? parseFloat(p.height) : 15,
+        width: p.width ? parseFloat(p.width) : 10,
+        length: p.length ? parseFloat(p.length) : 6,
+        price: p.price ? parseFloat(p.price) : 100,
         value: p.price ? parseFloat(p.price) : 100
       };
     });
     
-    // Se não tiver token do Melhor Envio, retornar valores fixos de exemplo
+    // Se não tiver token do Melhor Envio, retornar erro
     if (!process.env.MELHOR_ENVIO_TOKEN) {
-      console.log('⚠️ Melhor Envio não configurado, usando valores de exemplo');
-      return res.json({
-        options: [
-          {
-            id: 'pac',
-            name: 'PAC (Correios)',
-            price: 15.90,
-            deliveryTime: '7-10 dias úteis',
-            company: {
-              name: 'Correios',
-              picture: ''
-            }
-          },
-          {
-            id: 'sedex',
-            name: 'SEDEX (Correios)',
-            price: 25.90,
-            deliveryTime: '2-4 dias úteis',
-            company: {
-              name: 'Correios',
-              picture: ''
-            }
-          }
-        ]
+      console.error('❌ ERRO: Token do Melhor Envio não configurado!');
+      return res.status(500).json({ 
+        error: 'Serviço de frete não disponível. Entre em contato com o suporte.' 
       });
     }
     
@@ -3507,9 +3487,9 @@ app.post('/api/shipping/calculate', async (req, res) => {
     // Calcular dimensões e peso totais dos produtos
     // Soma pesos, usa maior dimensão de cada eixo
     let totalWeight = 0;
-    let maxHeight = 10;
-    let maxWidth = 15;
-    let maxLength = 20;
+    let maxHeight = 15;
+    let maxWidth = 10;
+    let maxLength = 6;
     let totalValue = 0;
     
     if (items && items.length > 0) {
@@ -3525,21 +3505,21 @@ app.post('/api/shipping/calculate', async (req, res) => {
           maxLength = Math.max(maxLength, productData.length);
           totalValue += productData.value * quantity;
         } else {
-          // Usar valores do item ou defaults
-          totalWeight += (item.weight || 0.5) * quantity;
-          maxHeight = Math.max(maxHeight, item.height || 10);
-          maxWidth = Math.max(maxWidth, item.width || 15);
-          maxLength = Math.max(maxLength, item.length || 20);
+          // Usar padrão de perfume
+          totalWeight += 0.35 * quantity;
+          maxHeight = Math.max(maxHeight, 15);
+          maxWidth = Math.max(maxWidth, 10);
+          maxLength = Math.max(maxLength, 6);
           totalValue += (item.value || 100) * quantity;
         }
       });
     } else {
-      totalWeight = 0.5;
+      totalWeight = 0.35;
       totalValue = 100;
     }
     
-    // Garantir peso mínimo de 0.3kg
-    totalWeight = Math.max(totalWeight, 0.3);
+    // Garantir peso mínimo de 0.3kg (já usamos 0.35)
+    totalWeight = Math.max(totalWeight, 0.35);
     
     console.log(`📦 Dimensões calculadas: ${maxHeight}x${maxWidth}x${maxLength}cm, ${totalWeight}kg, R$${totalValue}`);
     
