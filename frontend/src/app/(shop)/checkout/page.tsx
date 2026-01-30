@@ -541,12 +541,12 @@ export default function CheckoutPage() {
                           <div className="ml-3">
                             <p className="font-medium text-gray-900">{option.name}</p>
                             <p className="text-sm text-gray-500">
-                              {option.company || 'Transportadora'}
+                              {option.company?.name || option.company || 'Transportadora'}
                             </p>
-                            <p className="text-sm text-gray-500">{option.deliveryTime}</p>
+                            <p className="text-sm text-gray-500">{option.deliveryTime || 'Prazo não informado'}</p>
                           </div>
                         </div>
-                        <p className="font-semibold text-gray-900">R$ {option.price.toFixed(2)}</p>
+                        <p className="font-semibold text-gray-900">R$ {Number(option.price || 0).toFixed(2)}</p>
                       </label>
                     ))}
                   </div>
