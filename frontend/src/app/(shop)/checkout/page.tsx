@@ -541,7 +541,7 @@ export default function CheckoutPage() {
                           <div className="ml-3">
                             <p className="font-medium text-gray-900">{option.name}</p>
                             <p className="text-sm text-gray-500">
-                              {option.company?.name || option.company || 'Transportadora'}
+                              {typeof option.company === 'string' ? option.company : option.company?.name || 'Transportadora'}
                             </p>
                             <p className="text-sm text-gray-500">{option.deliveryTime || 'Prazo não informado'}</p>
                           </div>
