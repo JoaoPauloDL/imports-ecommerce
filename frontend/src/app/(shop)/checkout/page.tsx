@@ -20,7 +20,7 @@ const toast = {
 interface ShippingOption {
   id: string
   name: string
-  company: string
+  company: string | { name: string }
   price: number
   deliveryTime: string
 }
