@@ -287,10 +287,10 @@ export default function OrdersManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {formatPrice((order.totalAmount || 0) + (order.shippingCost || 0))}
+                        {formatPrice(order.totalAmount || 0)}
                       </div>
                       <div className="text-sm text-gray-500">
-                        + {formatPrice(order.shippingCost || 0)} frete
+                        frete grátis
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

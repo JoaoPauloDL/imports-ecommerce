@@ -6,15 +6,15 @@ export default function HelpPage() {
     },
     {
       question: "Qual o prazo de entrega?",
-      answer: "O prazo de entrega varia conforme sua região: Região Sudeste: 3-5 dias úteis, Região Sul: 4-6 dias úteis, Região Nordeste: 5-8 dias úteis, Região Norte: 7-10 dias úteis, Região Centro-Oeste: 5-7 dias úteis."
+      answer: "Os prazos de entrega via Correios (PAC) variam conforme sua região:\n• Região Sudeste: 8-12 dias úteis\n• Região Sul: 10-14 dias úteis\n• Região Nordeste: 12-16 dias úteis\n• Região Norte: 15-20 dias úteis\n• Região Centro-Oeste: 10-14 dias úteis\n\nO prazo é contado a partir da saída do pedido de nosso armazém. Você receberá o código de rastreamento por e-mail."
     },
     {
       question: "Posso trocar ou devolver um produto?",
       answer: "Sim! Você tem até 7 dias após o recebimento para trocar ou devolver qualquer produto, desde que esteja na embalagem original e lacrada. O frete de devolução é por nossa conta."
     },
     {
-      question: "A partir de qual valor o frete é grátis?",
-      answer: "O frete é grátis para todo o Brasil em compras acima de R$ 300,00. Abaixo deste valor, o frete é calculado conforme o CEP de destino."
+      question: "Qual é o valor do frete?",
+      answer: "O frete é 100% grátis para todo o Brasil! Não há taxas adicionais de envio para nenhuma região."
     },
     {
       question: "Como posso rastrear meu pedido?",

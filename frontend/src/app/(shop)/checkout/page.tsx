@@ -102,6 +102,13 @@ export default function CheckoutPage() {
     }
   }, [user])
 
+  // Inicializar frete grátis automaticamente
+  useEffect(() => {
+    if (zipCode.length === 8 && shippingOptions.length === 0) {
+      calculateShipping(zipCode)
+    }
+  }, [zipCode])
+
   useEffect(() => {
     console.log('🛒 Estado do carrinho:', { cart, items, itemsLength: items.length, isAuthenticated, isInitializing })
   }, [cart, items, isAuthenticated, isInitializing])
@@ -136,78 +143,19 @@ export default function CheckoutPage() {
   }
 
   const calculateShipping = async (zipCodeValue: string) => {
-    if (!items || items.length === 0) {
-      console.log('⚠️ Sem items para calcular frete')
-      toast.error('Carrinho vazio')
-      return
+    // FRETE GRÁTIS - Inicializar com opção grátis com prazo realista dos Correios
+    const freeShippingOption = {
+      id: 'free-shipping',
+      name: 'Frete Grátis',
+      price: 0,
+      deliveryTime: '8-20 dias úteis (varia por região)',
+      company: { name: 'Correios' }
     }
-
-    if (!zipCodeValue || zipCodeValue.length !== 8) {
-      console.log('⚠️ CEP inválido:', zipCodeValue)
-      toast.error('CEP inválido. Digite um CEP válido com 8 dígitos.')
-      return
-    }
-
-    try {
-      setLoadingShipping(true)
-      const token = tokens?.accessToken || localStorage.getItem('token')
-      
-      console.log('📦 Iniciando cálculo de frete')
-      console.log('📦 CEP:', zipCodeValue)
-      console.log('📦 Token presente:', !!token)
-      
-      // Mapear items de forma simples
-      const shippingItems = items.map(item => ({
-        weight: 0.5,
-        length: 20,
-        height: 10,
-        width: 15,
-        quantity: item.quantity || 1,
-        value: Number(item.product?.price || 100)
-      }))
-      
-      const payload = {
-        zipCode: zipCodeValue,
-        items: shippingItems
-      }
-      
-      console.log('📦 Enviando payload:', payload)
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shipping/calculate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      })
-      
-      console.log('📦 Status da resposta:', response.status)
-      
-      const data = await response.json()
-      console.log('📦 Dados recebidos:', data)
-      
-      // Backend sempre retorna options, mesmo em erro (fallback)
-      if (data.options && Array.isArray(data.options)) {
-        setShippingOptions(data.options)
-        if (data.options.length > 0) {
-          setSelectedShipping(data.options[0].id)
-          console.log('✅ Frete calculado com sucesso!')
-          toast.success(`${data.options.length} opções de frete disponíveis`)
-        } else {
-          console.log('⚠️ Nenhuma opção de frete retornada')
-          toast.error('Nenhuma opção de frete disponível para este CEP')
-        }
-      } else {
-        console.error('❌ Resposta inválida:', data)
-        toast.error(data.error || data.message || 'Erro ao calcular frete')
-      }
-    } catch (err) {
-      console.error('Erro ao calcular frete:', err)
-      toast.error('Erro ao calcular frete')
-    } finally {
-      setLoadingShipping(false)
-    }
+    
+    setShippingOptions([freeShippingOption])
+    setSelectedShipping(freeShippingOption.id)
+    console.log('✅ Frete grátis para todo o Brasil!')
+    toast.success('Frete grátis para todo o Brasil! (8-20 dias úteis conforme região)')
   }
 
   const handleFinishOrder = async () => {
@@ -287,7 +235,7 @@ export default function CheckoutPage() {
           price: Number(item.product.price)
         })),
         addressId: addressId,
-        shippingCost: shippingOptions.find(opt => opt.id === selectedShipping)?.price || 0,
+        // FRETE GRÁTIS - não enviar shippingCost
         paymentMethod: paymentMethod
       }
       console.log('📦 Payload do pedido:', orderPayload)
@@ -339,11 +287,7 @@ export default function CheckoutPage() {
     }
   }
 
-  const selectedShippingOption = shippingOptions.find(opt => opt.id === selectedShipping)
-  const shippingCost = selectedShippingOption?.price || 0
-  const totalWithShipping = cartTotal + shippingCost
-
-  const isFormValid = fullName && email && phone && zipCode && street && number && neighborhood && city && state && selectedShipping
+  const isFormValid = fullName && email && phone && zipCode && street && number && neighborhood && city && state
 
   if (isInitializing) {
     return (
@@ -495,61 +439,22 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Botão para calcular frete manualmente */}
-              {zipCode.length === 8 && !loadingShipping && shippingOptions.length === 0 && (
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => calculateShipping(zipCode)}
-                    className="btn-secondary w-full"
-                  >
-                    Calcular Frete
-                  </button>
+              {/* Frete Grátis - Automaticamente configurado */}
+              <div className="mt-4">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                  <p className="text-green-800 font-medium">✓ Frete Grátis para todo o Brasil!</p>
+                  <p className="text-sm text-green-700 mt-1">Prazo: 8-20 dias úteis (varia por região)*</p>
+                  <p className="text-xs text-green-600 mt-2">*Contado a partir da saída do pedido do armazém</p>
                 </div>
-              )}
+              </div>
 
-              {/* Opções de Frete */}
-              {loadingShipping && (
-                <div className="mt-4 text-center py-4">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-slate-800"></div>
-                  <p className="mt-2 text-sm text-gray-600">Calculando frete...</p>
-                </div>
-              )}
-
+              {/* Opções de Entrega */}
               {shippingOptions.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="font-medium text-gray-900 mb-3">Opções de Frete</h3>
-                  <div className="space-y-3">
-                    {shippingOptions.map((option) => (
-                      <label
-                        key={option.id}
-                        className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                          selectedShipping === option.id
-                            ? 'border-slate-800 bg-slate-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            name="shipping"
-                            value={option.id}
-                            checked={selectedShipping === option.id}
-                            onChange={(e) => setSelectedShipping(e.target.value)}
-                            className="w-4 h-4 text-slate-800"
-                          />
-                          <div className="ml-3">
-                            <p className="font-medium text-gray-900">{option.name}</p>
-                            <p className="text-sm text-gray-500">
-                              {typeof option.company === 'string' ? option.company : option.company?.name || 'Transportadora'}
-                            </p>
-                            <p className="text-sm text-gray-500">{option.deliveryTime || 'Prazo não informado'}</p>
-                          </div>
-                        </div>
-                        <p className="font-semibold text-gray-900">R$ {Number(option.price || 0).toFixed(2)}</p>
-                      </label>
-                    ))}
-                  </div>
+                <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="font-medium text-gray-900 mb-2">Entrega Grátis</h3>
+                  <p className="text-sm text-gray-600">
+                    Frete 100% grátis para todo o Brasil com prazo de 5-10 dias úteis
+                  </p>
                 </div>
               )}
             </div>
@@ -627,13 +532,11 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Frete</span>
-                  <span className="font-medium">
-                    {selectedShipping ? `R$ ${shippingCost.toFixed(2)}` : 'Calcular'}
-                  </span>
+                  <span className="font-medium text-green-600">Grátis</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2">
                   <span>Total</span>
-                  <span>R$ {totalWithShipping.toFixed(2)}</span>
+                  <span>R$ {cartTotal.toFixed(2)}</span>
                 </div>
               </div>
 

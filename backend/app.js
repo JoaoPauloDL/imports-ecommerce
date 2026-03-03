@@ -8,11 +8,11 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const crypto = require('crypto');
 const { v2: cloudinary } = require('cloudinary');
+const logger = require('./logger');
 const { sendOrderConfirmation, sendStatusUpdate, sendWelcomeEmail, sendEmailVerification, sendPasswordReset, sendContactEmail, sendNewOrderNotification } = require('./email.service');
 const { 
   generateVerificationToken, 
   sendVerificationEmail, 
-  sendWelcomeEmail: sendWelcomeEmailOld, 
   isEmailConfigured 
 } = require('./email-verification.service');
 require('dotenv').config();
@@ -30,15 +30,15 @@ if (process.env.SENTRY_DSN) {
       tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.2 : 1.0,
       integrations: [],
     });
-    console.log('✅ Sentry inicializado para monitoramento de erros');
+    logger.info('Sentry inicializado para monitoramento de erros');
   } catch (error) {
-    console.log('⚠️ Sentry não está instalado. Instale com: npm install @sentry/node');
+    logger.warn('Sentry não está instalado. Instale com: npm install @sentry/node');
   }
 }
 
 // Função helper para capturar erros no Sentry
 function captureError(error, context = {}) {
-  console.error('❌ Erro:', error.message);
+  logger.error('Erro', error);
   if (Sentry) {
     Sentry.captureException(error, { extra: context });
   }
@@ -70,8 +70,8 @@ const prisma = new PrismaClient();
 
 // JWT Configuration
 if (!process.env.JWT_SECRET) {
-  console.error('❌ ERRO CRÍTICO: JWT_SECRET não está definido no .env');
-  console.error('⚠️ Por segurança, o servidor não pode iniciar sem JWT_SECRET');
+  logger.error('ERRO CRÍTICO: JWT_SECRET não está definido no .env');
+  logger.error('Por segurança, o servidor não pode iniciar sem JWT_SECRET');
   process.exit(1);
 }
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -92,7 +92,7 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error('❌ Token inválido:', error.message);
+    logger.auth('Token inválido: ' + error.message);
     return res.status(401).json({ error: 'Token inválido ou expirado' });
   }
 };
@@ -153,7 +153,7 @@ app.use(cors({
         callback(new Error('Origem não permitida pelo CORS'));
       }
     } else {
-      console.warn(`⚠️ CORS: Origem bloqueada: ${origin}`);
+      logger.warn('CORS: Origem bloqueada: ' + origin);
       callback(new Error('Origem não permitida pelo CORS'));
     }
   },
@@ -163,13 +163,13 @@ app.use(cors({
 }));
 
 // Log das origens permitidas no startup
-console.log('🔒 CORS - Origens permitidas:', allowedOrigins);
+logger.info('CORS - Origens permitidas: ' + allowedOrigins.join(', '));
 
 app.use(express.json({ limit: '10mb' })); // Limite de tamanho do body
 
 // Middleware de logging
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  logger.debug(`${req.method} ${req.path}`);
   next();
 });
 
@@ -188,17 +188,17 @@ app.get('/health', (req, res) => {
 
 // Upload de múltiplas imagens
 app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), async (req, res) => {
-  console.log('🎯 Requisição de upload recebida!');
-  console.log('📋 Headers:', req.headers.authorization ? 'Token presente' : 'Token ausente');
-  console.log('📦 Arquivos recebidos:', req.files ? req.files.length : 0);
+  logger.debug('Requisição de upload recebida');
+  logger.debug('Token: ' + (req.headers.authorization ? 'presente' : 'ausente'));
+  logger.debug('Arquivos recebidos: ' + (req.files ? req.files.length : 0));
   
   try {
     if (!req.files || req.files.length === 0) {
-      console.log('⚠️  Nenhum arquivo foi enviado');
+      logger.warn('Nenhum arquivo foi enviado no upload');
       return res.status(400).json({ error: 'Nenhuma imagem foi enviada' });
     }
 
-    console.log(`📸 Upload de ${req.files.length} imagem(ns)...`);
+    logger.debug('Upload de ' + req.files.length + ' imagem(ns) em andamento');
 
     // Upload para Cloudinary
     const uploadPromises = req.files.map((file) => {
@@ -215,10 +215,10 @@ app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), asy
           },
           (error, result) => {
             if (error) {
-              console.error('❌ Erro no upload:', error);
+              logger.error('Erro no upload do Cloudinary', error);
               reject(error);
             } else {
-              console.log(`✅ Imagem enviada: ${result.secure_url}`);
+              logger.debug('Imagem enviada: ' + result.secure_url);
               resolve(result.secure_url);
             }
           }
@@ -235,7 +235,7 @@ app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), asy
       count: imageUrls.length
     });
   } catch (error) {
-    console.error('❌ Erro no upload:', error);
+    logger.error('Erro no upload de imagens', error);
     res.status(500).json({ 
       error: 'Erro ao fazer upload das imagens',
       message: error.message 
@@ -250,7 +250,7 @@ app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), asy
 // Listar categorias
 app.get('/api/categories', async (req, res) => {
   try {
-    console.log('📂 Buscando categorias no banco...');
+    logger.debug('Buscando categorias no banco');
     const categories = await prisma.category.findMany({
       where: { isActive: true },
       orderBy: { order: 'asc' },
@@ -268,10 +268,10 @@ app.get('/api/categories', async (req, res) => {
       }
     });
     
-    console.log(`✅ ${categories.length} categorias encontradas`);
+    logger.debug('Categorias encontradas: ' + categories.length);
     res.json(categories);
   } catch (error) {
-    console.error('❌ Erro ao buscar categorias:', error);
+    logger.error('Erro ao buscar categorias', error);
     res.status(500).json({ 
       error: 'Erro interno do servidor',
       message: error.message 
@@ -293,7 +293,7 @@ app.post('/api/admin/categories', async (req, res) => {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
-    console.log(`📂 Criando categoria: ${name}`);
+    logger.debug('Criando categoria: ' + name);
     
     const category = await prisma.category.create({
       data: {
@@ -305,10 +305,10 @@ app.post('/api/admin/categories', async (req, res) => {
       }
     });
 
-    console.log(`✅ Categoria criada: ${category.id}`);
+    logger.debug('Categoria criada: ' + category.id);
     res.status(201).json(category);
   } catch (error) {
-    console.error('❌ Erro ao criar categoria:', error);
+    logger.error('Erro ao criar categoria', error);
     if (error.code === 'P2002') {
       res.status(400).json({ error: 'Nome ou slug da categoria já existe' });
     } else {
@@ -324,7 +324,7 @@ app.post('/api/admin/categories', async (req, res) => {
 app.delete('/api/admin/categories/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(`🗑️ Deletando categoria ${id}...`);
+    logger.debug('Deletando categoria: ' + id);
     
     // Verificar se categoria existe
     const category = await prisma.category.findUnique({
@@ -352,10 +352,10 @@ app.delete('/api/admin/categories/:id', async (req, res) => {
       where: { id: id }
     });
 
-    console.log(`✅ Categoria ${id} deletada com sucesso`);
+    logger.debug('Categoria ' + id + ' deletada com sucesso');
     res.json({ message: 'Categoria deletada com sucesso' });
   } catch (error) {
-    console.error('❌ Erro ao deletar categoria:', error.message);
+    logger.error('Erro ao deletar categoria', error);
     if (error.code === 'P2025') {
       res.status(404).json({ error: 'Categoria não encontrada' });
     } else {
@@ -372,7 +372,7 @@ app.put('/api/admin/categories/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, imageUrl, order, isActive } = req.body;
-    console.log(`✏️ Atualizando categoria ${id}...`);
+    logger.debug('Atualizando categoria: ' + id);
 
     // Gerar slug automaticamente se o nome mudou
     const slug = name ? name.toLowerCase()
@@ -395,10 +395,10 @@ app.put('/api/admin/categories/:id', async (req, res) => {
       }
     });
 
-    console.log(`✅ Categoria ${id} atualizada: ${updated.name}`);
+    logger.debug('Categoria ' + id + ' atualizada: ' + updated.name);
     res.json(updated);
   } catch (error) {
-    console.error('❌ Erro ao atualizar categoria:', error.message);
+    logger.error('Erro ao atualizar categoria', error);
     if (error.code === 'P2025') {
       res.status(404).json({ error: 'Categoria não encontrada' });
     } else if (error.code === 'P2002') {
@@ -416,7 +416,7 @@ app.put('/api/admin/categories/:id', async (req, res) => {
 app.get('/api/admin/categories/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(`📂 Buscando categoria ${id}...`);
+    logger.debug('Buscando categoria: ' + id);
     
     const category = await prisma.category.findUnique({
       where: { id: id },
@@ -431,10 +431,10 @@ app.get('/api/admin/categories/:id', async (req, res) => {
       return res.status(404).json({ error: 'Categoria não encontrada' });
     }
 
-    console.log(`✅ Categoria ${id} encontrada: ${category.name}`);
+    logger.debug('Categoria ' + id + ' encontrada: ' + category.name);
     res.json(category);
   } catch (error) {
-    console.error('❌ Erro ao buscar categoria:', error.message);
+    logger.error('Erro ao buscar categoria', error);
     res.status(500).json({ error: 'Erro ao buscar categoria' });
   }
 });
@@ -522,9 +522,9 @@ app.get('/api/products', async (req, res) => {
       }
     }
 
-    console.log('📦 Buscando produtos no banco...');
-    console.log('🔍 Filtros:', JSON.stringify(where, null, 2));
-    console.log('📊 Ordenação:', JSON.stringify(orderBy));
+    logger.debug('Buscando produtos no banco');
+    logger.debug('Filtros: ' + JSON.stringify(where).substring(0, 100));
+    logger.debug('Ordenação: ' + JSON.stringify(orderBy));
     
     const products = await prisma.product.findMany({
       where,
@@ -544,7 +544,7 @@ app.get('/api/products', async (req, res) => {
 
     const total = await prisma.product.count({ where });
 
-    console.log(`✅ ${products.length} produtos encontrados (total: ${total})`);
+    logger.debug('Produtos encontrados: ' + products.length + ' de ' + total);
     
     // Formatar produtos com categorias
     const formattedProducts = products.map(product => ({
@@ -572,7 +572,7 @@ app.get('/api/products', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Erro ao buscar produtos:', error);
+    logger.error('Erro ao buscar produtos', error);
     res.status(500).json({ 
       error: 'Erro interno do servidor',
       message: error.message 
@@ -585,7 +585,7 @@ app.get('/api/products/:identifier', async (req, res) => {
   try {
     const { identifier } = req.params;
     
-    console.log(`📦 Buscando produto: ${identifier}`);
+    logger.debug('Buscando produto: ' + identifier);
     
     const product = await prisma.product.findFirst({
       where: {
@@ -606,10 +606,10 @@ app.get('/api/products/:identifier', async (req, res) => {
       return res.status(404).json({ error: 'Produto não encontrado' });
     }
 
-    console.log(`✅ Produto encontrado: ${product.name}`);
+    logger.debug('Produto encontrado: ' + product.name);
     res.json(product);
   } catch (error) {
-    console.error('❌ Erro ao buscar produto:', error);
+    logger.error('Erro ao buscar produto', error);
     res.status(500).json({ 
       error: 'Erro interno do servidor',
       message: error.message 
@@ -818,15 +818,8 @@ app.post('/api/admin/products', async (req, res) => {
     // Gerar SKU automaticamente se não fornecido
     const generatedSku = sku || `SKU-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-    console.log(`\n📦 ========= CRIANDO NOVO PRODUTO =========`);
-    console.log(`📝 Nome: ${name}`);
-    console.log(`💰 Preço: ${price}`);
-    console.log(`📂 CategoryIds recebido:`, categoryIds);
-    console.log(`📂 Tipo de categoryIds:`, typeof categoryIds);
-    console.log(`📂 É array?:`, Array.isArray(categoryIds));
-    console.log(`📂 Length:`, categoryIds?.length);
-    console.log(`🏷️ SKU: ${generatedSku}`);
-    console.log(`📦 Body completo:`, JSON.stringify(req.body, null, 2));
+    logger.debug('Criando novo produto: ' + name + ', preço: ' + price + ', SKU: ' + generatedSku);
+    logger.debug('Categorias recebidas: ' + (Array.isArray(categoryIds) ? categoryIds.length + ' categoria(s)' : 'nenhuma'));
 
     // Criar o produto
     const product = await prisma.product.create({
@@ -876,13 +869,13 @@ app.post('/api/admin/products', async (req, res) => {
       }
     });
 
-    console.log(`✅ Produto criado: ${product.id} com ${fullProduct.categories.length} categorias`);
+    logger.debug('Produto criado: ' + product.id + ' com ' + fullProduct.categories.length + ' categoria(s)');
     res.status(201).json({
       ...fullProduct,
       categories: fullProduct.categories.map(pc => pc.category)
     });
   } catch (error) {
-    console.error('❌ Erro ao criar produto:', error);
+    logger.error('Erro ao criar produto', error);
     if (error.code === 'P2002') {
       res.status(400).json({ error: 'SKU ou slug do produto já existe' });
     } else {
@@ -898,7 +891,7 @@ app.post('/api/admin/products', async (req, res) => {
 app.get('/api/admin/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(`📦 Buscando produto ${id}...`);
+    logger.debug('Buscando produto para edição: ' + id);
     
     const product = await prisma.product.findUnique({
       where: { id: id },
@@ -1276,7 +1269,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Email e senha são obrigatórios' });
     }
     
-    console.log(`🔐 Tentativa de login: ${email}`);
+    logger.auth('Tentativa de login: ' + email);
     
     // Buscar usuário no banco
     const user = await prisma.user.findUnique({
@@ -1292,7 +1285,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     });
 
     if (!user || !user.isActive) {
-      console.log('❌ Usuário não encontrado ou inativo');
+      logger.auth('Usuário não encontrado ou inativo');
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
@@ -1300,7 +1293,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     
     if (!passwordMatch) {
-      console.log('❌ Senha incorreta');
+      logger.auth('Senha incorreta para: ' + email);
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
@@ -1317,7 +1310,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     });
 
     if (!fullUser.emailVerified) {
-      console.log('⚠️ Login bloqueado - Email não verificado');
+      logger.auth('Login bloqueado - Email não verificado: ' + email);
       return res.status(403).json({ 
         error: 'Email não verificado',
         message: 'Por favor, verifique seu email antes de fazer login. Verifique sua caixa de entrada e spam.',
@@ -1923,7 +1916,7 @@ app.post('/api/cart/add', async (req, res) => {
   try {
     const { userId, sessionId, productId, quantity = 1 } = req.body;
     
-    console.log(`🛒 Adicionando ao carrinho - produto: ${productId}, qtd: ${quantity}`);
+    logger.debug('Adicionando ao carrinho - produto: ' + productId + ', qtd: ' + quantity);
     
     if (!userId && !sessionId) {
       return res.status(400).json({ error: 'userId ou sessionId é obrigatório' });
@@ -2045,7 +2038,7 @@ app.put('/api/cart/update', async (req, res) => {
   try {
     const { userId, sessionId, productId, quantity } = req.body;
     
-    console.log(`🛒 Atualizando carrinho - produto: ${productId}, nova qtd: ${quantity}`);
+    logger.debug('Atualizando carrinho - produto: ' + productId + ', nova qtd: ' + quantity);
     
     if (!userId && !sessionId) {
       return res.status(400).json({ error: 'userId ou sessionId é obrigatório' });
@@ -2413,10 +2406,11 @@ app.post('/api/cart/merge', async (req, res) => {
 // Criar pedido do carrinho
 app.post('/api/orders', verifyToken, async (req, res) => {
   try {
-    const { addressId, items, shippingCost = 0 } = req.body;
+    // FRETE GRÁTIS - remover parâmetro shippingCost
+    const { addressId, items } = req.body;
     const userId = req.user.userId;
     
-    console.log(`📦 Criando pedido para usuário: ${userId}`);
+    logger.order('Criando pedido para usuário: ' + userId);
     
     if (!addressId) {
       return res.status(400).json({ error: 'Endereço é obrigatório' });
@@ -2481,14 +2475,14 @@ app.post('/api/orders', verifyToken, async (req, res) => {
       // Gerar número do pedido único
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      // Criar pedido
+      // Criar pedido (FRETE GRÁTIS - sempre 0)
       const order = await tx.order.create({
         data: {
           userId,
           addressId,
           status: 'pending',
-          totalAmount: total + parseFloat(shippingCost),
-          shippingCost: parseFloat(shippingCost),
+          totalAmount: total,
+          shippingCost: 0,
           orderNumber,
           items: {
             create: orderItems
@@ -2519,7 +2513,7 @@ app.post('/api/orders', verifyToken, async (req, res) => {
         await tx.cartItem.deleteMany({
           where: { cartId: cart.id }
         });
-        console.log('🛒 Carrinho limpo após pedido');
+        logger.debug('Carrinho limpo após pedido');
       }
 
       return order;
@@ -2558,7 +2552,7 @@ app.post('/api/orders', verifyToken, async (req, res) => {
       order: {
         ...result,
         totalAmount: parseFloat(result.totalAmount),
-        shippingCost: parseFloat(result.shippingCost)
+        shippingCost: 0
       }
     });
   } catch (error) {
@@ -3434,157 +3428,40 @@ app.get('/api/addresses/user/:userId', verifyToken, async (req, res) => {
 });
 
 // ====================
-// ROTAS DE FRETE
+// ROTAS DE FRETE - DESABILITADAS (FRETE GRÁTIS)
 // ====================
 
-// Calcular frete (Melhor Envio)
+// Rota obsoleta - retorna frete grátis para todo o Brasil
 app.post('/api/shipping/calculate', async (req, res) => {
   try {
-    const { zipCode, items, productIds } = req.body;
+    const { zipCode } = req.body;
     
-    if (!zipCode) {
-      return res.status(400).json({ error: 'CEP é obrigatório' });
-    }
+    console.log(`🚚 Frete grátis para todo o Brasil - CEP: ${zipCode}`);
     
-    console.log(`📦 Calculando frete para CEP: ${zipCode}`);
-    console.log(`📦 Items recebidos:`, items?.length || 0);
-    console.log(`📦 ProductIds recebidos:`, productIds?.length || 0);
-    
-    // Buscar dimensões reais dos produtos se tivermos IDs
-    let realProducts = [];
-    if (productIds && productIds.length > 0) {
-      realProducts = await prisma.product.findMany({
-        where: { id: { in: productIds } },
-        select: { id: true, weight: true, height: true, width: true, length: true, price: true }
-      });
-      console.log(`📦 Produtos encontrados com dimensões:`, realProducts.length);
-    }
-    
-    // Criar mapa de produtos por ID para lookup rápido
-    const productMap = {};
-    realProducts.forEach(p => {
-      productMap[p.id] = {
-        weight: p.weight ? parseFloat(p.weight) : 0.35,
-        height: p.height ? parseFloat(p.height) : 15,
-        width: p.width ? parseFloat(p.width) : 10,
-        length: p.length ? parseFloat(p.length) : 6,
-        price: p.price ? parseFloat(p.price) : 100,
-        value: p.price ? parseFloat(p.price) : 100
-      };
-    });
-    
-    // Se não tiver token do Melhor Envio, retornar erro
-    if (!process.env.MELHOR_ENVIO_TOKEN) {
-      console.error('❌ ERRO: Token do Melhor Envio não configurado!');
-      return res.status(500).json({ 
-        error: 'Serviço de frete não disponível. Entre em contato com o suporte.' 
-      });
-    }
-    
-    // Integração real com Melhor Envio
-    const axios = require('axios');
-    
-    // Calcular dimensões e peso totais dos produtos
-    // Soma pesos, usa maior dimensão de cada eixo
-    let totalWeight = 0;
-    let maxHeight = 15;
-    let maxWidth = 10;
-    let maxLength = 6;
-    let totalValue = 0;
-    
-    if (items && items.length > 0) {
-      items.forEach(item => {
-        const productData = item.productId ? productMap[item.productId] : null;
-        const quantity = item.quantity || 1;
-        
-        if (productData) {
-          // Usar dados reais do produto
-          totalWeight += productData.weight * quantity;
-          maxHeight = Math.max(maxHeight, productData.height);
-          maxWidth = Math.max(maxWidth, productData.width);
-          maxLength = Math.max(maxLength, productData.length);
-          totalValue += productData.value * quantity;
-        } else {
-          // Usar padrão de perfume
-          totalWeight += 0.35 * quantity;
-          maxHeight = Math.max(maxHeight, 15);
-          maxWidth = Math.max(maxWidth, 10);
-          maxLength = Math.max(maxLength, 6);
-          totalValue += (item.value || 100) * quantity;
-        }
-      });
-    } else {
-      totalWeight = 0.35;
-      totalValue = 100;
-    }
-    
-    // Garantir peso mínimo de 0.3kg (já usamos 0.35)
-    totalWeight = Math.max(totalWeight, 0.35);
-    
-    console.log(`📦 Dimensões calculadas: ${maxHeight}x${maxWidth}x${maxLength}cm, ${totalWeight}kg, R$${totalValue}`);
-    
-    const response = await axios.post(
-      'https://melhorenvio.com.br/api/v2/me/shipment/calculate',
-      {
-        from: {
-          postal_code: process.env.MELHOR_ENVIO_CEP_ORIGEM || '01310100'
-        },
-        to: {
-          postal_code: zipCode.replace(/\D/g, '')
-        },
-        products: [{
-          id: 'package',
-          width: maxWidth,
-          height: maxHeight,
-          length: maxLength,
-          weight: totalWeight,
-          insurance_value: totalValue,
-          quantity: 1
-        }]
-      },
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.MELHOR_ENVIO_TOKEN}`,
-          'User-Agent': 'David Importados (contato@davidimportados.com)'
-        }
-      }
-    );
-    
-    const options = response.data
-      .filter(option => !option.error) // Filtrar opções com erro
-      .map(option => ({
-        id: option.id?.toString() || option.name,
-        name: option.name,
-        price: parseFloat(option.price || option.custom_price || 0),
-        deliveryTime: `${option.delivery_time || option.delivery_range?.min || 5} dias úteis`,
-        company: option.company
-      }));
-    
-    console.log(`✅ ${options.length} opções de frete encontradas`);
-    res.json({ options });
-  } catch (error) {
-    console.error('❌ Erro ao calcular frete:', error.response?.data || error.message);
-    
-    // Retornar valores de fallback em caso de erro
+    // Retornar opção única de frete grátis com prazo padrão dos Correios
     res.json({
       options: [
         {
-          id: 'pac',
-          name: 'PAC (Correios)',
-          price: 15.90,
-          deliveryTime: '7-10 dias úteis',
+          id: 'free-shipping',
+          name: 'Frete Grátis',
+          price: 0,
+          deliveryTime: '8-20 dias úteis (varia por região)',
           company: {
             name: 'Correios',
             picture: ''
           }
-        },
+        }
+      ]
+    });
+  } catch (error) {
+    console.error('❌ Erro na rota de frete:', error.message);
+    res.json({
+      options: [
         {
-          id: 'sedex',
-          name: 'SEDEX (Correios)',
-          price: 25.90,
-          deliveryTime: '2-4 dias úteis',
+          id: 'free-shipping',
+          name: 'Frete Grátis',
+          price: 0,
+          deliveryTime: '8-20 dias úteis (varia por região)',
           company: {
             name: 'Correios',
             picture: ''
