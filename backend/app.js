@@ -2818,11 +2818,8 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       });
     }
 
-    if (!process.env.FRONTEND_URL) {
-      return res.status(500).json({ 
-        error: 'FRONTEND_URL não configurado no .env' 
-      });
-    }
+    // FRONTEND_URL com fallback para localhost em dev
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
     // SDK v2.0.15 - Nova sintaxe
     const { MercadoPagoConfig, Preference } = require('mercadopago');
@@ -2896,9 +2893,9 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       })),
       payer: payer,
       back_urls: {
-        success: `${process.env.FRONTEND_URL}/checkout/success?orderId=${orderId}`,
-        failure: `${process.env.FRONTEND_URL}/checkout/failure?orderId=${orderId}`,
-        pending: `${process.env.FRONTEND_URL}/checkout/pending?orderId=${orderId}`
+        success: `${frontendUrl}/checkout/success?orderId=${orderId}`,
+        failure: `${frontendUrl}/checkout/failure?orderId=${orderId}`,
+        pending: `${frontendUrl}/checkout/pending?orderId=${orderId}`
       },
       external_reference: orderId,
       statement_descriptor: statementDescriptor
