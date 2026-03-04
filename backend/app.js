@@ -2853,6 +2853,11 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       return res.status(404).json({ error: 'Pedido não encontrado' });
     }
 
+    // Segurança: usuário só pode pagar o próprio pedido
+    if (order.userId !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Acesso negado para este pedido' });
+    }
+
     if (!order.items || order.items.length === 0) {
       return res.status(400).json({ error: 'Pedido sem itens' });
     }
@@ -2876,6 +2881,12 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       }
     }
 
+    // Mercado Pago aceita no máximo 13 caracteres no statement_descriptor
+    const statementDescriptor = (process.env.MERCADO_PAGO_STATEMENT_DESCRIPTOR || 'DAVIDIMPORT')
+      .replace(/[^A-Za-z0-9 ]/g, '')
+      .trim()
+      .slice(0, 13) || 'DAVIDIMPORT';
+
     const body = {
       items: order.items.map(item => ({
         title: item.product.name,
@@ -2890,7 +2901,7 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
         pending: `${process.env.FRONTEND_URL}/checkout/pending?orderId=${orderId}`
       },
       external_reference: orderId,
-      statement_descriptor: 'DAVIDIMPORTADOS'
+      statement_descriptor: statementDescriptor
     };
 
     console.log('📋 Preferência a ser criada:', JSON.stringify(body, null, 2));

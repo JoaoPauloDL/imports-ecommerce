@@ -270,7 +270,14 @@ export default function CheckoutPage() {
       console.log('✅ Preferência criada:', paymentData)
 
       if (!paymentResponse.ok) {
-        throw new Error(paymentData.message || 'Erro ao criar pagamento')
+        const errorMessage =
+          paymentData?.message ||
+          paymentData?.error ||
+          paymentData?.details?.message ||
+          paymentData?.details?.cause?.[0]?.description ||
+          'Erro ao criar pagamento'
+
+        throw new Error(errorMessage)
       }
 
       console.log('🧹 Limpando carrinho...')
