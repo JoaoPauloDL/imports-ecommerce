@@ -263,7 +263,10 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ orderId: orderData.order.id })
+        body: JSON.stringify({
+          orderId: orderData.order.id,
+          paymentMethod
+        })
       })
 
       const paymentData = await paymentResponse.json()

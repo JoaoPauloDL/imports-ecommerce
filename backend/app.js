@@ -2807,7 +2807,7 @@ app.post('/api/orders/:id/cancel', verifyToken, async (req, res) => {
 // Criar preferência de pagamento
 app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderId, paymentMethod } = req.body;
     const userId = req.user.userId;
     
     console.log(`💳 Criando preferência de pagamento para pedido: ${orderId}`);
@@ -2884,6 +2884,48 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       .trim()
       .slice(0, 13) || 'DAVIDIMPORT';
 
+    const selectedPaymentMethod = typeof paymentMethod === 'string'
+      ? paymentMethod.toLowerCase()
+      : null;
+
+    const paymentMethodsBySelection = {
+      pix: {
+        default_payment_method_id: 'pix',
+        default_payment_type_id: 'bank_transfer',
+        excluded_payment_types: [
+          { id: 'credit_card' },
+          { id: 'debit_card' },
+          { id: 'ticket' }
+        ],
+        installments: 1
+      },
+      credit: {
+        default_payment_type_id: 'credit_card',
+        excluded_payment_types: [
+          { id: 'debit_card' },
+          { id: 'bank_transfer' },
+          { id: 'ticket' }
+        ]
+      },
+      debit: {
+        default_payment_type_id: 'debit_card',
+        excluded_payment_types: [
+          { id: 'credit_card' },
+          { id: 'bank_transfer' },
+          { id: 'ticket' }
+        ]
+      },
+      boleto: {
+        default_payment_type_id: 'ticket',
+        excluded_payment_types: [
+          { id: 'credit_card' },
+          { id: 'debit_card' },
+          { id: 'bank_transfer' }
+        ],
+        installments: 1
+      }
+    };
+
     const body = {
       items: order.items.map(item => ({
         title: item.product.name,
@@ -2900,6 +2942,10 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       external_reference: orderId,
       statement_descriptor: statementDescriptor
     };
+
+    if (selectedPaymentMethod && paymentMethodsBySelection[selectedPaymentMethod]) {
+      body.payment_methods = paymentMethodsBySelection[selectedPaymentMethod];
+    }
 
     console.log('📋 Preferência a ser criada:', JSON.stringify(body, null, 2));
 
