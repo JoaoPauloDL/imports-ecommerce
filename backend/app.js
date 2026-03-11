@@ -131,7 +131,7 @@ app.use('/api/', generalLimiter);
 // Configuração CORS para produção
 const allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-  : ['http://localhost:3000', 'http://localhost:5000', 'https://imports-ecommerce.vercel.app'];
+  : ['http://localhost:3000', 'http://localhost:5000', 'https://imports-ecommerce.vercel.app', 'https://davidimportados.com.br', 'https://www.davidimportados.com.br'];
 
 // Sempre permitir o FRONTEND_URL se configurado
 if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
