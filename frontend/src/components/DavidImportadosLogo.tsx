@@ -11,8 +11,8 @@ interface DavidImportadosLogoProps {
 }
 
 export default function DavidImportadosLogo({ 
-  width = 70, 
-  height = 70, 
+  width = 140, 
+  height = 140, 
   className = "",
   variant = 'default'
 }: DavidImportadosLogoProps) {
