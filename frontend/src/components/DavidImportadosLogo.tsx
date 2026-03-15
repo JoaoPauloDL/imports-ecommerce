@@ -11,8 +11,8 @@ interface DavidImportadosLogoProps {
 }
 
 export default function DavidImportadosLogo({ 
-  width = 140, 
-  height = 140, 
+  width = 200, 
+  height = 200, 
   className = "",
   variant = 'default'
 }: DavidImportadosLogoProps) {
@@ -24,7 +24,7 @@ export default function DavidImportadosLogo({
           alt="David Importados - Perfumaria"
           width={width}
           height={height}
-          className="transition-transform duration-300 group-hover:scale-105 object-contain"
+          className="transition-transform duration-300 group-hover:scale-105 object-contain h-20 w-auto"
           priority
         />
       </Link>
