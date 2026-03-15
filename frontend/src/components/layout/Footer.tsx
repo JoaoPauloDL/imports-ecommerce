@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -96,8 +97,14 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Company Info */}
             <div className="lg:col-span-1">
-              <Link href="/" className="flex items-center mb-4">
-                <span className="text-2xl font-bold text-white">DAVID <span className="text-amber-500">IMPORTADOS</span></span>
+              <Link href="/" className="flex items-center mb-4 group">
+                <Image
+                  src="/logo.png"
+                  alt="David Importados - Perfumaria"
+                  width={60}
+                  height={60}
+                  className="transition-transform duration-300 group-hover:scale-105 object-contain brightness-0 invert"
+                />
               </Link>
               <p className="text-gray-400 mb-4 text-sm">
                 Perfumaria de luxo com produtos 100% originais e importados.

@@ -51,6 +51,13 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Verificar configuração do Cloudinary
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.warn('⚠️  CLOUDINARY não configurado! Upload de imagens não funcionará.');
+} else {
+  console.log('✅ Cloudinary configurado:', process.env.CLOUDINARY_CLOUD_NAME);
+}
+
 // Configurar multer para upload em memória
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -193,6 +200,15 @@ app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), asy
   logger.debug('Arquivos recebidos: ' + (req.files ? req.files.length : 0));
   
   try {
+    // Verificar se Cloudinary está configurado
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      logger.error('Cloudinary não está configurado. Variáveis de ambiente ausentes.');
+      return res.status(500).json({ 
+        error: 'Serviço de upload não configurado',
+        message: 'Variáveis CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET são necessárias'
+      });
+    }
+
     if (!req.files || req.files.length === 0) {
       logger.warn('Nenhum arquivo foi enviado no upload');
       return res.status(400).json({ error: 'Nenhuma imagem foi enviada' });
@@ -215,7 +231,7 @@ app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), asy
           },
           (error, result) => {
             if (error) {
-              logger.error('Erro no upload do Cloudinary', error);
+              logger.error('Erro no upload do Cloudinary: ' + JSON.stringify(error));
               reject(error);
             } else {
               logger.debug('Imagem enviada: ' + result.secure_url);
@@ -235,7 +251,8 @@ app.post('/api/upload', verifyToken, verifyAdmin, upload.array('images', 5), asy
       count: imageUrls.length
     });
   } catch (error) {
-    logger.error('Erro no upload de imagens', error);
+    logger.error('Erro no upload de imagens: ' + error.message);
+    logger.error('Stack: ' + error.stack);
     res.status(500).json({ 
       error: 'Erro ao fazer upload das imagens',
       message: error.message 
@@ -1059,9 +1076,29 @@ app.delete('/api/admin/products/:id', async (req, res) => {
     
     console.log(`📦 Deletando produto: ${id}`);
     
-    await prisma.product.delete({
-      where: { id }
+    // Verificar se o produto tem pedidos associados
+    const orderItems = await prisma.orderItem.findFirst({
+      where: { productId: id }
     });
+
+    if (orderItems) {
+      // Produto tem pedidos - fazer soft delete para preservar histórico
+      await prisma.$transaction([
+        prisma.cartItem.deleteMany({ where: { productId: id } }),
+        prisma.product.update({
+          where: { id },
+          data: { isActive: false }
+        })
+      ]);
+      console.log(`✅ Produto desativado (tem pedidos): ${id}`);
+      return res.json({ message: 'Produto desativado com sucesso (possui pedidos associados)' });
+    }
+
+    // Sem pedidos - pode deletar completamente
+    await prisma.$transaction([
+      prisma.cartItem.deleteMany({ where: { productId: id } }),
+      prisma.product.delete({ where: { id } })
+    ]);
 
     console.log(`✅ Produto deletado: ${id}`);
     res.json({ message: 'Produto deletado com sucesso' });

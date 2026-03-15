@@ -1,24 +1,32 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface DavidImportadosLogoProps {
   width?: number
   height?: number
   className?: string
+  variant?: 'default' | 'light'
 }
 
 export default function DavidImportadosLogo({ 
-  width = 60, 
-  height = 80, 
-  className = "" 
+  width = 70, 
+  height = 70, 
+  className = "",
+  variant = 'default'
 }: DavidImportadosLogoProps) {
   return (
     <div className={`flex items-center ${className}`}>
-      <Link href="/" className="flex items-center">
-        <span className="text-2xl font-black tracking-tighter text-black">
-          DAVID <span className="text-amber-600">IMPORTADOS</span>
-        </span>
+      <Link href="/" className="flex items-center group">
+        <Image
+          src="/logo.png"
+          alt="David Importados - Perfumaria"
+          width={width}
+          height={height}
+          className="transition-transform duration-300 group-hover:scale-105 object-contain"
+          priority
+        />
       </Link>
     </div>
   )
