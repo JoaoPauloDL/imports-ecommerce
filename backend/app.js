@@ -959,6 +959,7 @@ app.put('/api/admin/products/:id', async (req, res) => {
       stockQuantity, 
       categoryIds, // Array de IDs das categorias
       imageUrl, 
+      images,      // Array de URLs de imagens
       featured,
       isActive,
       weight,    // Peso em kg
@@ -989,6 +990,7 @@ app.put('/api/admin/products/:id', async (req, res) => {
     if (sku !== undefined) updateData.sku = sku;
     if (stockQuantity !== undefined) updateData.stockQuantity = parseInt(stockQuantity);
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+    if (images !== undefined) updateData.images = images;
     if (featured !== undefined) updateData.featured = !!featured;
     if (isActive !== undefined) updateData.isActive = !!isActive;
     // Campos de dimensões para frete

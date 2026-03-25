@@ -149,7 +149,8 @@ export default function EditProductPage() {
         sku: formData.sku,
         stockQuantity: parseInt(formData.stockQuantity) || 0,
         categoryIds: formData.categoryIds, // Array de IDs
-        imageUrl: formData.imageUrl || null,
+        imageUrl: formData.images[0] || formData.imageUrl || null,
+        images: formData.images, // Array de imagens
         featured: formData.featured,
         isActive: formData.isActive,
         // Campos de dimensões para frete

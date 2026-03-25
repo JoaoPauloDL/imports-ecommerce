@@ -94,7 +94,7 @@ export default function NewProductPage() {
         sku: formData.sku,
         stockQuantity: parseInt(formData.stockQuantity) || 0,
         categoryIds: formData.categoryIds, // Array de categorias
-        imageUrl: formData.imageUrl,
+        imageUrl: formData.images[0] || formData.imageUrl,
         images: formData.images, // Array de imagens
         featured: formData.featured,
         // Campos de dimensões para frete
