@@ -257,6 +257,8 @@ export default function CheckoutPage() {
       }
 
       console.log('💳 Criando preferência de pagamento...')
+
+      // Checkout Pro: MercadoPago gerencia tudo (PIX, cartão, boleto)
       const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-preference`, {
         method: 'POST',
         headers: {
@@ -264,8 +266,7 @@ export default function CheckoutPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          orderId: orderData.order.id,
-          paymentMethod
+          orderId: orderData.order.id
         })
       })
 
@@ -276,10 +277,7 @@ export default function CheckoutPage() {
         const errorMessage =
           paymentData?.message ||
           paymentData?.error ||
-          paymentData?.details?.message ||
-          paymentData?.details?.cause?.[0]?.description ||
           'Erro ao criar pagamento'
-
         throw new Error(errorMessage)
       }
 
@@ -472,32 +470,13 @@ export default function CheckoutPage() {
             {/* Pagamento */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Forma de Pagamento</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { id: 'pix', name: 'PIX', icon: '🔄' },
-                  { id: 'credit', name: 'Crédito', icon: '💳' },
-                  { id: 'debit', name: 'Débito', icon: '💳' },
-                  { id: 'boleto', name: 'Boleto', icon: '📄' }
-                ].map((method) => (
-                  <button
-                    key={method.id}
-                    type="button"
-                    onClick={() => setPaymentMethod(method.id as any)}
-                    className={`p-4 border-2 rounded-lg text-center transition-colors ${
-                      paymentMethod === method.id
-                        ? 'border-slate-800 bg-slate-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">{method.icon}</div>
-                    <div className="text-sm font-medium">{method.name}</div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <img src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/badge-icon.png" alt="Mercado Pago" className="h-8" />
+                  <span className="font-semibold text-gray-900">Mercado Pago</span>
+                </div>
                 <p className="text-sm text-blue-700">
-                  ℹ️ Você será redirecionado para o Mercado Pago para finalizar o pagamento com segurança.
+                  Ao finalizar, você será direcionado ao Mercado Pago onde poderá escolher como pagar: PIX, cartão de crédito, débito, boleto — tudo com segurança e sem precisar de conta.
                 </p>
               </div>
             </div>

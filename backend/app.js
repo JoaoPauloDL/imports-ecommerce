@@ -2835,7 +2835,103 @@ app.post('/api/orders/:id/cancel', verifyToken, async (req, res) => {
 // ROTAS DE PAGAMENTO (MERCADOPAGO)
 // ====================
 
-// Criar preferência de pagamento
+// Criar pagamento PIX transparente (sem redirect para MercadoPago)
+app.post('/api/payment/create-pix', verifyToken, async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const userId = req.user.userId;
+    
+    console.log(`💳 Criando pagamento PIX para pedido: ${orderId}`);
+    
+    if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+      return res.status(500).json({ 
+        error: 'MercadoPago não configurado' 
+      });
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: { include: { product: true } },
+        user: true
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Pedido não encontrado' });
+    }
+
+    if (order.userId !== userId) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+
+    const totalAmount = parseFloat(order.totalAmount);
+
+    // Usar API de pagamentos direta do MercadoPago
+    const response = await fetch('https://api.mercadopago.com/v1/payments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+        'X-Idempotency-Key': `pix-${orderId}-${Date.now()}`
+      },
+      body: JSON.stringify({
+        transaction_amount: totalAmount,
+        description: `Pedido ${order.orderNumber || orderId}`,
+        payment_method_id: 'pix',
+        payer: {
+          email: order.user.email,
+          first_name: (order.user.fullName || order.user.email).split(' ')[0],
+          last_name: (order.user.fullName || '').split(' ').slice(1).join(' ') || 'Cliente'
+        },
+        external_reference: orderId
+      })
+    });
+
+    const paymentData = await response.json();
+    
+    if (!response.ok) {
+      console.error('❌ Erro MercadoPago PIX:', paymentData);
+      return res.status(500).json({ 
+        error: 'Erro ao gerar PIX',
+        message: paymentData.message || 'Erro na API do MercadoPago',
+        details: paymentData
+      });
+    }
+
+    console.log(`✅ PIX gerado: ${paymentData.id}`);
+
+    // Atualizar pedido com ID do pagamento
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { 
+        paymentId: paymentData.id.toString(),
+        status: 'AWAITING_PAYMENT'
+      }
+    });
+
+    const pixInfo = paymentData.point_of_interaction?.transaction_data;
+
+    res.json({
+      success: true,
+      paymentId: paymentData.id,
+      qrCode: pixInfo?.qr_code || null,
+      qrCodeBase64: pixInfo?.qr_code_base64 || null,
+      ticketUrl: pixInfo?.ticket_url || null,
+      expirationDate: paymentData.date_of_expiration || null,
+      totalAmount
+    });
+
+  } catch (error) {
+    console.error('❌ Erro ao criar PIX:', error);
+    res.status(500).json({ 
+      error: 'Erro ao processar pagamento PIX',
+      message: error.message
+    });
+  }
+});
+
+// Criar preferência de pagamento (para cartão, boleto - redireciona pro MercadoPago)
 app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
   try {
     const { orderId, paymentMethod } = req.body;
@@ -2915,47 +3011,6 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
       .trim()
       .slice(0, 13) || 'DAVIDIMPORT';
 
-    const selectedPaymentMethod = typeof paymentMethod === 'string'
-      ? paymentMethod.toLowerCase()
-      : null;
-
-    const paymentMethodsBySelection = {
-      pix: {
-        default_payment_type_id: 'bank_transfer',
-        excluded_payment_types: [
-          { id: 'credit_card' },
-          { id: 'debit_card' },
-          { id: 'ticket' }
-        ],
-        installments: 1
-      },
-      credit: {
-        default_payment_type_id: 'credit_card',
-        excluded_payment_types: [
-          { id: 'debit_card' },
-          { id: 'bank_transfer' },
-          { id: 'ticket' }
-        ]
-      },
-      debit: {
-        default_payment_type_id: 'debit_card',
-        excluded_payment_types: [
-          { id: 'credit_card' },
-          { id: 'bank_transfer' },
-          { id: 'ticket' }
-        ]
-      },
-      boleto: {
-        default_payment_type_id: 'ticket',
-        excluded_payment_types: [
-          { id: 'credit_card' },
-          { id: 'debit_card' },
-          { id: 'bank_transfer' }
-        ],
-        installments: 1
-      }
-    };
-
     const body = {
       items: order.items.map(item => ({
         title: item.product.name,
@@ -2969,13 +3024,10 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
         failure: `${frontendUrl}/checkout/failure?orderId=${orderId}`,
         pending: `${frontendUrl}/checkout/pending?orderId=${orderId}`
       },
+      auto_return: 'approved',
       external_reference: orderId,
       statement_descriptor: statementDescriptor
     };
-
-    if (selectedPaymentMethod && paymentMethodsBySelection[selectedPaymentMethod]) {
-      body.payment_methods = paymentMethodsBySelection[selectedPaymentMethod];
-    }
 
     console.log('📋 Preferência a ser criada:', JSON.stringify(body, null, 2));
 
