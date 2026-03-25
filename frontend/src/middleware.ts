@@ -43,8 +43,9 @@ export function middleware(request: NextRequest) {
   }
   
   // Se é rota admin e não é admin, redirecionar para home
-  if (isAdminRoute && userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
-    console.log('❌ Middleware - Rota admin mas usuário não é admin, redirecionando para home')
+  const normalizedRole = (userRole || '').toUpperCase()
+  if (isAdminRoute && normalizedRole !== 'ADMIN' && normalizedRole !== 'SUPER_ADMIN') {
+    console.log('❌ Middleware - Rota admin mas usuário não é admin, redirecionando para home. Role:', userRole)
     return NextResponse.redirect(new URL('/', request.url))
   }
   
