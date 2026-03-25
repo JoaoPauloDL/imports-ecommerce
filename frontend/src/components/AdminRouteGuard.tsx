@@ -37,7 +37,7 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
       const parsedUser = JSON.parse(userData)
       console.log('👤 Usuário parseado:', parsedUser)
       
-      if (parsedUser.role !== 'admin') {
+      if (parsedUser.role !== 'ADMIN' && parsedUser.role !== 'SUPER_ADMIN') {
         console.log('❌ Usuário NÃO é admin, redirecionando para home')
         router.push('/')
         setIsLoading(false)
