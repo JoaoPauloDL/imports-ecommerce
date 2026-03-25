@@ -2560,31 +2560,23 @@ app.post('/api/orders', verifyToken, async (req, res) => {
 
     console.log(`✅ Pedido criado: ${result.id} (${result.orderNumber})`);
     
-    // Enviar email de confirmação (async, não bloqueia resposta)
-    try {
-      await sendOrderConfirmation({
-        email: result.user.email,
-        customerName: result.user.fullName || result.user.email,
-        orderId: result.orderNumber || result.id,
-        total: parseFloat(result.totalAmount),
-        items: result.items.map(item => ({
-          name: item.product.name,
-          quantity: item.quantity,
-          price: parseFloat(item.price)
-        }))
-      });
-      console.log('📧 Email de confirmação enviado');
-    } catch (emailError) {
-      console.error('⚠️ Erro ao enviar email (pedido criado com sucesso):', emailError.message);
-    }
+    // Enviar emails em background (não bloqueia a resposta)
+    sendOrderConfirmation({
+      email: result.user.email,
+      customerName: result.user.fullName || result.user.email,
+      orderId: result.orderNumber || result.id,
+      total: parseFloat(result.totalAmount),
+      items: result.items.map(item => ({
+        name: item.product.name,
+        quantity: item.quantity,
+        price: parseFloat(item.price)
+      }))
+    }).then(() => console.log('📧 Email de confirmação enviado'))
+      .catch(emailError => console.error('⚠️ Erro ao enviar email (pedido criado com sucesso):', emailError.message));
     
-    // Notificar o admin sobre novo pedido
-    try {
-      await sendNewOrderNotification(result, result.user);
-      console.log('📧 Notificação de novo pedido enviada para admin');
-    } catch (adminEmailError) {
-      console.error('⚠️ Erro ao notificar admin:', adminEmailError.message);
-    }
+    sendNewOrderNotification(result, result.user)
+      .then(() => console.log('📧 Notificação de novo pedido enviada para admin'))
+      .catch(adminEmailError => console.error('⚠️ Erro ao notificar admin:', adminEmailError.message));
     
     res.status(201).json({
       success: true,
@@ -2929,7 +2921,6 @@ app.post('/api/payment/create-preference', verifyToken, async (req, res) => {
 
     const paymentMethodsBySelection = {
       pix: {
-        default_payment_method_id: 'pix',
         default_payment_type_id: 'bank_transfer',
         excluded_payment_types: [
           { id: 'credit_card' },
