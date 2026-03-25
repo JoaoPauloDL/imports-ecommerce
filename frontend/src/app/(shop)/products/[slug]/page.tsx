@@ -70,15 +70,23 @@ export default function ProductDetailPage() {
       const backendProduct = products[0]
       console.log('✅ Produto encontrado:', backendProduct)
       
+      // Montar array de imagens: prioridade para o array images, fallback para imageUrl
+      let productImages: string[] = []
+      if (backendProduct.images && Array.isArray(backendProduct.images) && backendProduct.images.length > 0) {
+        productImages = backendProduct.images
+      } else if (backendProduct.imageUrl) {
+        productImages = [backendProduct.imageUrl]
+      } else {
+        productImages = ['/api/placeholder/600/600']
+      }
+
       // Converter para formato da página
       const productData: Product = {
         id: backendProduct.id,
         name: backendProduct.name,
         price: Number(backendProduct.price),
         originalPrice: backendProduct.originalPrice ? Number(backendProduct.originalPrice) : undefined,
-        images: backendProduct.imageUrl 
-          ? [backendProduct.imageUrl, backendProduct.imageUrl, backendProduct.imageUrl, backendProduct.imageUrl]
-          : ['/api/placeholder/600/600', '/api/placeholder/600/600'],
+        images: productImages,
         category: backendProduct.categories?.[0]?.name || 'Geral',
         rating: 4.5 + Math.random() * 0.5,
         reviews: Math.floor(Math.random() * 200) + 50,
@@ -299,7 +307,12 @@ Características principais:
             </div>
 
             {/* Thumbnails */}
-            <div className="grid grid-cols-4 gap-2">
+            {product.images.length > 1 && (
+            <div className={`grid gap-2 ${
+              product.images.length === 2 ? 'grid-cols-2' : 
+              product.images.length === 3 ? 'grid-cols-3' : 
+              product.images.length === 4 ? 'grid-cols-4' : 'grid-cols-5'
+            }`}>
               {product.images.map((image, index) => (
                 <button
                   key={index}
@@ -323,8 +336,10 @@ Características principais:
                 </button>
               ))}
             </div>
+            )}
 
             {/* Indicador de posição */}
+            {product.images.length > 1 && (
             <div className="flex justify-center items-center gap-2">
               {product.images.map((_, index) => (
                 <button
@@ -338,6 +353,7 @@ Características principais:
                 />
               ))}
             </div>
+            )}
           </div>
 
           {/* Informações do Produto */}
